@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kimbell Cup Invitational — Scramble HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0E2A8C; --ink:#071647; --sky:#9DB8E0; --tint:#E9EFFA;
+    --red:#D5202F; --gold:#C9A227; --paper:#F5F7FC; --white:#fff;
+    --line:rgba(7,22,71,.14);
+    --shadow:0 2px 0 rgba(7,22,71,.06), 0 10px 30px -14px rgba(7,22,71,.45);
+    --display:'Oswald','Arial Narrow',sans-serif;
+    --body:'Barlow',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --num:'Barlow Semi Condensed','Barlow',sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--body);background:var(--paper);color:var(--ink);font-size:16px;line-height:1.45;padding-bottom:88px;overflow-x:hidden}
+  button{font-family:inherit;color:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+
+  .diamond{position:relative;display:inline-grid;place-items:center;width:34px;height:34px;flex:0 0 auto}
+  .diamond::before{content:"";position:absolute;inset:3px;background:var(--navy);border-radius:5px;transform:rotate(45deg)}
+  .diamond span{position:relative;font-family:var(--display);font-weight:600;color:#fff;font-size:15px;line-height:1}
+  .diamond.lead::before{background:var(--gold)}
+  .diamond.lead span{color:var(--ink)}
+  .diamond.ghost::before{background:none;border:2px solid var(--navy)}
+  .diamond.ghost span{color:var(--navy)}
+  .diamond.sm{width:26px;height:26px}
+  .diamond.sm span{font-size:11px}
+
+  header{background:var(--navy);color:#fff;padding:13px 15px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40;box-shadow:0 8px 24px -16px rgba(7,22,71,.9)}
+  header svg{flex:0 0 auto;display:block}
+  .brand h1{font-family:var(--display);font-weight:600;letter-spacing:.055em;font-size:16.5px;margin:0;text-transform:uppercase;line-height:1.05}
+  .brand p{margin:2px 0 0;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--sky);font-weight:500}
+  .yearsel{margin-left:auto;text-align:right}
+  .yearsel select{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;
+    font-family:var(--display);font-size:15px;letter-spacing:.05em;border-radius:9px;padding:6px 9px;
+  }
+  .yearsel select option{color:var(--ink)}
+  .yearsel .sub{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--sky);margin-top:3px}
+
+  main{max-width:640px;margin:0 auto;padding:15px 14px 8px}
+  .view{display:none;animation:fade .22s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  .card{background:var(--white);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid rgba(7,22,71,.05)}
+  .eyebrow{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--navy);opacity:.62;margin:0 0 9px}
+  h2.sec{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:20px;margin:0 0 4px}
+  h3.sub-sec{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:14px;margin:20px 0 9px;color:var(--navy)}
+  .muted{color:rgba(7,22,71,.55);font-size:13px}
+
+  .banner{border-radius:12px;padding:11px 14px;font-size:13px;font-weight:500;margin-bottom:13px;display:flex;gap:9px;align-items:flex-start}
+  .banner.final{background:rgba(201,162,39,.16);border:1px solid rgba(201,162,39,.5)}
+  .banner.warn{background:rgba(213,32,47,.08);border:1px solid rgba(213,32,47,.3);color:var(--red)}
+
+  .picker{display:grid;gap:8px}
+  .pick-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--white);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;font-size:14.5px;font-weight:500;transition:.16s}
+  .pick-btn:hover{border-color:var(--navy);background:var(--tint)}
+  .pick-btn .seed{font-family:var(--num);font-weight:700;font-size:12px;color:var(--navy);background:var(--tint);border-radius:6px;padding:3px 7px;margin-left:auto}
+
+  .hole-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+  .hole-num{font-family:var(--display);font-weight:700;font-size:58px;line-height:.82;color:var(--navy);letter-spacing:-.02em}
+  .hole-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .chip{font-family:var(--num);font-weight:600;font-size:12px;letter-spacing:.07em;text-transform:uppercase;background:var(--tint);color:var(--navy);padding:4px 9px;border-radius:999px}
+  .chip.red{background:rgba(213,32,47,.1);color:var(--red)}
+  .nav-arrows{margin-left:auto;display:flex;gap:8px}
+  .arrow{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--white);display:grid;place-items:center;font-size:20px;color:var(--navy);font-family:var(--display)}
+  .arrow:disabled{opacity:.3}
+  .arrow:hover:not(:disabled){background:var(--tint);border-color:var(--navy)}
+
+  .score-row{display:flex;align-items:center;justify-content:center;gap:18px;margin:6px 0 14px}
+  .step{width:60px;height:60px;border-radius:18px;border:none;background:var(--navy);color:#fff;font-family:var(--display);font-size:30px;display:grid;place-items:center;box-shadow:0 6px 16px -8px rgba(14,42,140,.9)}
+  .step.minus{background:var(--ink)}
+  .score-val{text-align:center;min-width:118px}
+  .score-val .n{font-family:var(--display);font-weight:700;font-size:66px;line-height:.9;font-variant-numeric:tabular-nums}
+  .score-val .n.empty{color:rgba(7,22,71,.2)}
+  .score-val .rel{font-family:var(--num);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+  .quick{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .q{border:1.5px solid var(--line);background:var(--white);border-radius:11px;padding:9px 2px;font-family:var(--num);font-weight:600;font-size:12.5px;text-transform:uppercase;line-height:1.15}
+  .q b{display:block;font-family:var(--display);font-size:17px;font-weight:600}
+  .q:hover{border-color:var(--navy);background:var(--tint)}
+  .q.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .q.on.eagle{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+
+  .sub{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+  .sub-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+  .sub-row:last-child{margin-bottom:0}
+  .sub-lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);min-width:72px}
+  .toggle{border:1.5px solid var(--line);background:var(--white);border-radius:9px;padding:6px 11px;font-size:13px;font-weight:500;transition:.15s}
+  .toggle:hover{border-color:var(--navy)}
+  .toggle.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .toggle.spent{background:rgba(213,32,47,.08);border-color:rgba(213,32,47,.35);color:var(--red);text-decoration:line-through}
+
+  .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:14px;overflow:hidden}
+  .tot{background:var(--white);padding:12px 8px;text-align:center}
+  .tot .k{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(7,22,71,.5);font-weight:600}
+  .tot .v{font-family:var(--display);font-weight:600;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
+  .under{color:var(--red)} .over{color:var(--ink)} .even{color:var(--navy)}
+
+  .grid18{display:grid;grid-template-columns:repeat(9,1fr);gap:4px}
+  .cell{border:1.5px solid var(--line);background:var(--white);border-radius:8px;padding:5px 0 4px;text-align:center;font-family:var(--num)}
+  .cell .h{font-size:9.5px;color:rgba(7,22,71,.45);font-weight:600;line-height:1}
+  .cell .s{font-size:19px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+  .cell .s.blank{color:rgba(7,22,71,.18)}
+  .cell.cur{border-color:var(--navy);border-width:2px;background:var(--tint)}
+  .cell.bird{background:rgba(213,32,47,.09);border-color:rgba(213,32,47,.3)}
+  .cell.eag{background:rgba(201,162,39,.18);border-color:rgba(201,162,39,.55)}
+  .nine-lbl{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);margin:12px 0 5px}
+  .nine-lbl b{font-family:var(--display);font-size:15px;color:var(--ink)}
+
+  .lb{display:grid;gap:7px}
+  .lb-row{display:flex;align-items:center;gap:11px;background:var(--white);border-radius:13px;padding:11px 13px;border:1.5px solid rgba(7,22,71,.06)}
+  .lb-row.me{border-color:var(--navy);background:var(--tint)}
+  .lb-row.lead{border-color:var(--gold);box-shadow:0 6px 20px -12px rgba(201,162,39,.9)}
+  .lb-name{min-width:0;flex:1}
+  .lb-name .p{font-size:14.5px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lb-name .u{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:500;margin-top:1px}
+  .lb-fig{text-align:right}
+  .lb-fig .tp{font-family:var(--display);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+  .lb-fig .th{font-family:var(--num);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600;margin-top:2px}
+  .bottles{display:flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--gold),#e0bd48);color:var(--ink);border-radius:0 0 12px 12px;margin-top:-7px;padding:6px 13px 7px;font-family:var(--num);font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+  .cardoff{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin-top:2px}
+
+  .contest{border:1.5px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:9px}
+  .contest.won{border-color:var(--navy);background:var(--tint)}
+  .contest-hd{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .contest-hd h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0;letter-spacing:.04em;text-transform:uppercase}
+  .contest-hd .prize{margin-left:auto;font-size:11px;color:rgba(7,22,71,.5);text-align:right;max-width:52%;line-height:1.25}
+  .fields{display:flex;gap:7px}
+  .fields input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--white)}
+  .fields input.dist{flex:0 0 96px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
+
+  .btn{border:none;border-radius:10px;background:var(--navy);color:#fff;padding:11px 15px;font-family:var(--num);font-weight:700;font-size:12.5px;letter-spacing:.13em;text-transform:uppercase}
+  .btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--navy);background:var(--tint)}
+  .btn.danger{background:transparent;color:var(--red);border:1.5px solid rgba(213,32,47,.4)}
+  .btn.gold{background:var(--gold);color:var(--ink)}
+  .btn.wide{width:100%}
+  .btn:disabled{opacity:.4}
+  .btn-row{display:flex;gap:8px;margin-top:14px}
+  .btn-row .btn{flex:1}
+
+  table.sc{width:100%;border-collapse:collapse;font-family:var(--num);font-size:12.5px}
+  table.sc th,table.sc td{padding:6px 3px;text-align:center;border-bottom:1px solid var(--line)}
+  table.sc th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.5);font-weight:600}
+  table.sc td.k{text-align:left;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;color:rgba(7,22,71,.55)}
+  .rules{margin:0;padding-left:18px;font-size:14px}
+  .rules li{margin-bottom:7px}
+  .rules li::marker{color:var(--red)}
+
+  /* trophy plaque */
+  .plaque{background:linear-gradient(160deg,#0d2377,var(--navy));border-radius:16px;padding:18px 16px;color:#fff;margin-bottom:14px}
+  .plaque .est{font-family:var(--num);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--sky);text-align:center}
+  .plaque h2{font-family:var(--display);font-size:26px;text-align:center;margin:5px 0 14px;letter-spacing:.08em;text-transform:uppercase}
+  .engrave{display:flex;align-items:baseline;gap:11px;padding:9px 2px;border-bottom:1px dashed rgba(255,255,255,.2)}
+  .engrave:last-child{border-bottom:none}
+  .engrave .yr{font-family:var(--display);font-size:17px;color:var(--gold);min-width:52px;letter-spacing:.03em}
+  .engrave .who{flex:1;font-size:14px;font-weight:500;line-height:1.25}
+  .engrave .who small{display:block;color:var(--sky);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+  .engrave .sc{font-family:var(--num);font-weight:700;font-size:14px;color:var(--sky)}
+  .engrave.blank .who{color:rgba(255,255,255,.35);font-style:italic}
+
+  .recs{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .rec{background:var(--tint);border-radius:12px;padding:12px}
+  .rec .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(7,22,71,.5);font-weight:600}
+  .rec .v{font-family:var(--display);font-size:20px;line-height:1.2;margin-top:2px}
+  .rec .n{font-size:12px;color:rgba(7,22,71,.6)}
+
+  /* setup */
+  .field-row{margin-bottom:11px}
+  .field-row label{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.55);margin-bottom:4px}
+  .field-row input,.field-row select,.field-row textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--white)}
+  .field-row textarea{min-height:88px;resize:vertical;line-height:1.5}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+  .team-edit{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+  .team-edit input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;font-size:14px}
+  .team-edit .x{border:none;background:none;color:var(--red);font-size:20px;line-height:1;padding:0 4px}
+  .holegrid{overflow-x:auto;padding-bottom:6px}
+  .holegrid table{border-collapse:collapse}
+  .holegrid th{font-family:var(--num);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(7,22,71,.5);padding:0 0 5px;text-align:center}
+  .holegrid td{padding:2px}
+  .holegrid td.k{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(7,22,71,.5);padding-right:7px;text-align:left;position:sticky;left:0;background:var(--white)}
+  .holegrid input{width:46px;text-align:center;border:1.5px solid var(--line);border-radius:7px;padding:6px 2px;font-family:var(--num);font-weight:600;font-size:14px}
+
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--white);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -18px rgba(7,22,71,.8)}
+  nav.tabs button{background:none;border:none;padding:8px 1px 7px;border-radius:12px;display:grid;justify-items:center;gap:3px;color:rgba(7,22,71,.45)}
+  nav.tabs button .ti{width:20px;height:20px;display:block}
+  nav.tabs button span{font-family:var(--num);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  nav.tabs button.on{color:var(--navy);background:var(--tint)}
+  :focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+  .stamp{display:flex;align-items:center;gap:8px;font-family:var(--num);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600;justify-content:center;margin:2px 0 14px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .empty-state{text-align:center;padding:26px 14px;color:rgba(7,22,71,.5);font-size:14px}
+  .toast{position:fixed;left:50%;bottom:98px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-family:var(--num);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88vw;text-align:center}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .finished{background:linear-gradient(135deg,var(--navy),#1b3ec0);color:#fff;border-radius:16px;padding:18px;margin-bottom:14px;text-align:center}
+  .finished h3{font-family:var(--display);font-size:22px;margin:0 0 4px;letter-spacing:.06em;text-transform:uppercase}
+  .finished p{margin:0;font-size:13px;color:var(--sky)}
+  .fin-stats{display:flex;justify-content:center;gap:22px;margin-top:13px}
+  .fin-stats .v{font-family:var(--display);font-size:24px;line-height:1}
+  .fin-stats .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sky)}
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="38" height="38" viewBox="0 0 100 100" aria-hidden="true">
+    <rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="#fff" stroke-width="5"/>
+    <line x1="50" y1="30" x2="50" y2="62" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M50 31 C58 33 62 38 70 35 C64 41 63 44 50 44 Z" fill="#D5202F"/>
+    <ellipse cx="50" cy="64" rx="7" ry="2.6" fill="none" stroke="#fff" stroke-width="2.6"/>
+  </svg>
+  <div class="brand">
+    <h1>Kimbell Cup</h1>
+    <p id="hdrSub">Invitational</p>
+  </div>
+  <div class="yearsel">
+    <select id="yearSelect" aria-label="Choose year"></select>
+    <div class="sub" id="hdrTeam">2-Man Scramble</div>
+  </div>
+</header>
+
+<main>
+  <section class="view on" id="v-card">
+    <div id="cardBanner"></div>
+    <div id="teamGate" class="card">
+      <p class="eyebrow">Step one</p>
+      <h2 class="sec">Pick your team</h2>
+      <p class="muted" style="margin:0 0 14px">One player per team keeps the card. Remembered on this device for this year.</p>
+      <div class="picker" id="picker"></div>
+    </div>
+
+    <div id="cardBody" style="display:none">
+      <div id="finishBlock"></div>
+      <div class="card">
+        <div class="hole-top">
+          <div>
+            <div class="hole-num" id="holeNum">1</div>
+            <div class="hole-meta" id="holeMeta"></div>
+          </div>
+          <div class="nav-arrows">
+            <button class="arrow" id="prevHole" aria-label="Previous hole">‹</button>
+            <button class="arrow" id="nextHole" aria-label="Next hole">›</button>
+          </div>
+        </div>
+        <div class="score-row">
+          <button class="step minus" id="minus" aria-label="Lower score">–</button>
+          <div class="score-val">
+            <div class="n empty" id="scoreN">–</div>
+            <div class="rel muted" id="scoreRel">Tap a result</div>
+          </div>
+          <button class="step" id="plus" aria-label="Raise score">+</button>
+        </div>
+        <div class="quick" id="quick"></div>
+        <div class="sub">
+          <div class="sub-row">
+            <span class="sub-lbl">Drive used</span>
+            <button class="toggle" data-drive="0" id="drv0"></button>
+            <button class="toggle" data-drive="1" id="drv1"></button>
+            <span class="muted" id="drvCount" style="margin-left:auto"></span>
+          </div>
+          <div class="sub-row">
+            <span class="sub-lbl">Mulligan</span>
+            <button class="toggle" data-mull="0" id="mul0"></button>
+            <button class="toggle" data-mull="1" id="mul1"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="totals">
+          <div class="tot"><div class="k">Thru</div><div class="v" id="tThru">0</div></div>
+          <div class="tot"><div class="k">To Par</div><div class="v" id="tPar">E</div></div>
+          <div class="tot"><div class="k">Gross</div><div class="v" id="tGross">–</div></div>
+        </div>
+        <div class="nine-lbl"><span>Front nine</span><b id="outTot">–</b></div>
+        <div class="grid18" id="front"></div>
+        <div class="nine-lbl"><span>Back nine</span><b id="inTot">–</b></div>
+        <div class="grid18" id="back"></div>
+        <div class="btn-row">
+          <button class="btn ghost" id="switchTeam">Change team</button>
+          <button class="btn" id="pushNow">Post to board</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-board">
+    <div class="stamp"><span class="dot"></span><span id="lbStamp">Loading the board…</span></div>
+    <div class="lb" id="lb"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="refreshLb">Refresh board</button>
+      <button class="btn gold" id="crown">Crown the champion</button>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:12px;font-size:12px">
+      Every posted card is visible to the whole field. Ties break by regression on hole handicap.
+    </p>
+  </section>
+
+  <section class="view" id="v-contests">
+    <div class="card">
+      <p class="eyebrow" id="contestEyebrow">Contests</p>
+      <h2 class="sec">Side action</h2>
+      <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin.</p>
+      <div id="contestList"></div>
+      <p class="muted" style="font-size:12px;margin:12px 0 0">Tap a par 3 to change which holes carry closest-to-the-pin.</p>
+      <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-cup">
+    <div class="plaque">
+      <div class="est">Established 1983</div>
+      <h2>The Cup</h2>
+      <div id="engraving"></div>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Record book</p>
+      <h2 class="sec">Standing records</h2>
+      <div class="recs" id="records" style="margin-top:12px"></div>
+      <h3 class="sub-sec">Add a past champion</h3>
+      <div class="row3">
+        <div class="field-row"><label>Year</label><input id="cy" inputmode="numeric" placeholder="1998"></div>
+        <div class="field-row" style="grid-column:span 2"><label>Course</label><input id="cc" placeholder="Crystal Lake"></div>
+      </div>
+      <div class="row2">
+        <div class="field-row"><label>Player 1</label><input id="ca" placeholder="Name"></div>
+        <div class="field-row"><label>Player 2</label><input id="cb" placeholder="Name"></div>
+      </div>
+      <div class="row2">
+        <div class="field-row"><label>Gross</label><input id="cg" inputmode="numeric" placeholder="61"></div>
+        <div class="field-row"><label>To par</label><input id="ctp" placeholder="-11"></div>
+      </div>
+      <button class="btn wide" id="addChamp">Engrave it</button>
+    </div>
+    <div class="card">
+      <p class="eyebrow" id="fmtEyebrow">This year</p>
+      <h2 class="sec">Format</h2>
+      <ul class="rules" id="rulesList"></ul>
+    </div>
+    <div class="card">
+      <p class="eyebrow" id="courseEyebrow">Course</p>
+      <h2 class="sec" id="courseName">—</h2>
+      <p class="muted" id="courseSub" style="margin:0 0 12px"></p>
+      <div style="overflow-x:auto"><table class="sc" id="scorecard"></table></div>
+    </div>
+    <div class="card">
+      <p class="eyebrow" id="fieldEyebrow">The field</p>
+      <h2 class="sec">Pairings</h2>
+      <div id="pairList" style="font-size:14px"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-setup">
+    <div class="card">
+      <p class="eyebrow">Year setup</p>
+      <h2 class="sec" id="setupYear">Event</h2>
+      <p class="muted" style="margin:0 0 14px">Everything here is shared with the field. Set it once before the first tee time.</p>
+      <div class="row2">
+        <div class="field-row"><label>Date</label><input id="sDate" placeholder="Friday, December 4"></div>
+        <div class="field-row"><label>First tee</label><input id="sTime" placeholder="8:40 am"></div>
+      </div>
+      <div class="row2">
+        <div class="field-row"><label>Course</label><input id="sCourse" placeholder="River Forest"></div>
+        <div class="field-row"><label>City</label><input id="sCity" placeholder="Forsyth, GA"></div>
+      </div>
+      <div class="row3">
+        <div class="field-row"><label>Tees</label><input id="sTee" placeholder="Gold"></div>
+        <div class="field-row"><label>Yards</label><input id="sYards" inputmode="numeric"></div>
+        <div class="field-row"><label>Slope</label><input id="sSlope" inputmode="numeric"></div>
+      </div>
+      <div class="field-row"><label>Entry / pot</label><input id="sPot" placeholder="Bottle of your choice — winner takes all 24"></div>
+      <button class="btn wide" id="saveEvent">Save event details</button>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Scorecard</p>
+      <h2 class="sec">Par, yards, handicap</h2>
+      <p class="muted" style="margin:0 0 12px">Hole handicaps drive the tiebreaker, so get them right off the card.</p>
+      <div class="holegrid"><table id="holeEditor"></table></div>
+      <button class="btn wide" id="saveHoles" style="margin-top:12px">Save scorecard</button>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Pairings</p>
+      <h2 class="sec">The field</h2>
+      <p class="muted" style="margin:0 0 12px">Teams are seeded in the order listed. Clearing a team wipes its card.</p>
+      <div id="teamEditor"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="addTeam">Add a team</button>
+        <button class="btn" id="saveTeams">Save pairings</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Prizes</p>
+      <h2 class="sec">Contest board</h2>
+      <div class="field-row"><label>Long drive hole</label><input id="sLd" inputmode="numeric"></div>
+      <div class="field-row"><label>Prize list — one per line</label><textarea id="sPrizes"></textarea></div>
+      <button class="btn wide" id="savePrizes">Save prizes</button>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Next year</p>
+      <h2 class="sec">Start a new Cup</h2>
+      <p class="muted" style="margin:0 0 12px">Rolls the current field and course into a fresh year with an empty board. Past years stay locked and readable.</p>
+      <div class="row2">
+        <div class="field-row"><label>Year</label><input id="nyYear" inputmode="numeric"></div>
+        <div class="field-row"><label>Carry over</label>
+          <select id="nyCarry">
+            <option value="all">Field + course</option>
+            <option value="field">Field only</option>
+            <option value="none">Blank slate</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn wide gold" id="newYear">Open the new year</button>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Careful</p>
+      <h2 class="sec">Danger zone</h2>
+      <div class="btn-row" style="margin-top:4px">
+        <button class="btn danger" id="clearScores">Clear all cards</button>
+        <button class="btn danger" id="reopen">Reopen year</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:12px 0 0">Clearing wipes every posted card for this year only. Reopening unlocks a finalized year for edits.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="card" class="on">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg><span>Card</span>
+  </button>
+  <button data-tab="board">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><span>Board</span>
+  </button>
+  <button data-tab="contests">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v10M8 3h8M6 5h12M7 5a5 5 0 0 0 10 0M9 21h6M10 17h4"/></svg><span>Prizes</span>
+  </button>
+  <button data-tab="cup">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 3 12l9 9 9-9z"/><path d="M12 8v8"/></svg><span>Cup</span>
+  </button>
+  <button data-tab="setup">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg><span>Setup</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================
+   KIMBELL CUP INVITATIONAL — annual 2-man scramble
+   Storage keys are namespaced by year so every Cup is kept.
+   ========================================================== */
+
+const RIVER_FOREST = [
+  {h:1,par:4,yds:397,hcp:9},  {h:2,par:4,yds:357,hcp:11}, {h:3,par:5,yds:480,hcp:5},
+  {h:4,par:3,yds:150,hcp:17}, {h:5,par:4,yds:365,hcp:15}, {h:6,par:5,yds:531,hcp:1},
+  {h:7,par:3,yds:175,hcp:13}, {h:8,par:4,yds:395,hcp:7},  {h:9,par:4,yds:359,hcp:3},
+  {h:10,par:5,yds:596,hcp:6}, {h:11,par:3,yds:143,hcp:12},{h:12,par:4,yds:356,hcp:8},
+  {h:13,par:3,yds:186,hcp:18},{h:14,par:4,yds:323,hcp:14},{h:15,par:4,yds:379,hcp:2},
+  {h:16,par:3,yds:143,hcp:16},{h:17,par:5,yds:523,hcp:10},{h:18,par:4,yds:422,hcp:4}
+];
+
+const SEED_2026 = {
+  year:2026, date:'Friday, December 4', time:'8:40 am', course:'River Forest', city:'Forsyth, GA',
+  tee:'Gold', yards:6280, slope:136, pot:'Bottle of your choice — winning team takes all 24',
+  holes:RIVER_FOREST.map(h=>({...h})),
+  teams:[
+    {id:1,a:'Jordan Piland',b:'Brian Chapman'},   {id:2,a:'Tyler Whitehead',b:'Shane Preston'},
+    {id:3,a:'Jonathan Kimbell',b:'Matt Raybon'},  {id:4,a:'Caleb Bloodworth',b:'Wesley Flanagan'},
+    {id:5,a:'Rob Dixon',b:'Kevin Abercrombie'},   {id:6,a:'Jason Torres',b:'Jeremiah Busbin'},
+    {id:7,a:'Chip Johns',b:'Dave Dunson'},        {id:8,a:'Michael Harbin',b:'Matt Middleton'},
+    {id:9,a:'Charlie Heuer',b:'Shane Steward'},   {id:10,a:'Paul Doss',b:'Patrick Whelan'},
+    {id:11,a:'Joey Grubbs',b:'Evan Baker'},       {id:12,a:'Curtis Hardwick',b:'Jared Cordova'}
+  ],
+  ctpHoles:[4,7,11,16], ldHole:10,
+  prizes:['Stitch SL2 stand bag','Blue Tees Player Pack','Sar 9mm with light','Rock Island PF14 shotgun','FootJoy cooler + shoe bag','Blackstone 22" griddle'],
+  status:'open'
+};
+
+const K = {
+  index:'kc:index',
+  evt: y=>`kc:evt:${y}`,
+  card:(y,id)=>`kc:sc:${y}:${id}`,
+  contest: y=>`kc:ct:${y}`,
+  champs:'kc:champs',
+  me:'kc:me'
+};
+
+/* ---------- storage that never throws ----------
+   Two backends:
+   - "cloud"  : Claude artifact shared storage — the whole field sees one board
+   - "device" : this browser only — used when hosted on the open web           */
+const mem={};
+const store={
+  cloud: typeof window!=='undefined' && !!window.storage,
+  get mode(){ return this.cloud?'cloud':'device'; },
+  async get(k,s){
+    if(this.cloud){ try{ const r=await window.storage.get(k,s); return r?r.value:null; }catch(e){ return null; } }
+    try{ return localStorage.getItem(k); }catch(e){ return mem[k]??null; }
+  },
+  async set(k,v,s){
+    if(this.cloud){ try{ await window.storage.set(k,v,s); return true; }catch(e){ mem[k]=v; return false; } }
+    try{ localStorage.setItem(k,v); return true; }catch(e){ mem[k]=v; return false; }
+  }
+};
+
+/* ---------- state ---------- */
+let idx={activeYear:2026, years:[2026]};
+let year=2026, evt=null, champs=[], contest=null;
+let myTeam=null, card=null, hole=0, field={}, me={};
+let saveTimer=null, lbTimer=null;
+
+const parAt = i => (evt.holes[i]?.par ?? 4);
+const played = c => c.s.filter(v=>v!==null).length;
+const gross  = c => c.s.reduce((a,v)=>a+(v||0),0);
+const toPar  = c => c.s.reduce((a,v,i)=> v===null?a:a+(v-parAt(i)), 0);
+const teamOf = id => evt.teams.find(t=>t.id===id);
+const coursePar = () => evt.holes.reduce((a,h)=>a+(+h.par||0),0);
+const isFinal = () => evt.status==='final';
+const par3s = () => evt.holes.filter(h=>+h.par===3).map(h=>h.h);
+
+function fmtPar(n){ return n===0?'E':(n>0?'+'+n:String(n)); }
+function parClass(n){ return n<0?'under':(n>0?'over':'even'); }
+function relLabel(v,par){
+  const d=v-par;
+  if(d<=-3) return 'Albatross'; if(d===-2) return 'Eagle'; if(d===-1) return 'Birdie';
+  if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
+}
+function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],u:0}; }
+function blankContest(){ return {ctp:{},ld:{name:'',yds:''},putt:{name:''},u:0}; }
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function first(n){ return String(n||'').split(' ')[0]||'—'; }
+
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('on'),1900);
+}
+
+/* ==========================================================
+   LOAD / SAVE EVENT
+   ========================================================== */
+async function loadIndex(){
+  const raw=await store.get(K.index,true);
+  if(raw){ try{ idx=JSON.parse(raw); }catch(e){} }
+  if(!Array.isArray(idx.years)||!idx.years.length) idx={activeYear:2026,years:[2026]};
+  idx.years.sort((a,b)=>b-a);
+}
+async function saveIndex(){ await store.set(K.index,JSON.stringify(idx),true); }
+
+async function loadEvent(y){
+  year=y;
+  const raw=await store.get(K.evt(y),true);
+  if(raw){ try{ evt=JSON.parse(raw); }catch(e){ evt=null; } }
+  if(!evt || evt.year!==y){
+    evt = y===2026 ? JSON.parse(JSON.stringify(SEED_2026))
+                   : Object.assign(JSON.parse(JSON.stringify(SEED_2026)),{year:y,status:'open',date:'',teams:[]});
+    await saveEvent();
+  }
+  if(!Array.isArray(evt.holes)||evt.holes.length!==18) evt.holes=RIVER_FOREST.map(h=>({...h}));
+  if(!Array.isArray(evt.teams)) evt.teams=[];
+  if(!Array.isArray(evt.ctpHoles)) evt.ctpHoles=[4,7,11,16];
+  if(!Array.isArray(evt.prizes)) evt.prizes=[];
+  evt.ldHole = evt.ldHole || 10;
+
+  const craw=await store.get(K.contest(y),true);
+  contest = craw ? Object.assign(blankContest(),JSON.parse(craw)) : blankContest();
+  if(!contest.ctp) contest.ctp={};
+  if(!contest.ld) contest.ld={name:'',yds:''};
+  if(!contest.putt) contest.putt={name:''};
+}
+async function saveEvent(){ evt.u=Date.now(); await store.set(K.evt(evt.year),JSON.stringify(evt),true); }
+
+async function loadChamps(){
+  const raw=await store.get(K.champs,true);
+  champs = raw ? (JSON.parse(raw)||[]) : [];
+}
+async function saveChamps(){ await store.set(K.champs,JSON.stringify(champs),true); }
+
+/* ==========================================================
+   CARD
+   ========================================================== */
+function safeCard(o,id){
+  const c=blankCard(id);
+  if(Array.isArray(o.s)) o.s.forEach((v,i)=>{ if(i<18) c.s[i]= typeof v==='number'?v:null; });
+  if(Array.isArray(o.d)) o.d.forEach((v,i)=>{ if(i<18) c.d[i]=v; });
+  if(Array.isArray(o.m)) c.m=[!!o.m[0],!!o.m[1]];
+  c.u=o.u||0; return c;
+}
+function renderPicker(){
+  const w=document.getElementById('picker'); w.innerHTML='';
+  if(!evt.teams.length){
+    w.innerHTML='<div class="empty-state">No pairings set for this year yet.<br>Head to Setup to build the field.</div>';
+    return;
+  }
+  evt.teams.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='pick-btn';
+    b.innerHTML=`<span class="diamond ghost"><span>${t.id}</span></span>
+      <span><strong>${esc(t.a)}</strong><br>${esc(t.b)}</span>
+      <span class="seed">Seed ${i+1}</span>`;
+    b.onclick=()=>chooseTeam(t.id);
+    w.appendChild(b);
+  });
+}
+async function chooseTeam(id){
+  myTeam=id;
+  me.teams = me.teams||{}; me.teams[year]=id;
+  await store.set(K.me,JSON.stringify(me),false);
+  const raw=await store.get(K.card(year,id),true);
+  card = raw ? safeCard(JSON.parse(raw),id) : blankCard(id);
+  const f=card.s.findIndex(v=>v===null);
+  hole = f===-1 ? 17 : f;
+  showCard(); renderAll();
+}
+function showCard(){
+  document.getElementById('teamGate').style.display='none';
+  document.getElementById('cardBody').style.display='block';
+  const t=teamOf(myTeam);
+  document.getElementById('hdrTeam').textContent = t ? `${first(t.a)} / ${first(t.b)}` : '2-Man Scramble';
+}
+function hideCard(){
+  document.getElementById('cardBody').style.display='none';
+  document.getElementById('teamGate').style.display='block';
+  document.getElementById('hdrTeam').textContent='2-Man Scramble';
+}
+
+function renderBanner(){
+  const el=document.getElementById('cardBanner');
+  if(isFinal()){
+    const ch=champs.find(c=>+c.year===+year);
+    el.innerHTML=`<div class="banner final"><strong>${year} is in the books.</strong>&nbsp;
+      ${ch?esc(ch.a)+' &amp; '+esc(ch.b)+' took the Cup at '+esc(ch.toPar||''):'Cards are locked.'} Reopen it in Setup if you need to fix a card.</div>`;
+  }else el.innerHTML='';
+}
+
+function renderHole(){
+  const H=evt.holes[hole];
+  document.getElementById('holeNum').textContent=H.h;
+  let chips=`<span class="chip">Par ${H.par}</span><span class="chip">${H.yds} yds</span><span class="chip">Hcp ${H.hcp}</span>`;
+  if(evt.ctpHoles.includes(H.h)) chips+='<span class="chip red">Closest to pin</span>';
+  if(+evt.ldHole===+H.h) chips+='<span class="chip red">Long drive</span>';
+  document.getElementById('holeMeta').innerHTML=chips;
+
+  document.getElementById('prevHole').disabled = hole===0;
+  document.getElementById('nextHole').disabled = hole===17;
+
+  const v=card.s[hole], n=document.getElementById('scoreN'), rel=document.getElementById('scoreRel');
+  if(v===null){ n.textContent='–'; n.classList.add('empty'); rel.textContent='Tap a result'; rel.className='rel muted'; }
+  else { n.textContent=v; n.classList.remove('empty'); rel.textContent=relLabel(v,H.par); rel.className='rel '+parClass(v-H.par); }
+
+  const q=document.getElementById('quick'); q.innerHTML='';
+  (H.par===3?[-1,0,1,2,3]:[-2,-1,0,1,2]).forEach(d=>{
+    const val=H.par+d, b=document.createElement('button');
+    b.className='q'+(v===val?' on':'')+(d===-2?' eagle':'');
+    b.innerHTML=`<b>${val}</b>${relLabel(val,H.par)}`;
+    b.disabled=isFinal();
+    b.onclick=()=>setScore(val);
+    q.appendChild(b);
+  });
+
+  const t=teamOf(myTeam)||{a:'P1',b:'P2'};
+  [0,1].forEach(i=>{
+    const el=document.getElementById('drv'+i);
+    el.textContent=first(i===0?t.a:t.b);
+    el.classList.toggle('on',card.d[hole]===i);
+  });
+  document.getElementById('drvCount').textContent =
+    `${first(t.a)} ${card.d.filter(x=>x===0).length} · ${first(t.b)} ${card.d.filter(x=>x===1).length}`;
+  [0,1].forEach(i=>{
+    const el=document.getElementById('mul'+i), nm=first(i===0?t.a:t.b);
+    el.textContent = card.m[i] ? `${nm} used` : `${nm} available`;
+    el.classList.toggle('spent',card.m[i]);
+  });
+}
+function setScore(v){
+  if(isFinal()) return toast('Year is locked');
+  card.s[hole]=Math.max(1,Math.min(15,v));
+  queueSave(); renderAll();
+  if(hole<17) setTimeout(()=>{ if(hole<17){ hole++; renderAll(); } },320);
+}
+function bumpScore(d){
+  if(isFinal()) return toast('Year is locked');
+  const cur = card.s[hole]===null ? parAt(hole) : card.s[hole]+d;
+  card.s[hole]=Math.max(1,Math.min(15,cur));
+  queueSave(); renderHole(); renderTotals(); renderGrid();
+}
+function renderTotals(){
+  const thru=played(card), tp=toPar(card);
+  document.getElementById('tThru').textContent=thru;
+  const e=document.getElementById('tPar');
+  e.textContent = thru?fmtPar(tp):'E'; e.className='v '+parClass(thru?tp:0);
+  document.getElementById('tGross').textContent = thru?gross(card):'–';
+  const sum=a=>a.some(v=>v!==null)?a.reduce((x,v)=>x+(v||0),0):'–';
+  document.getElementById('outTot').textContent=sum(card.s.slice(0,9));
+  document.getElementById('inTot').textContent=sum(card.s.slice(9));
+}
+function renderGrid(){
+  [['front',0],['back',9]].forEach(([id,off])=>{
+    const g=document.getElementById(id); g.innerHTML='';
+    for(let i=off;i<off+9;i++){
+      const H=evt.holes[i], v=card.s[i], d=v===null?null:v-H.par;
+      const b=document.createElement('button');
+      b.className='cell'+(i===hole?' cur':'')+(d===-1?' bird':'')+(d!==null&&d<=-2?' eag':'');
+      b.innerHTML=`<div class="h">${H.h}</div><div class="s ${v===null?'blank':''}">${v===null?'·':v}</div>`;
+      b.onclick=()=>{ hole=i; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); };
+      g.appendChild(b);
+    }
+  });
+}
+function renderFinish(){
+  const el=document.getElementById('finishBlock');
+  if(played(card)<18){ el.innerHTML=''; return; }
+  const t=teamOf(myTeam)||{a:'',b:''};
+  const birds=card.s.filter((v,i)=>v-parAt(i)===-1).length;
+  const eags=card.s.filter((v,i)=>v-parAt(i)<=-2).length;
+  el.innerHTML=`<div class="finished"><h3>Card complete</h3>
+    <p>${esc(t.a)} &amp; ${esc(t.b)} · ${esc(evt.course)} ${year}</p>
+    <div class="fin-stats">
+      <div><div class="v">${gross(card)}</div><div class="k">Gross</div></div>
+      <div><div class="v">${fmtPar(toPar(card))}</div><div class="k">To par</div></div>
+      <div><div class="v">${birds}</div><div class="k">Birdies</div></div>
+      <div><div class="v">${eags}</div><div class="k">Eagles+</div></div>
+    </div></div>`;
+}
+function renderAll(){ if(!card) return; renderBanner(); renderHole(); renderTotals(); renderGrid(); renderFinish(); }
+
+function queueSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveNow,700);
+}
+async function saveNow(){
+  if(!card||isFinal()) return;
+  card.u=Date.now();
+  const ok=await store.set(K.card(year,card.t),JSON.stringify(card),true);
+  if(!ok) toast('Saved locally — sync retrying');
+}
+
+/* ==========================================================
+   BOARD
+   ========================================================== */
+async function loadField(){
+  const res=await Promise.all(evt.teams.map(async t=>{
+    const raw=await store.get(K.card(year,t.id),true);
+    return [t.id, raw?safeCard(JSON.parse(raw),t.id):null];
+  }));
+  field={}; res.forEach(([id,c])=>{ if(c) field[id]=c; });
+  if(myTeam&&card) field[myTeam]=card;
+}
+function cardOff(a,b){
+  const order=[...evt.holes].sort((x,y)=>x.hcp-y.hcp);
+  for(const H of order){
+    const i=H.h-1, av=a.s[i], bv=b.s[i];
+    if(av===null||bv===null) continue;
+    if(av!==bv) return av-bv;
+  }
+  return 0;
+}
+function standings(){
+  const rows=evt.teams.map((t,i)=>{
+    const c=field[t.id];
+    return {t,c,seed:i+1,thru:c?played(c):0,tp:c?toPar(c):0,g:c?gross(c):0};
+  }).filter(r=>r.thru>0);
+  rows.sort((a,b)=>{
+    if(a.tp!==b.tp) return a.tp-b.tp;
+    if(a.thru!==b.thru) return b.thru-a.thru;
+    const co=cardOff(a.c,b.c); if(co!==0) return co;
+    return a.seed-b.seed;
+  });
+  let pos=0,pt=null,ph=null;
+  rows.forEach((r,i)=>{ if(pt===null||r.tp!==pt||r.thru!==ph) pos=i+1; r.pos=pos; pt=r.tp; ph=r.thru; });
+  rows.forEach(r=>{ r.tied = rows.filter(o=>o.pos===r.pos).length>1; });
+  return rows;
+}
+function renderBoard(){
+  const rows=standings(), lb=document.getElementById('lb');
+  document.getElementById('crown').style.display = isFinal()?'none':'';
+  if(!rows.length){
+    lb.innerHTML=`<div class="empty-state">No cards posted for ${year} yet.<br>First birdie of the day sets the tone.</div>`;
+    document.getElementById('lbStamp').textContent=`${year} board open · ${evt.teams.length} teams`;
+    return;
+  }
+  lb.innerHTML=rows.map((r,i)=>{
+    const lead=i===0, mine=r.t.id===myTeam, done=r.thru===18;
+    return `<div>
+      <div class="lb-row ${lead?'lead':''} ${mine?'me':''}">
+        <span class="diamond ${lead?'lead':''}"><span>${r.pos}</span></span>
+        <div class="lb-name">
+          <div class="p">${esc(r.t.a)} &amp; ${esc(r.t.b)}</div>
+          <div class="u">${done?'Signed':'In play'} · Gross ${r.g}${r.tied?' · T'+r.pos:''}</div>
+          ${r.tied?'<div class="cardoff">Card-off on hole handicap</div>':''}
+        </div>
+        <div class="lb-fig">
+          <div class="tp ${parClass(r.tp)}">${fmtPar(r.tp)}</div>
+          <div class="th">Thru ${r.thru}</div>
+        </div>
+      </div>
+      ${lead&&!r.tied?`<div class="bottles">🍾 ${isFinal()?'Took the Cup':'Holding the bottles'}</div>`:''}
+    </div>`;
+  }).join('');
+  const t=new Date(), hh=t.getHours()%12||12, mm=String(t.getMinutes()).padStart(2,'0'), ap=t.getHours()>=12?'pm':'am';
+  document.getElementById('lbStamp').textContent = isFinal()
+    ? `${year} final · ${rows.length} cards`
+    : `${store.mode==='cloud'?'Live':'This device'} · ${rows.length} posted · ${evt.teams.length-rows.length} yet to tee · ${hh}:${mm}${ap}`;
+  showModeNote();
+}
+async function refreshBoard(){ await loadField(); renderBoard(); }
+
+function showModeNote(){
+  if(store.mode==='cloud') return;
+  let el=document.getElementById('modeNote');
+  if(!el){
+    el=document.createElement('div');
+    el.id='modeNote'; el.className='banner warn';
+    el.style.marginTop='14px';
+    el.innerHTML='<span><strong>Walkthrough copy.</strong> Cards on this site save to whichever phone entered them — they do not sync between phones. Use the in-app link for tournament day, when the whole field needs one shared board.</span>';
+    document.getElementById('v-board').appendChild(el);
+  }
+}
+
+async function crownChampion(){
+  await loadField();
+  const rows=standings();
+  if(!rows.length) return toast('Nothing posted yet');
+  const w=rows[0];
+  if(w.thru<18 && !confirm('Not every hole is in. Crown the leader anyway?')) return;
+  if(!confirm(`Crown ${w.t.a} & ${w.t.b} as ${year} champions and lock the year?`)) return;
+
+  champs = champs.filter(c=>+c.year!==+year);
+  champs.push({year:+year,a:w.t.a,b:w.t.b,course:evt.course,gross:w.g,toPar:fmtPar(w.tp),auto:true});
+  await saveChamps();
+
+  evt.status='final';
+  evt.finalStandings = rows.map(r=>({pos:r.pos,a:r.t.a,b:r.t.b,g:r.g,tp:r.tp,thru:r.thru}));
+  evt.contestFinal = JSON.parse(JSON.stringify(contest));
+  await saveEvent();
+  renderBoard(); renderCup(); renderAll();
+  toast('Champions engraved');
+}
+
+/* ==========================================================
+   CONTESTS
+   ========================================================== */
+async function saveContest(){
+  const raw=await store.get(K.contest(year),true);
+  const remote=raw?JSON.parse(raw):blankContest();
+  contest=Object.assign({},remote,contest,{u:Date.now()});
+  await store.set(K.contest(year),JSON.stringify(contest),true);
+}
+function renderContests(){
+  document.getElementById('contestEyebrow').textContent = `${year} · ${evt.course||'Course TBD'}`;
+  const wrap=document.getElementById('contestList');
+  let html='';
+  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach((h,i)=>{
+    const H=evt.holes[h-1]; if(!H) return;
+    const cur=contest.ctp[h]||{name:'',dist:''};
+    html+=`<div class="contest ${cur.name?'won':''}">
+      <div class="contest-hd"><span class="diamond ghost"><span>${h}</span></span>
+        <h3>Closest to the pin</h3>
+        <span class="prize">${H.yds} yds · par ${H.par}<br>${esc(evt.prizes[i]||'')}</span></div>
+      <div class="fields">
+        <input placeholder="Name" value="${esc(cur.name)}" data-ctp="${h}" data-f="name" ${isFinal()?'disabled':''}>
+        <input class="dist" placeholder="Ft / in" value="${esc(cur.dist)}" data-ctp="${h}" data-f="dist" ${isFinal()?'disabled':''}>
+      </div></div>`;
+  });
+  const L=evt.holes[(+evt.ldHole||10)-1];
+  if(L) html+=`<div class="contest ${contest.ld.name?'won':''}">
+    <div class="contest-hd"><span class="diamond ghost"><span>${L.h}</span></span>
+      <h3>Long drive</h3>
+      <span class="prize">${L.yds} yds · par ${L.par}<br>${esc(evt.prizes[4]||'')}</span></div>
+    <div class="fields">
+      <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${isFinal()?'disabled':''}>
+      <input class="dist" placeholder="Yards" value="${esc(contest.ld.yds)}" data-ld="yds" ${isFinal()?'disabled':''}>
+    </div></div>`;
+  html+=`<div class="contest ${contest.putt.name?'won':''}">
+    <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
+      <h3>Putting contest</h3>
+      <span class="prize">Practice green, pre-round<br>${esc(evt.prizes[5]||'')}</span></div>
+    <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${isFinal()?'disabled':''}></div></div>`;
+  wrap.innerHTML=html;
+  wrap.querySelectorAll('input').forEach(i=>{ i.addEventListener('change',onContestEdit); });
+
+  const pick=document.getElementById('ctpPicker');
+  pick.innerHTML=par3s().map(h=>`<button class="toggle ${evt.ctpHoles.includes(h)?'on':''}" data-par3="${h}">Hole ${h}</button>`).join('')
+    || '<span class="muted">No par 3s on this scorecard yet.</span>';
+  pick.querySelectorAll('[data-par3]').forEach(b=>{
+    b.onclick=async()=>{
+      if(isFinal()) return toast('Year is locked');
+      const h=+b.dataset.par3, has=evt.ctpHoles.includes(h);
+      evt.ctpHoles = has ? evt.ctpHoles.filter(x=>x!==h) : [...evt.ctpHoles,h];
+      await saveEvent(); renderContests(); if(card) renderHole();
+    };
+  });
+}
+async function onContestEdit(e){
+  const el=e.target, v=el.value.trim();
+  if(el.dataset.ctp){
+    const h=el.dataset.ctp;
+    contest.ctp[h]=Object.assign({name:'',dist:''},contest.ctp[h],{[el.dataset.f]:v});
+  } else if(el.dataset.ld) contest.ld[el.dataset.ld]=v;
+  else if(el.dataset.putt) contest.putt.name=v;
+  await saveContest(); renderContests(); toast('Contest updated');
+}
+
+/* ==========================================================
+   THE CUP — engraving + records
+   ========================================================== */
+function renderCup(){
+  const list=[...champs].sort((a,b)=>b.year-a.year);
+  const eng=document.getElementById('engraving');
+  eng.innerHTML = list.length ? list.map(c=>`
+    <div class="engrave">
+      <span class="yr">${c.year}</span>
+      <span class="who">${esc(c.a)} &amp; ${esc(c.b)}<small>${esc(c.course||'')}</small></span>
+      <span class="sc">${c.gross?c.gross:''}${c.toPar?' · '+esc(c.toPar):''}</span>
+    </div>`).join('')
+    : `<div class="engrave blank"><span class="yr">—</span><span class="who">No champions engraved yet. Win one, or add the old ones below.</span></div>`;
+
+  const recs=document.getElementById('records');
+  const counts={};
+  champs.forEach(c=>{ [c.a,c.b].forEach(n=>{ if(n) counts[n]=(counts[n]||0)+1; }); });
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  const low=champs.filter(c=>+c.gross>0).sort((a,b)=>a.gross-b.gross)[0];
+  const yrs=champs.length;
+  recs.innerHTML=`
+    <div class="rec"><div class="k">Cups on record</div><div class="v">${yrs}</div><div class="n">since 1983</div></div>
+    <div class="rec"><div class="k">Most titles</div><div class="v">${top?esc(top[0].split(' ')[0]):'—'}</div><div class="n">${top?top[1]+' win'+(top[1]>1?'s':''):'up for grabs'}</div></div>
+    <div class="rec"><div class="k">Low winning round</div><div class="v">${low?low.gross:'—'}</div><div class="n">${low?esc(low.a.split(' ')[0])+' &amp; '+esc(low.b.split(' ')[0])+' · '+low.year:'unrecorded'}</div></div>
+    <div class="rec"><div class="k">This year</div><div class="v">${year}</div><div class="n">${isFinal()?'Final':'In play'}</div></div>`;
+
+  // format + course + pairings
+  document.getElementById('fmtEyebrow').textContent = evt.date ? `${evt.date}${evt.time?' · '+evt.time:''}` : `${year}`;
+  document.getElementById('rulesList').innerHTML=`
+    <li><strong>2-man scramble, 18 holes.</strong> Both players hit, take the best ball, both play from there. One gross score per hole.</li>
+    <li><strong>${esc(evt.tee||'')} tees</strong> — par ${coursePar()}, ${(+evt.yards||0).toLocaleString()} yards, slope ${esc(evt.slope||'—')}.</li>
+    <li><strong>Breakfast ball</strong> off the 1st if you want it.</li>
+    <li><strong>One mulligan per player</strong> — not on the green, not on a contest hole.</li>
+    <li><strong>One club length</strong> of movement, no closer to the hole and no change in lie conditions.</li>
+    <li><strong>Winter rules.</strong> Leaf rule applies if everyone agrees on the exact spot.</li>
+    <li><strong>Ties</strong> break by regression on hole handicap — hardest hole first.</li>
+    <li><strong>Entry:</strong> ${esc(evt.pot||'a bottle')}.</li>`;
+  document.getElementById('courseEyebrow').textContent=`${esc(evt.tee||'')} tees`;
+  document.getElementById('courseName').textContent=evt.course||'Course TBD';
+  document.getElementById('courseSub').textContent=`${evt.city||''} · par ${coursePar()} · ${(+evt.yards||0).toLocaleString()} yds · slope ${evt.slope||'—'}`;
+
+  const h=evt.holes;
+  let html=`<tr><th class="k" style="text-align:left">Hole</th>${h.map(x=>`<th>${x.h}</th>`).join('')}<th>Tot</th></tr>`;
+  const row=(k,arr,tot)=>`<tr><td class="k">${k}</td>${arr.map(v=>`<td>${v}</td>`).join('')}<td><strong>${tot}</strong></td></tr>`;
+  html+=row('Par',h.map(x=>x.par),coursePar());
+  html+=row('Yards',h.map(x=>x.yds),(+evt.yards||0).toLocaleString());
+  html+=row('Hcp',h.map(x=>x.hcp),'');
+  document.getElementById('scorecard').innerHTML=html;
+
+  document.getElementById('fieldEyebrow').textContent=`${evt.teams.length*2}-man field`;
+  document.getElementById('pairList').innerHTML = evt.teams.length ? evt.teams.map(t=>
+    `<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <span class="diamond ghost sm"><span>${t.id}</span></span>
+      <span><strong>${esc(t.a)}</strong> &amp; ${esc(t.b)}</span></div>`).join('')
+    : '<div class="muted">Field not set yet.</div>';
+}
+
+/* ==========================================================
+   SETUP
+   ========================================================== */
+function renderSetup(){
+  document.getElementById('setupYear').textContent=`${year} Cup`;
+  const v=(id,val)=>document.getElementById(id).value=val??'';
+  v('sDate',evt.date); v('sTime',evt.time); v('sCourse',evt.course); v('sCity',evt.city);
+  v('sTee',evt.tee); v('sYards',evt.yards); v('sSlope',evt.slope); v('sPot',evt.pot);
+  v('sLd',evt.ldHole); v('sPrizes',(evt.prizes||[]).join('\n'));
+  v('nyYear', Math.max(...idx.years)+1);
+
+  let t=`<tr><th></th>${evt.holes.map(h=>`<th>${h.h}</th>`).join('')}</tr>`;
+  ['par','yds','hcp'].forEach(k=>{
+    t+=`<tr><td class="k">${k==='yds'?'Yards':k}</td>`+
+      evt.holes.map((h,i)=>`<td><input data-hk="${k}" data-hi="${i}" inputmode="numeric" value="${h[k]}"></td>`).join('')+'</tr>';
+  });
+  document.getElementById('holeEditor').innerHTML=t;
+
+  document.getElementById('teamEditor').innerHTML = evt.teams.map((tm,i)=>`
+    <div class="team-edit">
+      <span class="diamond ghost sm"><span>${i+1}</span></span>
+      <input data-ti="${i}" data-tf="a" value="${esc(tm.a)}" placeholder="Player 1">
+      <input data-ti="${i}" data-tf="b" value="${esc(tm.b)}" placeholder="Player 2">
+      <button class="x" data-rm="${i}" aria-label="Remove team">×</button>
+    </div>`).join('') || '<div class="muted" style="margin-bottom:10px">No teams yet.</div>';
+  document.getElementById('teamEditor').querySelectorAll('[data-rm]').forEach(b=>{
+    b.onclick=()=>{ evt.teams.splice(+b.dataset.rm,1); reindexTeams(); renderSetup(); };
+  });
+}
+function reindexTeams(){ evt.teams.forEach((t,i)=>t.id=i+1); }
+
+function renderYearSelect(){
+  const s=document.getElementById('yearSelect');
+  s.innerHTML=idx.years.map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('');
+  document.getElementById('hdrSub').textContent =
+    isFinal()?'Final · '+(evt.course||''):(evt.date||'Invitational');
+}
+
+/* ==========================================================
+   EVENTS
+   ========================================================== */
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+    const tab=b.dataset.tab;
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+tab));
+    window.scrollTo({top:0});
+    clearInterval(lbTimer);
+    if(tab==='board'){ refreshBoard(); if(!isFinal()) lbTimer=setInterval(refreshBoard,45000); }
+    if(tab==='contests') renderContests();
+    if(tab==='cup') renderCup();
+    if(tab==='setup') renderSetup();
+  };
+});
+
+document.getElementById('yearSelect').onchange=async e=>{
+  await switchYear(+e.target.value);
+};
+async function switchYear(y){
+  clearInterval(lbTimer);
+  await loadEvent(y);
+  myTeam=(me.teams||{})[y]||null; card=null;
+  renderYearSelect(); renderPicker(); renderBanner();
+  if(myTeam && teamOf(myTeam)) await chooseTeam(myTeam); else hideCard();
+  renderContests(); renderCup(); renderSetup();
+  toast(`${y} Cup loaded`);
+}
+
+document.getElementById('plus').onclick=()=>bumpScore(1);
+document.getElementById('minus').onclick=()=>bumpScore(-1);
+document.getElementById('prevHole').onclick=()=>{ if(hole>0){hole--;renderAll();} };
+document.getElementById('nextHole').onclick=()=>{ if(hole<17){hole++;renderAll();} };
+document.querySelectorAll('[data-drive]').forEach(b=>b.onclick=()=>{
+  if(isFinal()) return toast('Year is locked');
+  const i=+b.dataset.drive; card.d[hole]=card.d[hole]===i?null:i; queueSave(); renderHole();
+});
+document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
+  if(isFinal()) return toast('Year is locked');
+  const i=+b.dataset.mull; card.m[i]=!card.m[i]; queueSave(); renderHole();
+  toast(card.m[i]?'Mulligan spent':'Mulligan back in the bag');
+});
+document.getElementById('pushNow').onclick=async()=>{ await saveNow(); toast('Posted to the board'); };
+document.getElementById('switchTeam').onclick=()=>{ hideCard(); renderPicker(); window.scrollTo({top:0,behavior:'smooth'}); };
+document.getElementById('refreshLb').onclick=()=>{ refreshBoard(); toast('Board refreshed'); };
+document.getElementById('crown').onclick=crownChampion;
+
+document.getElementById('addChamp').onclick=async()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  const y=+g('cy');
+  if(!y||!g('ca')) return toast('Year and a name, minimum');
+  champs=champs.filter(c=>+c.year!==y);
+  champs.push({year:y,a:g('ca'),b:g('cb'),course:g('cc'),gross:+g('cg')||'',toPar:g('ctp')});
+  await saveChamps(); renderCup();
+  ['cy','cc','ca','cb','cg','ctp'].forEach(id=>document.getElementById(id).value='');
+  toast('Engraved');
+};
+
+document.getElementById('saveEvent').onclick=async()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  Object.assign(evt,{date:g('sDate'),time:g('sTime'),course:g('sCourse'),city:g('sCity'),
+    tee:g('sTee'),yards:+g('sYards')||0,slope:+g('sSlope')||0,pot:g('sPot')});
+  await saveEvent(); renderYearSelect(); renderCup(); toast('Event saved');
+};
+document.getElementById('saveHoles').onclick=async()=>{
+  document.querySelectorAll('#holeEditor input').forEach(i=>{
+    const n=+i.value||0; evt.holes[+i.dataset.hi][i.dataset.hk]=n;
+  });
+  evt.holes.forEach((h,i)=>h.h=i+1);
+  evt.ctpHoles=evt.ctpHoles.filter(h=>evt.holes[h-1]&&+evt.holes[h-1].par===3);
+  if(!evt.ctpHoles.length) evt.ctpHoles=par3s().slice(0,4);
+  await saveEvent(); renderCup(); renderContests(); if(card) renderAll();
+  toast('Scorecard saved');
+};
+document.getElementById('addTeam').onclick=()=>{
+  evt.teams.push({id:evt.teams.length+1,a:'',b:''}); renderSetup();
+};
+document.getElementById('saveTeams').onclick=async()=>{
+  document.querySelectorAll('#teamEditor input').forEach(i=>{
+    evt.teams[+i.dataset.ti][i.dataset.tf]=i.value.trim();
+  });
+  evt.teams=evt.teams.filter(t=>t.a||t.b);
+  reindexTeams(); await saveEvent();
+  renderPicker(); renderCup(); renderSetup(); refreshBoard();
+  toast('Pairings saved');
+};
+document.getElementById('savePrizes').onclick=async()=>{
+  evt.ldHole=+document.getElementById('sLd').value||10;
+  evt.prizes=document.getElementById('sPrizes').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  await saveEvent(); renderContests(); toast('Prizes saved');
+};
+document.getElementById('newYear').onclick=async()=>{
+  const y=+document.getElementById('nyYear').value;
+  if(!y||y<1983) return toast('Give it a real year');
+  if(idx.years.includes(y) && !confirm(`${y} already exists. Open it instead?`)) return;
+  if(!idx.years.includes(y)){
+    const carry=document.getElementById('nyCarry').value;
+    const base={year:y,status:'open',date:'',time:'',pot:evt.pot,
+      course:carry==='all'?evt.course:'', city:carry==='all'?evt.city:'',
+      tee:carry==='all'?evt.tee:'', yards:carry==='all'?evt.yards:0, slope:carry==='all'?evt.slope:0,
+      holes:carry==='all'?evt.holes.map(h=>({...h})):RIVER_FOREST.map(h=>({...h})),
+      teams:carry==='none'?[]:evt.teams.map(t=>({...t})),
+      ctpHoles:[...evt.ctpHoles], ldHole:evt.ldHole, prizes:[...evt.prizes]};
+    await store.set(K.evt(y),JSON.stringify(base),true);
+    idx.years.push(y); idx.years.sort((a,b)=>b-a); idx.activeYear=y;
+    await saveIndex();
+  }
+  await switchYear(y);
+};
+document.getElementById('clearScores').onclick=async()=>{
+  if(!confirm(`Wipe every posted card for ${year}?`)) return;
+  await Promise.all(evt.teams.map(t=>store.set(K.card(year,t.id),JSON.stringify(blankCard(t.id)),true)));
+  if(myTeam) card=blankCard(myTeam);
+  hole=0; renderAll(); refreshBoard(); toast('Cards cleared');
+};
+document.getElementById('reopen').onclick=async()=>{
+  if(!isFinal()) return toast('Year is already open');
+  if(!confirm(`Reopen ${year} for edits?`)) return;
+  evt.status='open'; await saveEvent();
+  renderYearSelect(); renderAll(); renderBoard(); renderContests(); toast('Year reopened');
+};
+
+document.addEventListener('keydown',e=>{
+  if(!card||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+  if(e.key==='ArrowLeft'&&hole>0){ hole--; renderAll(); }
+  if(e.key==='ArrowRight'&&hole<17){ hole++; renderAll(); }
+  if(/^[1-9]$/.test(e.key)) setScore(+e.key);
+});
+
+/* ========================== BOOT ========================== */
+(async function init(){
+  await loadIndex();
+  await loadChamps();
+  const meRaw=await store.get(K.me,false);
+  if(meRaw){ try{ me=JSON.parse(meRaw)||{}; }catch(e){ me={}; } }
+  await loadEvent(idx.activeYear||idx.years[0]||2026);
+  if(!idx.years.includes(year)){ idx.years.push(year); idx.years.sort((a,b)=>b-a); await saveIndex(); }
+
+  renderYearSelect(); renderPicker(); renderBanner(); renderContests(); renderCup(); renderSetup();
+  const saved=(me.teams||{})[year];
+  if(saved && teamOf(saved)) await chooseTeam(saved);
+  else loadField();
+})();
+</script>
+</body>
+</html>
