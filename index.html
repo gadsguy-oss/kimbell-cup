@@ -318,6 +318,19 @@
       <p class="muted" style="font-size:12px;margin:12px 0 0">Tap a par 3 to change which holes carry closest-to-the-pin.</p>
       <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"></div>
     </div>
+
+    <div class="card">
+      <p class="eyebrow">Nothing assigned ahead of time</p>
+      <h2 class="sec">The draw</h2>
+      <p class="muted" style="margin:0 0 13px">Names go in the hat, prizes come out at random.</p>
+      <div class="sub-row" style="margin-bottom:12px">
+        <span class="sub-lbl">Hat</span>
+        <button class="toggle" data-pool="winners">Contest winners</button>
+        <button class="toggle" data-pool="field">Whole field</button>
+      </div>
+      <div id="drawBoard"></div>
+      <button class="btn gold wide" id="runDraw" style="margin-top:12px">Run the draw</button>
+    </div>
   </section>
 
   <section class="view" id="v-cup">
@@ -408,7 +421,7 @@
       <p class="eyebrow">Prizes</p>
       <h2 class="sec">Contest board</h2>
       <div class="field-row"><label>Long drive hole</label><input id="sLd" inputmode="numeric"></div>
-      <div class="field-row"><label>Prize list — one per line</label><textarea id="sPrizes"></textarea></div>
+      <div class="field-row"><label>Prize pool — one per line</label><textarea id="sPrizes"></textarea></div>
       <button class="btn wide" id="savePrizes">Save prizes</button>
     </div>
 
@@ -597,7 +610,7 @@ function relLabel(v,par){
   if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
 }
 function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],u:0}; }
-function blankContest(){ return {ctp:{},ld:{name:'',yds:''},putt:{name:''},u:0}; }
+function blankContest(){ return {ctp:{},ld:{name:'',yds:''},putt:{name:''},draw:{pool:'winners',picks:[]},u:0}; }
 function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function first(n){ return String(n||'').split(' ')[0]||'—'; }
 
@@ -639,6 +652,7 @@ async function loadEvent(y){
   if(!contest.ctp) contest.ctp={};
   if(!contest.ld) contest.ld={name:'',yds:''};
   if(!contest.putt) contest.putt={name:''};
+  if(!contest.draw) contest.draw={pool:'winners',picks:[]};
 }
 async function saveEvent(){ evt.u=Date.now(); await store.set(K.evt(evt.year),JSON.stringify(evt),true); }
 
@@ -940,7 +954,7 @@ function renderContests(){
     html+=`<div class="contest ${cur.name?'won':''}">
       <div class="contest-hd"><span class="diamond ghost"><span>${h}</span></span>
         <h3>Closest to the pin</h3>
-        <span class="prize">${H.yds} yds · par ${H.par}<br>${esc(evt.prizes[i]||'')}</span></div>
+        <span class="prize">${H.yds} yds · par ${H.par}</span></div>
       <div class="fields">
         <input placeholder="Name" value="${esc(cur.name)}" data-ctp="${h}" data-f="name" ${isFinal()?'disabled':''}>
         <input class="dist" placeholder="Ft / in" value="${esc(cur.dist)}" data-ctp="${h}" data-f="dist" ${isFinal()?'disabled':''}>
@@ -950,7 +964,7 @@ function renderContests(){
   if(L) html+=`<div class="contest ${contest.ld.name?'won':''}">
     <div class="contest-hd"><span class="diamond ghost"><span>${L.h}</span></span>
       <h3>Long drive</h3>
-      <span class="prize">${L.yds} yds · par ${L.par}<br>${esc(evt.prizes[4]||'')}</span></div>
+      <span class="prize">${L.yds} yds · par ${L.par}</span></div>
     <div class="fields">
       <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${isFinal()?'disabled':''}>
       <input class="dist" placeholder="Yards" value="${esc(contest.ld.yds)}" data-ld="yds" ${isFinal()?'disabled':''}>
@@ -958,7 +972,7 @@ function renderContests(){
   html+=`<div class="contest ${contest.putt.name?'won':''}">
     <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
       <h3>Putting contest</h3>
-      <span class="prize">Practice green, pre-round<br>${esc(evt.prizes[5]||'')}</span></div>
+      <span class="prize">Practice green, pre-round</span></div>
     <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${isFinal()?'disabled':''}></div></div>`;
   wrap.innerHTML=html;
   wrap.querySelectorAll('input').forEach(i=>{ i.addEventListener('change',onContestEdit); });
@@ -966,6 +980,7 @@ function renderContests(){
   const pick=document.getElementById('ctpPicker');
   pick.innerHTML=par3s().map(h=>`<button class="toggle ${evt.ctpHoles.includes(h)?'on':''}" data-par3="${h}">Hole ${h}</button>`).join('')
     || '<span class="muted">No par 3s on this scorecard yet.</span>';
+  renderDraw();
   pick.querySelectorAll('[data-par3]').forEach(b=>{
     b.onclick=async()=>{
       if(isFinal()) return toast('Year is locked');
@@ -974,6 +989,64 @@ function renderContests(){
       await saveEvent(); renderContests(); if(card) renderHole();
     };
   });
+}
+function drawEntrants(){
+  const pool=(contest.draw&&contest.draw.pool)||'winners';
+  if(pool==='field'){
+    const all=[];
+    evt.teams.forEach(t=>{ if(t.a) all.push(t.a); if(t.b) all.push(t.b); });
+    return all;
+  }
+  const names=[];
+  Object.values(contest.ctp||{}).forEach(c=>{ if(c&&c.name) names.push(c.name.trim()); });
+  if(contest.ld&&contest.ld.name) names.push(contest.ld.name.trim());
+  if(contest.putt&&contest.putt.name) names.push(contest.putt.name.trim());
+  return [...new Set(names.filter(Boolean))];
+}
+function shuffle(a){
+  const x=[...a];
+  for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; }
+  return x;
+}
+function renderDraw(){
+  const d=contest.draw||{pool:'winners',picks:[]};
+  document.querySelectorAll('[data-pool]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.pool===(d.pool||'winners'));
+  });
+  const board=document.getElementById('drawBoard');
+  const btn=document.getElementById('runDraw');
+  const entrants=drawEntrants(), prizes=(evt.prizes||[]);
+
+  if(d.picks&&d.picks.length){
+    board.innerHTML=d.picks.map((p,i)=>`
+      <div class="contest won" style="margin-bottom:7px">
+        <div class="contest-hd" style="margin-bottom:0">
+          <span class="diamond ${i===0?'lead':''}"><span>${i+1}</span></span>
+          <h3>${esc(p.name)}</h3>
+          <span class="prize">${esc(p.prize)}</span>
+        </div>
+      </div>`).join('');
+    btn.textContent='Draw again';
+  } else {
+    board.innerHTML=`<div class="empty-state">
+      ${entrants.length} in the hat · ${prizes.length} prize${prizes.length===1?'':'s'} on the table<br>
+      ${entrants.length?'Ready when you are.':'No names yet.'}</div>`;
+    btn.textContent='Run the draw';
+  }
+  btn.disabled = !entrants.length || !prizes.length;
+}
+async function runDraw(){
+  const entrants=drawEntrants(), prizes=(evt.prizes||[]);
+  if(!entrants.length||!prizes.length) return toast('Need names and prizes');
+  if(contest.draw&&contest.draw.picks&&contest.draw.picks.length
+     && !confirm('Redraw? The current results are replaced.')) return;
+  const names=shuffle(entrants), pool=shuffle(prizes);
+  const n=Math.min(names.length,pool.length);
+  const picks=[];
+  for(let i=0;i<n;i++) picks.push({name:names[i],prize:pool[i]});
+  contest.draw=Object.assign({pool:'winners'},contest.draw,{picks,at:Date.now()});
+  await saveContest(); renderDraw();
+  toast(names.length>pool.length?'Drawn — more names than prizes':'Prizes drawn');
 }
 async function onContestEdit(e){
   const el=e.target, v=el.value.trim();
@@ -1127,6 +1200,11 @@ document.getElementById('pushNow').onclick=async()=>{ await saveNow(); toast('Po
 document.getElementById('switchTeam').onclick=()=>{ hideCard(); renderPicker(); window.scrollTo({top:0,behavior:'smooth'}); };
 document.getElementById('refreshLb').onclick=()=>{ refreshBoard(); toast('Board refreshed'); };
 document.getElementById('crown').onclick=crownChampion;
+document.getElementById('runDraw').onclick=runDraw;
+document.querySelectorAll('[data-pool]').forEach(b=>b.onclick=async()=>{
+  contest.draw=Object.assign({picks:[]},contest.draw,{pool:b.dataset.pool});
+  await saveContest(); renderDraw();
+});
 
 document.getElementById('addChamp').onclick=async()=>{
   const g=id=>document.getElementById(id).value.trim();
