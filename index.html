@@ -192,7 +192,10 @@
   .holegrid td.k{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(7,22,71,.5);padding-right:7px;text-align:left;position:sticky;left:0;background:var(--white)}
   .holegrid input{width:46px;text-align:center;border:1.5px solid var(--line);border-radius:7px;padding:6px 2px;font-family:var(--num);font-weight:600;font-size:14px}
 
-  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--white);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -18px rgba(7,22,71,.8)}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--white);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);}
+  nav.tabs.locked{grid-template-columns:repeat(4,1fr)}
+  nav.tabs.locked button[data-tab="setup"]{display:none}
+  nav.tabs{padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px -18px rgba(7,22,71,.8)}
   nav.tabs button{background:none;border:none;padding:8px 1px 7px;border-radius:12px;display:grid;justify-items:center;gap:3px;color:rgba(7,22,71,.45)}
   nav.tabs button .ti{width:20px;height:20px;display:block}
   nav.tabs button span{font-family:var(--num);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
@@ -425,6 +428,17 @@
       <button class="btn wide" id="savePrizes">Save prizes</button>
     </div>
 
+    <div class="card" id="codesCard">
+      <p class="eyebrow">Security</p>
+      <h2 class="sec">Team codes</h2>
+      <p class="muted" style="margin:0 0 12px">Each team needs its code once, on the phone keeping their card. Codes are checked on the server, so they aren't in the page source.</p>
+      <div id="codeList"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="showCodes">Show codes</button>
+        <button class="btn" id="genCodes">Generate codes</button>
+      </div>
+    </div>
+
     <div class="card">
       <p class="eyebrow">Next year</p>
       <h2 class="sec">Start a new Cup</h2>
@@ -449,6 +463,7 @@
         <button class="btn danger" id="clearScores">Clear all cards</button>
         <button class="btn danger" id="reopen">Reopen year</button>
       </div>
+      <button class="btn ghost wide" id="lockSetup" style="margin-top:8px">Lock Setup on this device</button>
       <p class="muted" style="font-size:12px;margin:12px 0 0">Clearing wipes every posted card for this year only. Reopening unlocks a finalized year for edits.</p>
     </div>
   </section>
@@ -544,6 +559,7 @@ const store={
       const r=await fetch(API+'?ping=1',{cache:'no-store'});
       const j=await r.json();
       this.server=!!j.configured;
+      this.claimed=!!j.claimed;
     }catch(e){ this.server=false; }
   },
   async get(k,s){
@@ -566,7 +582,10 @@ const store={
       try{
         const c=this.cardHash(k);
         const body=c?{hash:c.hash,field:c.field,value:v}:{key:k,value:v};
+        body.auth={admin:this.auth.admin||undefined,
+                   code:c?this.teamCode(c.hash.split(':').pop(),c.field)||undefined:undefined};
         const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(r.status===401){ toast('Code required for that change'); return false; }
         if(!r.ok) throw new Error('save failed');
         try{ localStorage.setItem(k,v); }catch(e){}
         return true;
@@ -576,6 +595,19 @@ const store={
       }
     }
     try{ localStorage.setItem(k,v); return true; }catch(e){ mem[k]=v; return false; }
+  },
+  auth: {admin:null, teams:{}},
+  loadAuth(){
+    try{ this.auth = Object.assign({admin:null,teams:{}}, JSON.parse(localStorage.getItem('kc:auth')||'{}')); }
+    catch(e){ this.auth = {admin:null,teams:{}}; }
+  },
+  saveAuth(){ try{ localStorage.setItem('kc:auth', JSON.stringify(this.auth)); }catch(e){} },
+  teamCode(y,t){ return (this.auth.teams||{})[y+':'+t]||null; },
+  setTeamCode(y,t,c){ this.auth.teams=this.auth.teams||{}; this.auth.teams[y+':'+t]=c; this.saveAuth(); },
+  async post(payload){
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    let j={}; try{ j=await r.json(); }catch(e){}
+    return {ok:r.ok, status:r.status, data:j};
   },
   async allCards(y){
     if(!this.server) return null;
@@ -688,7 +720,21 @@ function renderPicker(){
     w.appendChild(b);
   });
 }
+async function unlockTeam(id){
+  if(!store.server) return true;                 // artifact / offline: no gate
+  if(store.auth.admin) return true;              // admin can keep any card
+  if(store.teamCode(year,id)) return true;
+  const t=teamOf(id);
+  const entered=prompt(`Team ${id} — ${t?t.a+' & '+t.b:''}\n\nEnter your team code:`);
+  if(entered===null) return false;
+  const r=await store.post({action:'verify',scope:'team',year,team:id,code:entered});
+  if(!r.ok){ toast('That code is not right'); return false; }
+  store.setTeamCode(year,id,entered.trim().toUpperCase());
+  toast('Card unlocked');
+  return true;
+}
 async function chooseTeam(id){
+  if(!(await unlockTeam(id))) return;
   myTeam=id;
   me.teams = me.teams||{}; me.teams[year]=id;
   await store.set(K.me,JSON.stringify(me),false);
@@ -1144,6 +1190,87 @@ function renderSetup(){
     b.onclick=()=>{ evt.teams.splice(+b.dataset.rm,1); reindexTeams(); renderSetup(); };
   });
 }
+async function requireAdmin(){
+  if(!store.server) return true;
+  if(store.auth.admin) return true;
+  const first = store.claimed===false;
+  const msg = first
+    ? 'No admin code is set yet. Choose one now — 4 characters or more.\nWrite it down; it is the only way back into Setup.'
+    : 'Enter the admin code:';
+  const entered=prompt(msg);
+  if(entered===null||!entered.trim()) return false;
+  const code=entered.trim().toUpperCase();
+  if(first){
+    const r=await store.post({action:'claim',admin:code});
+    if(!r.ok){ toast(r.data.error||'Could not set code'); return false; }
+    store.claimed=true;
+  }else{
+    const r=await store.post({action:'verify',scope:'admin',code});
+    if(!r.ok){ toast('Wrong admin code'); return false; }
+  }
+  store.auth.admin=code; store.saveAuth();
+  toast('Admin unlocked');
+  return true;
+}
+function randCode(){
+  const abc='ACDEFHJKLMNPRTUVWXY349';           // no lookalikes
+  let s=''; for(let i=0;i<4;i++) s+=abc[Math.floor(Math.random()*abc.length)];
+  return s;
+}
+function paintCodes(codes){
+  const el=document.getElementById('codeList');
+  const ids=Object.keys(codes||{});
+  if(!ids.length){ el.innerHTML='<div class="empty-state">No codes issued yet.</div>'; return; }
+  el.innerHTML=evt.teams.map(t=>{
+    const c=codes[String(t.id)];
+    if(!c) return '';
+    return `<div class="contest" style="margin-bottom:6px"><div class="contest-hd" style="margin-bottom:0">
+      <span class="diamond ghost sm"><span>${t.id}</span></span>
+      <h3 style="font-size:14px">${esc(t.a)} &amp; ${esc(t.b)}</h3>
+      <span class="prize" style="font-family:var(--display);font-size:20px;color:var(--navy);letter-spacing:.1em">${esc(c)}</span>
+    </div></div>`;
+  }).join('');
+}
+async function showCodes(){
+  if(!store.server) return toast('Codes need the hosted version');
+  if(!(await requireAdmin())) return;
+  const r=await store.post({action:'codes',admin:store.auth.admin,year});
+  if(!r.ok) return toast('Could not load codes');
+  paintCodes(r.data.codes);
+}
+async function genCodes(){
+  if(!store.server) return toast('Codes need the hosted version');
+  if(!(await requireAdmin())) return;
+  if(!confirm('Generate a new code for every team? Any codes already handed out stop working.')) return;
+  const codes={}; const used=new Set();
+  evt.teams.forEach(t=>{ let c; do{ c=randCode(); }while(used.has(c)); used.add(c); codes[t.id]=c; });
+  const r=await store.post({action:'setcodes',admin:store.auth.admin,year,codes});
+  if(!r.ok) return toast(r.data.error||'Could not save codes');
+  store.auth.teams={}; store.saveAuth();
+  paintCodes(codes);
+  toast('Codes generated');
+}
+function applyAdminUI(){
+  const nav=document.querySelector('nav.tabs');
+  const hide = store.server && !store.auth.admin;
+  nav.classList.toggle('locked', hide);
+  if(hide && document.getElementById('v-setup').classList.contains('on')){
+    document.querySelector('nav.tabs button[data-tab="card"]').click();
+  }
+}
+let logoTaps=0, logoTimer=null;
+async function logoTap(){
+  if(store.auth.admin || !store.server) return;
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer=setTimeout(()=>{ logoTaps=0; }, 1200);
+  if(logoTaps<3) return;
+  logoTaps=0;
+  if(await requireAdmin()){
+    applyAdminUI();
+    document.querySelector('nav.tabs button[data-tab="setup"]').click();
+  }
+}
 function reindexTeams(){ evt.teams.forEach((t,i)=>t.id=i+1); }
 
 function renderYearSelect(){
@@ -1201,6 +1328,16 @@ document.getElementById('switchTeam').onclick=()=>{ hideCard(); renderPicker(); 
 document.getElementById('refreshLb').onclick=()=>{ refreshBoard(); toast('Board refreshed'); };
 document.getElementById('crown').onclick=crownChampion;
 document.getElementById('runDraw').onclick=runDraw;
+document.getElementById('showCodes').onclick=showCodes;
+document.getElementById('genCodes').onclick=genCodes;
+document.querySelector('header svg').style.cursor='pointer';
+document.querySelector('header svg').onclick=logoTap;
+document.getElementById('lockSetup').onclick=()=>{
+  if(!confirm('Lock Setup on this device? You will need the admin code to get back in.')) return;
+  store.auth.admin=null; store.saveAuth(); applyAdminUI();
+  document.querySelector('nav.tabs button[data-tab="card"]').click();
+  toast('Setup locked');
+};
 document.querySelectorAll('[data-pool]').forEach(b=>b.onclick=async()=>{
   contest.draw=Object.assign({picks:[]},contest.draw,{pool:b.dataset.pool});
   await saveContest(); renderDraw();
@@ -1290,6 +1427,7 @@ document.addEventListener('keydown',e=>{
 
 /* ========================== BOOT ========================== */
 (async function init(){
+  store.loadAuth();
   await store.probe();
   await loadIndex();
   await loadChamps();
@@ -1299,6 +1437,10 @@ document.addEventListener('keydown',e=>{
   if(!idx.years.includes(year)){ idx.years.push(year); idx.years.sort((a,b)=>b-a); await saveIndex(); }
 
   renderYearSelect(); renderPicker(); renderBanner(); renderContests(); renderCup(); renderSetup();
+  applyAdminUI();
+  if(store.server && store.claimed===false && !store.auth.admin){
+    setTimeout(()=>toast('Tap the logo 3× to claim admin'), 900);
+  }
   const saved=(me.teams||{})[year];
   if(saved && teamOf(saved)) await chooseTeam(saved);
   else loadField();
