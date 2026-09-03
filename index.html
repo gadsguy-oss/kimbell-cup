@@ -369,8 +369,8 @@
       <h2 class="sec" id="setupYear">Event</h2>
       <p class="muted" style="margin:0 0 14px">Everything here is shared with the field. Set it once before the first tee time.</p>
       <div class="row2">
-        <div class="field-row"><label>Date</label><input id="sDate" placeholder="Friday, December 4"></div>
-        <div class="field-row"><label>First tee</label><input id="sTime" placeholder="8:40 am"></div>
+        <div class="field-row"><label>Date</label><input id="sDate" placeholder="Wednesday, December 2"></div>
+        <div class="field-row"><label>First tee</label><input id="sTime" placeholder="12:00 pm"></div>
       </div>
       <div class="row2">
         <div class="field-row"><label>Course</label><input id="sCourse" placeholder="River Forest"></div>
@@ -381,7 +381,7 @@
         <div class="field-row"><label>Yards</label><input id="sYards" inputmode="numeric"></div>
         <div class="field-row"><label>Slope</label><input id="sSlope" inputmode="numeric"></div>
       </div>
-      <div class="field-row"><label>Entry / pot</label><input id="sPot" placeholder="Bottle of your choice — winner takes all 24"></div>
+      <div class="field-row"><label>Entry / pot</label><input id="sPot" placeholder="Bottle of your choice — winner takes all 28"></div>
       <button class="btn wide" id="saveEvent">Save event details</button>
     </div>
 
@@ -477,18 +477,26 @@ const RIVER_FOREST = [
 ];
 
 const SEED_2026 = {
-  year:2026, date:'Friday, December 4', time:'8:40 am', course:'River Forest', city:'Forsyth, GA',
-  tee:'Gold', yards:6280, slope:136, pot:'Bottle of your choice — winning team takes all 24',
+  year:2026, date:'Wednesday, December 2', time:'12:00 pm', course:'River Forest', city:'Forsyth, GA',
+  tee:'Gold', yards:6280, slope:136, pot:'Bottle of your choice — winning team takes all 28',
   holes:RIVER_FOREST.map(h=>({...h})),
   teams:[
-    {id:1,a:'Jordan Piland',b:'Brian Chapman'},   {id:2,a:'Tyler Whitehead',b:'Shane Preston'},
-    {id:3,a:'Jonathan Kimbell',b:'Matt Raybon'},  {id:4,a:'Caleb Bloodworth',b:'Wesley Flanagan'},
-    {id:5,a:'Rob Dixon',b:'Kevin Abercrombie'},   {id:6,a:'Jason Torres',b:'Jeremiah Busbin'},
-    {id:7,a:'Chip Johns',b:'Dave Dunson'},        {id:8,a:'Michael Harbin',b:'Matt Middleton'},
-    {id:9,a:'Charlie Heuer',b:'Shane Steward'},   {id:10,a:'Paul Doss',b:'Patrick Whelan'},
-    {id:11,a:'Joey Grubbs',b:'Evan Baker'},       {id:12,a:'Curtis Hardwick',b:'Jared Cordova'}
+    {id:1, a:'Tye Waller',       b:'Brian Chapman'},
+    {id:2, a:'Brett Piland',     b:'Shane Preston'},
+    {id:3, a:'Jordan Piland',    b:'Matt Raybon'},
+    {id:4, a:'Tyler Whitehead',  b:'Wesley Flanagan'},
+    {id:5, a:'Jonathan Kimbell', b:'Jeremiah Busbin'},
+    {id:6, a:'Edward Folker',    b:'Dave Dunson'},
+    {id:7, a:'Caleb Bloodworth', b:'Shane Steward'},
+    {id:8, a:'Rob Dixon',        b:'Eric Bailey'},
+    {id:9, a:'Chip Johns',       b:'Kevin Abercrombie'},
+    {id:10,a:'Jason Torres',     b:'Matt Middleton'},
+    {id:11,a:'Michael Harbin',   b:'Patrick Whelan'},
+    {id:12,a:'Charlie Heuer',    b:"Alex O'Brian"},
+    {id:13,a:'Paul Doss',        b:'Evan Baker'},
+    {id:14,a:'Curtis Hardwick',  b:'Jared Cordova'}
   ],
-  ctpHoles:[4,7,11,16], ldHole:10,
+  ctpHoles:[4,7,11,13], ldHole:10,
   prizes:['Stitch SL2 stand bag','Blue Tees Player Pack','Sar 9mm with light','Rock Island PF14 shotgun','FootJoy cooler + shoe bag','Blackstone 22" griddle'],
   status:'open'
 };
@@ -502,21 +510,67 @@ const K = {
   me:'kc:me'
 };
 
-/* ---------- storage that never throws ----------
-   Two backends:
-   - "cloud"  : Claude artifact shared storage — the whole field sees one board
-   - "device" : this browser only — used when hosted on the open web           */
+/* ---------- storage ----------
+   cloud  : Claude artifact shared storage
+   server : /api/kv backed by Redis — one shared board for the whole field
+   device : this browser only, when no backend is connected                */
 const mem={};
+const API='/api/kv';
 const store={
   cloud: typeof window!=='undefined' && !!window.storage,
-  get mode(){ return this.cloud?'cloud':'device'; },
+  server:false,
+  get mode(){ return this.cloud?'cloud':(this.server?'server':'device'); },
+  get live(){ return this.mode!=='device'; },
+  cardHash(k){
+    const m=/^kc:sc:(\d+):(\d+)$/.exec(k);
+    return m?{hash:'kc:cards:'+m[1], field:m[2]}:null;
+  },
+  async probe(){
+    if(this.cloud) return;
+    try{
+      const r=await fetch(API+'?ping=1',{cache:'no-store'});
+      const j=await r.json();
+      this.server=!!j.configured;
+    }catch(e){ this.server=false; }
+  },
   async get(k,s){
     if(this.cloud){ try{ const r=await window.storage.get(k,s); return r?r.value:null; }catch(e){ return null; } }
+    if(this.server && s!==false){
+      try{
+        const c=this.cardHash(k);
+        const u=c ? API+'?hash='+encodeURIComponent(c.hash)+'&field='+encodeURIComponent(c.field)
+                  : API+'?key='+encodeURIComponent(k);
+        const r=await fetch(u,{cache:'no-store'});
+        const j=await r.json();
+        return j.value??null;
+      }catch(e){ return null; }
+    }
     try{ return localStorage.getItem(k); }catch(e){ return mem[k]??null; }
   },
   async set(k,v,s){
     if(this.cloud){ try{ await window.storage.set(k,v,s); return true; }catch(e){ mem[k]=v; return false; } }
+    if(this.server && s!==false){
+      try{
+        const c=this.cardHash(k);
+        const body=c?{hash:c.hash,field:c.field,value:v}:{key:k,value:v};
+        const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!r.ok) throw new Error('save failed');
+        try{ localStorage.setItem(k,v); }catch(e){}
+        return true;
+      }catch(e){
+        try{ localStorage.setItem(k,v); }catch(e2){ mem[k]=v; }
+        return false;
+      }
+    }
     try{ localStorage.setItem(k,v); return true; }catch(e){ mem[k]=v; return false; }
+  },
+  async allCards(y){
+    if(!this.server) return null;
+    try{
+      const r=await fetch(API+'?hash='+encodeURIComponent('kc:cards:'+y),{cache:'no-store'});
+      const j=await r.json();
+      return j.values||{};
+    }catch(e){ return null; }
   }
 };
 
@@ -576,7 +630,7 @@ async function loadEvent(y){
   }
   if(!Array.isArray(evt.holes)||evt.holes.length!==18) evt.holes=RIVER_FOREST.map(h=>({...h}));
   if(!Array.isArray(evt.teams)) evt.teams=[];
-  if(!Array.isArray(evt.ctpHoles)) evt.ctpHoles=[4,7,11,16];
+  if(!Array.isArray(evt.ctpHoles)) evt.ctpHoles=[4,7,11,13];
   if(!Array.isArray(evt.prizes)) evt.prizes=[];
   evt.ldHole = evt.ldHole || 10;
 
@@ -757,6 +811,18 @@ async function saveNow(){
    BOARD
    ========================================================== */
 async function loadField(){
+  if(store.server){
+    const all=await store.allCards(year);
+    if(all){
+      field={};
+      evt.teams.forEach(t=>{
+        const raw=all[String(t.id)];
+        if(raw){ try{ field[t.id]=safeCard(JSON.parse(raw),t.id); }catch(e){} }
+      });
+      if(myTeam&&card) field[myTeam]=card;
+      return;
+    }
+  }
   const res=await Promise.all(evt.teams.map(async t=>{
     const raw=await store.get(K.card(year,t.id),true);
     return [t.id, raw?safeCard(JSON.parse(raw),t.id):null];
@@ -818,13 +884,13 @@ function renderBoard(){
   const t=new Date(), hh=t.getHours()%12||12, mm=String(t.getMinutes()).padStart(2,'0'), ap=t.getHours()>=12?'pm':'am';
   document.getElementById('lbStamp').textContent = isFinal()
     ? `${year} final · ${rows.length} cards`
-    : `${store.mode==='cloud'?'Live':'This device'} · ${rows.length} posted · ${evt.teams.length-rows.length} yet to tee · ${hh}:${mm}${ap}`;
+    : `${store.live?'Live':'This device'} · ${rows.length} posted · ${evt.teams.length-rows.length} yet to tee · ${hh}:${mm}${ap}`;
   showModeNote();
 }
 async function refreshBoard(){ await loadField(); renderBoard(); }
 
 function showModeNote(){
-  if(store.mode==='cloud') return;
+  if(store.live) return;
   let el=document.getElementById('modeNote');
   if(!el){
     el=document.createElement('div');
@@ -1146,6 +1212,7 @@ document.addEventListener('keydown',e=>{
 
 /* ========================== BOOT ========================== */
 (async function init(){
+  await store.probe();
   await loadIndex();
   await loadChamps();
   const meRaw=await store.get(K.me,false);
