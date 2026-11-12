@@ -380,7 +380,7 @@
       <button class="btn gold" id="crown">Crown the champion</button>
     </div>
     <p class="muted" style="text-align:center;margin-top:12px;font-size:12px">
-      Every posted card is visible to the whole field. Ties break by regression on hole handicap.
+      Every posted card is visible to the whole field. In the event of a tie, the winner will be decided by an 18th Hole Closest-To Shootout.
     </p>
   </section>
 
@@ -483,7 +483,7 @@
     <div class="card">
       <p class="eyebrow">Scorecard</p>
       <h2 class="sec">Par, yards, handicap</h2>
-      <p class="muted" style="margin:0 0 12px">Hole handicaps drive the tiebreaker, so get them right off the card.</p>
+      <p class="muted" style="margin:0 0 12px">Hole handicaps set the order on the board, so get them right off the card.</p>
       <div class="holegrid"><table id="holeEditor"></table></div>
       <button class="btn wide" id="saveHoles" style="margin-top:12px">Save scorecard</button>
     </div>
@@ -1120,7 +1120,7 @@ function renderBoard(){
         <div class="lb-name">
           <div class="p">${esc(r.t.a)} &amp; ${esc(r.t.b)}</div>
           <div class="u">${done?'Signed':'In play'} · Gross ${r.g}${r.tied?' · T'+r.pos:''}</div>
-          ${r.tied?'<div class="cardoff">Card-off on hole handicap</div>':''}
+          ${r.tied?'<div class="cardoff">Tie · 18th hole closest-to shootout</div>':''}
         </div>
         <div class="lb-fig">
           <div class="tp ${parClass(r.tp)}">${fmtPar(r.tp)}</div>
@@ -1154,8 +1154,18 @@ async function crownChampion(){
   await loadField();
   const rows=standings();
   if(!rows.length) return toast('Nothing posted yet');
-  const w=rows[0];
+  let w=rows[0];
   if(w.thru<18 && !confirm('Not every hole is in. Crown the leader anyway?')) return;
+  const tiedTop=rows.filter(r=>r.pos===1);
+  if(tiedTop.length>1){
+    const list=tiedTop.map(r=>`${r.t.id} — ${r.t.a} & ${r.t.b}`).join('\n');
+    const pick=prompt(`Tie for first at ${fmtPar(w.tp)}.\nWho won the 18th hole closest-to shootout?\n\n${list}\n\nEnter the team number:`);
+    if(pick===null) return;
+    const won=tiedTop.find(r=>String(r.t.id)===pick.trim());
+    if(!won) return toast('Pick one of the tied team numbers');
+    w=won;
+    rows.splice(rows.indexOf(w),1); rows.unshift(w);
+  }
   if(!confirm(`Crown ${w.t.a} & ${w.t.b} as ${year} champions and lock the year?`)) return;
 
   champs = champs.filter(c=>+c.year!==+year);
@@ -1383,7 +1393,7 @@ function renderCup(){
     <li><strong>Contests:</strong> closest to the pin + hole-in-one on every par 3 (${evt.ctpHoles.slice().sort((a,b)=>a-b).join(', ')}), long drive on ${evt.ldHole}. Winners draw a prize ball.</li>
     <li><strong>One club length</strong> of movement, no closer to the hole and no change in lie conditions.</li>
     <li><strong>Winter rules.</strong> Leaf rule applies if everyone agrees on the exact spot.</li>
-    <li><strong>Ties</strong> break by regression on hole handicap — hardest hole first.</li>
+    <li><strong>Ties:</strong> in the event of a tie, the winner will be decided by an 18th Hole Closest-To Shootout.</li>
     <li><strong>Entry:</strong> ${esc(evt.pot||'a bottle')}.</li>`;
   document.getElementById('courseEyebrow').textContent=`${esc(evt.tee||'')} tees`;
   document.getElementById('courseName').textContent=evt.course||'Course TBD';
