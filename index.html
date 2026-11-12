@@ -214,6 +214,77 @@
   .fin-stats{display:flex;justify-content:center;gap:22px;margin-top:13px}
   .fin-stats .v{font-family:var(--display);font-size:24px;line-height:1}
   .fin-stats .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sky)}
+
+  /* ---- contest hole cues (Nov 12 change request) ---- */
+  .chip.gold{background:rgba(201,162,39,.2);color:#7a5f08}
+  .cstrip{display:flex;align-items:center;gap:11px;width:100%;text-align:left;margin:0 0 12px;padding:9px 11px;border-radius:12px;
+    border:1.5px solid rgba(201,162,39,.6);background:linear-gradient(90deg,rgba(201,162,39,.16),rgba(201,162,39,.04));font-size:13px;line-height:1.3}
+  .cstrip img{width:64px;height:42px;object-fit:cover;border-radius:7px;flex:0 0 auto}
+  .cstrip-ic{font-size:26px;width:42px;text-align:center}
+  .cstrip b{display:block;font-family:var(--display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:13.5px;color:var(--ink)}
+  .cstrip small{display:block;color:rgba(7,22,71,.5);font-size:11px;margin-top:2px}
+
+  .pop{position:fixed;inset:0;z-index:80;background:rgba(7,22,71,.62);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+  .pop.on{display:flex;animation:fade .2s ease}
+  .pop-card{background:#fff;border-radius:20px;max-width:380px;width:100%;padding:20px 18px 18px;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);border-top:6px solid var(--gold)}
+  .pop-eyebrow{margin:0;font-family:var(--num);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--red)}
+  .pop-hole{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 2px;font-family:var(--num);font-weight:600;color:rgba(7,22,71,.6);font-size:14px}
+  .pop-num{font-family:var(--display);font-weight:700;font-size:46px;line-height:1;color:var(--navy)}
+  .pop-title{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:21px;margin:4px 0 10px}
+  .pop-img{width:100%;border-radius:12px;display:block;margin:0 0 10px}
+  .pop-prize{margin:0 0 10px;font-size:13px;color:rgba(7,22,71,.6);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+  .pop-prize b{display:block;font-family:var(--display);font-size:20px;letter-spacing:.03em;color:var(--ink);text-transform:none;margin-top:2px}
+  .pop-text{margin:0 0 8px;font-size:14px}
+  .pop-rule{margin:0 0 14px;font-size:12px;color:var(--red);font-weight:600}
+
+  .lightbox{position:fixed;inset:0;z-index:90;background:rgba(3,10,35,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}
+  .lightbox.on{display:flex;animation:fade .2s ease}
+  .lightbox img{max-width:100%;max-height:82vh;border-radius:12px}
+  .lightbox p{color:#fff;font-family:var(--num);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;margin:12px 0 0;text-align:center}
+
+  /* ---- prizes tab ---- */
+  .eyebrow.light{color:var(--sky);opacity:1}
+  .hio-hero{background:linear-gradient(160deg,#0b1f6b,var(--navy) 55%,#1b3ec0);border-radius:18px;padding:18px 14px 14px;margin-bottom:14px;color:#fff;box-shadow:var(--shadow)}
+  .hio-hero h2{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:26px;margin:0}
+  .hero-sub{margin:2px 0 14px;color:var(--sky);font-size:13px}
+  .hio-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hio-tile{position:relative;display:flex;flex-direction:column;background:#fff;border:none;border-radius:13px;padding:0;overflow:hidden;text-align:left;color:var(--ink);transition:transform .15s}
+  .hio-tile:hover{transform:translateY(-2px)}
+  .hio-tile:last-child:nth-child(odd){grid-column:span 2;justify-self:center;width:calc(50% - 5px)}
+  .hio-tile img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
+  .hio-ph{display:grid;place-items:center;aspect-ratio:3/2;font-size:34px;background:var(--tint)}
+  .hio-cap{display:flex;justify-content:space-between;align-items:baseline;padding:7px 9px 0}
+  .hio-h{font-family:var(--display);font-weight:600;font-size:16px;color:var(--navy);letter-spacing:.03em}
+  .hio-y{font-family:var(--num);font-size:11px;font-weight:600;color:rgba(7,22,71,.5)}
+  .hio-p{padding:1px 9px 9px;font-size:12px;line-height:1.25;font-weight:500}
+  .hio-tile.aced{outline:3px solid var(--gold)}
+  .hio-ace{position:absolute;top:7px;left:7px;background:var(--gold);color:var(--ink);font-family:var(--num);font-weight:700;font-size:11px;letter-spacing:.1em;padding:3px 8px;border-radius:999px}
+  .contest-hd h3 em{font-style:normal;color:#9a7a10}
+  .ace-line{display:flex;align-items:center;gap:9px;margin:-2px 0 9px;font-size:12.5px;color:rgba(7,22,71,.7)}
+  .ace-line img{width:52px;height:34px;object-fit:cover;border-radius:6px}
+
+  .prize-art{display:block;position:relative;width:100%;padding:0;border:none;border-radius:13px;overflow:hidden;background:var(--sky);margin-bottom:14px;cursor:zoom-in}
+  .prize-art img{width:100%;display:block}
+  .prize-art span{position:absolute;right:9px;bottom:9px;background:rgba(7,22,71,.75);color:#fff;font-family:var(--num);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:4px 9px;border-radius:999px}
+  .balls{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 8px}
+  .ball{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px}
+  .ball-face{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;
+    background:radial-gradient(circle at 34% 30%,#fff 0 30%,#eef1f7 55%,#c9d1e2 100%);
+    box-shadow:inset -3px -4px 8px rgba(7,22,71,.18),0 4px 10px -4px rgba(7,22,71,.5);position:relative}
+  .ball-face::before{content:"";position:absolute;inset:6px;border-radius:50%;
+    background-image:radial-gradient(rgba(7,22,71,.13) 1.2px,transparent 1.6px);background-size:6px 6px;opacity:.9}
+  .ball-face span{position:relative;font-family:var(--display);font-weight:700;color:var(--navy);font-size:18px}
+  .ball-name{font-size:11.5px;line-height:1.2;font-weight:600}
+  .ball-who{font-family:var(--num);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5f08;background:rgba(201,162,39,.2);padding:2px 7px;border-radius:999px}
+  .ball.drawn .ball-face{background:radial-gradient(circle at 34% 30%,#fff3c4 0 25%,var(--gold) 80%)}
+  .ball.drawn .ball-name{color:rgba(7,22,71,.45);text-decoration:line-through}
+  .draw-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .draw-row:last-child{border-bottom:none}
+  .draw-who{flex:1;min-width:0}
+  .draw-who b{display:block;font-size:14px}
+  .draw-who small{font-family:var(--num);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.5);font-weight:600}
+  .draw-row select{flex:0 0 52%;max-width:52%;border:1.5px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:#fff}
+  .draw-row.done select{border-color:var(--gold);background:rgba(201,162,39,.08)}
 </style>
 </head>
 <body>
@@ -258,6 +329,7 @@
             <button class="arrow" id="nextHole" aria-label="Next hole">›</button>
           </div>
         </div>
+        <div id="contestStrip"></div>
         <div class="score-row">
           <button class="step minus" id="minus" aria-label="Lower score">–</button>
           <div class="score-val">
@@ -313,26 +385,33 @@
   </section>
 
   <section class="view" id="v-contests">
-    <div class="card">
-      <p class="eyebrow" id="contestEyebrow">Contests</p>
-      <h2 class="sec">Side action</h2>
-      <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin.</p>
-      <div id="contestList"></div>
-      <p class="muted" style="font-size:12px;margin:12px 0 0">Tap a par 3 to change which holes carry closest-to-the-pin.</p>
-      <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"></div>
+    <div class="hio-hero">
+      <p class="eyebrow light" id="contestEyebrow">Contests</p>
+      <h2>Hole-in-One Prizes</h2>
+      <p class="hero-sub">Every par 3 is live. Ace it and it's yours.</p>
+      <div class="hio-grid" id="hioGrid"></div>
     </div>
 
     <div class="card">
-      <p class="eyebrow">Nothing assigned ahead of time</p>
-      <h2 class="sec">The draw</h2>
-      <p class="muted" style="margin:0 0 13px">Names go in the hat, prizes come out at random.</p>
-      <div class="sub-row" style="margin-bottom:12px">
-        <span class="sub-lbl">Hat</span>
-        <button class="toggle" data-pool="winners">Contest winners</button>
-        <button class="toggle" data-pool="field">Whole field</button>
+      <p class="eyebrow">Win a prize ball</p>
+      <h2 class="sec">Contest holes</h2>
+      <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin. No mulligans on contest holes.</p>
+      <div id="contestList"></div>
+      <div id="ctpAdmin">
+        <p class="muted" style="font-size:12px;margin:12px 0 0">Admin: tap a par 3 to change which holes carry closest-to-the-pin.</p>
+        <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"></div>
       </div>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Contest prizes</p>
+      <h2 class="sec">The prize ball draw</h2>
+      <p class="muted" style="margin:0 0 13px">Each contest winner draws a labeled golf ball to see what they won. Record each ball here as it's drawn.</p>
+      <button class="prize-art" id="prizeArt" type="button" aria-label="View contest prizes"></button>
+      <div class="balls" id="balls"></div>
+      <h3 class="sub-sec">Who drew what</h3>
       <div id="drawBoard"></div>
-      <button class="btn gold wide" id="runDraw" style="margin-top:12px">Run the draw</button>
+      <button class="btn ghost wide" id="runDraw" style="margin-top:12px">No balls? Draw at random</button>
     </div>
   </section>
 
@@ -424,7 +503,9 @@
       <p class="eyebrow">Prizes</p>
       <h2 class="sec">Contest board</h2>
       <div class="field-row"><label>Long drive hole</label><input id="sLd" inputmode="numeric"></div>
-      <div class="field-row"><label>Prize pool — one per line</label><textarea id="sPrizes"></textarea></div>
+      <div class="field-row"><label>Contest prize balls — one per line</label><textarea id="sPrizes" style="min-height:150px"></textarea></div>
+      <div class="field-row"><label>Hole-in-one prizes — one per par 3 (blank = no ace prize)</label>
+        <div id="hioEditor"></div></div>
       <button class="btn wide" id="savePrizes">Save prizes</button>
     </div>
 
@@ -489,6 +570,18 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="pop" id="pop" role="dialog" aria-modal="true" aria-label="Contest hole">
+  <div class="pop-card">
+    <div id="popBody"></div>
+    <button class="btn gold wide" id="popGo">Let's go</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Prize picture">
+  <img id="lbImg" alt="">
+  <p id="lbCap"></p>
+</div>
+
 <script>
 /* ==========================================================
    KIMBELL CUP INVITATIONAL — annual 2-man scramble
@@ -503,6 +596,25 @@ const RIVER_FOREST = [
   {h:13,par:3,yds:186,hcp:18},{h:14,par:4,yds:323,hcp:14},{h:15,par:4,yds:379,hcp:2},
   {h:16,par:3,yds:143,hcp:16},{h:17,par:5,yds:523,hcp:10},{h:18,par:4,yds:422,hcp:4}
 ];
+
+/* 2026 prize sheet — from Jonathan Kimbell, Nov 12 */
+const CONTEST_PRIZES_2026 = [
+  'G Force Over/Under 12-gauge shotgun',
+  'Rock Island PF-14 12-gauge shotgun',
+  'SAR 9mm pistol bundle',
+  'Ray-Ban | Meta Wayfarer',
+  'Blue Tees Player Pack — rangefinder + speaker',
+  'FootJoy Softside cooler + shoe bag',
+  'Stanley family + 3 dozen Bridgestone balls'
+];
+const HIO_2026 = {
+  4: {prize:'Bushnell Rangefinder & Garmin GPS Golf Watch', img:'img/hio-4.jpg'},
+  7: {prize:'UHD Smart TV',                                  img:'img/hio-7.jpg'},
+  11:{prize:'Vertical Charcoal Smoker',                      img:'img/hio-11.jpg'},
+  13:{prize:'$15,000 Cash',                                  img:'img/hio-13.jpg'},
+  16:{prize:'Bushnell Rangefinder & Garmin GPS Golf Watch', img:'img/hio-16.jpg'}
+};
+const SCHEMA_V = 2;
 
 const SEED_2026 = {
   year:2026, date:'Wednesday, December 2', time:'12:00 pm', course:'River Forest', city:'Forsyth, GA',
@@ -524,8 +636,11 @@ const SEED_2026 = {
     {id:13,a:'Paul Doss',        b:'Evan Baker'},
     {id:14,a:'Curtis Hardwick',  b:'Jared Cordova'}
   ],
-  ctpHoles:[4,7,11,13], ldHole:10,
-  prizes:['Stitch SL2 stand bag','Blue Tees Player Pack','Sar 9mm with light','Rock Island PF14 shotgun','FootJoy cooler + shoe bag','Blackstone 22" griddle'],
+  ctpHoles:[4,7,11,13,16], ldHole:10,
+  prizes:CONTEST_PRIZES_2026.slice(),
+  hio:JSON.parse(JSON.stringify(HIO_2026)),
+  prizeArt:'img/contest-prizes.jpg',
+  v:2,
   status:'open'
 };
 
@@ -642,7 +757,9 @@ function relLabel(v,par){
   if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
 }
 function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],u:0}; }
-function blankContest(){ return {ctp:{},ld:{name:'',yds:''},putt:{name:''},draw:{pool:'winners',picks:[]},u:0}; }
+function blankContest(){ return {ctp:{},hio:{},ld:{name:'',yds:''},putt:{name:''},draw:{picks:[]},u:0}; }
+const hioOf = h => (evt.hio||{})[h] || null;
+const isContestHole = h => evt.ctpHoles.includes(+h) || +evt.ldHole===+h;
 function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function first(n){ return String(n||'').split(' ')[0]||'—'; }
 
@@ -678,13 +795,33 @@ async function loadEvent(y){
   if(!Array.isArray(evt.ctpHoles)) evt.ctpHoles=[4,7,11,13];
   if(!Array.isArray(evt.prizes)) evt.prizes=[];
   evt.ldHole = evt.ldHole || 10;
+  if(!evt.hio || typeof evt.hio!=='object') evt.hio={};
+
+  /* Upgrade a year saved before the Nov 12 change request:
+     every par 3 is a contest hole (CTP + hole-in-one), new prize sheet. */
+  let upgraded=false;
+  if((evt.v||1)<SCHEMA_V){
+    evt.ctpHoles=[...new Set([...evt.ctpHoles,...par3s()])].sort((a,b)=>a-b);
+    if(+evt.year===2026){
+      evt.prizes=CONTEST_PRIZES_2026.slice();
+      evt.hio=JSON.parse(JSON.stringify(HIO_2026));
+      evt.prizeArt='img/contest-prizes.jpg';
+    }
+    evt.v=SCHEMA_V; upgraded=true;
+  }
 
   const craw=await store.get(K.contest(y),true);
   contest = craw ? Object.assign(blankContest(),JSON.parse(craw)) : blankContest();
   if(!contest.ctp) contest.ctp={};
+  if(!contest.hio) contest.hio={};
   if(!contest.ld) contest.ld={name:'',yds:''};
   if(!contest.putt) contest.putt={name:''};
-  if(!contest.draw) contest.draw={pool:'winners',picks:[]};
+  if(!contest.draw) contest.draw={picks:[]};
+  if(!Array.isArray(contest.draw.picks)) contest.draw.picks=[];
+  contest.draw.picks=contest.draw.picks.filter(p=>p&&p.key);   // old name-only draws don't map to a contest
+
+  // Only the admin (or a device-only copy) can write the event back to the shared board.
+  if(upgraded && (!store.server || store.auth.admin)) await saveEvent();
 }
 async function saveEvent(){ evt.u=Date.now(); await store.set(K.evt(evt.year),JSON.stringify(evt),true); }
 
@@ -770,8 +907,10 @@ function renderHole(){
   document.getElementById('holeNum').textContent=H.h;
   let chips=`<span class="chip">Par ${H.par}</span><span class="chip">${H.yds} yds</span><span class="chip">Hcp ${H.hcp}</span>`;
   if(evt.ctpHoles.includes(H.h)) chips+='<span class="chip red">Closest to pin</span>';
+  if(hioOf(H.h)) chips+='<span class="chip gold">Hole-in-one</span>';
   if(+evt.ldHole===+H.h) chips+='<span class="chip red">Long drive</span>';
   document.getElementById('holeMeta').innerHTML=chips;
+  renderContestStrip(H);
 
   document.getElementById('prevHole').disabled = hole===0;
   document.getElementById('nextHole').disabled = hole===17;
@@ -804,11 +943,61 @@ function renderHole(){
     el.classList.toggle('spent',card.m[i]);
   });
 }
+/* Strip on the hole card itself when you're standing on a contest hole */
+function renderContestStrip(H){
+  const el=document.getElementById('contestStrip');
+  const hio=hioOf(H.h), ctp=evt.ctpHoles.includes(H.h), ld=+evt.ldHole===+H.h;
+  if(!hio && !ctp && !ld){ el.innerHTML=''; return; }
+  const what = ld ? 'Long Drive' : [ctp?'Closest to the Pin':'', hio?'Hole-in-One':''].filter(Boolean).join(' + ');
+  el.innerHTML=`<button class="cstrip" type="button" data-pop="${H.h}">
+    ${hio&&hio.img?`<img src="${esc(hio.img)}" alt="">`:`<span class="cstrip-ic">${ld?'🏌️':'⛳'}</span>`}
+    <span><b>Contest hole · ${esc(what)}</b>
+    ${hio?`Ace wins: ${esc(hio.prize)}`:(ld?'Longest drive in the fairway takes it':'Closest ball to the pin takes it')}
+    <small>No mulligans on contest holes · tap for details</small></span></button>`;
+  el.querySelector('[data-pop]').onclick=()=>openContestPop(H.h,false);
+}
+
+/* Heads-up pop-up: fires once per hole, per team, on this device,
+   right after the score goes in on the hole BEFORE a contest hole. */
+const popKey=(h)=>`kc:pop:${year}:${myTeam}:${h}`;
+function popSeen(h){ try{ return localStorage.getItem(popKey(h))==='1'; }catch(e){ return false; } }
+function markPop(h){ try{ localStorage.setItem(popKey(h),'1'); }catch(e){} }
+
+function openContestPop(h,upNext){
+  const H=evt.holes[h-1]; if(!H) return;
+  const hio=hioOf(h), ctp=evt.ctpHoles.includes(h), ld=+evt.ldHole===+h;
+  const box=document.getElementById('popBody');
+  let html=`<p class="pop-eyebrow">${upNext?'Heads up — next hole':'Contest hole'}</p>
+    <div class="pop-hole"><span class="pop-num">${h}</span>
+      <span>Par ${H.par} · ${H.yds} yds</span></div>`;
+  if(ld){
+    html+=`<h3 class="pop-title">Long Drive</h3>
+      <p class="pop-text">Longest drive <b>in the fairway</b> wins a prize ball. Post your name on the Prizes tab if you beat the mark.</p>`;
+  } else {
+    html+=`<h3 class="pop-title">${[ctp?'Closest to the Pin':'',hio?'Hole-in-One':''].filter(Boolean).join(' &amp; ')}</h3>`;
+    if(hio){
+      html+=(hio.img?`<img class="pop-img" src="${esc(hio.img)}" alt="${esc(hio.prize)}">`:'')+
+        `<p class="pop-prize">Ace it and win<br><b>${esc(hio.prize)}</b></p>`;
+    }
+    if(ctp) html+=`<p class="pop-text">Closest to the pin wins a prize ball. Mark your distance on the Prizes tab.</p>`;
+  }
+  html+=`<p class="pop-rule">Mulligans can't be used on contest holes.</p>`;
+  box.innerHTML=html;
+  document.getElementById('pop').classList.add('on');
+  document.getElementById('popGo').focus();
+}
+function closePop(){ document.getElementById('pop').classList.remove('on'); }
+
 function setScore(v){
   if(isFinal()) return toast('Year is locked');
   card.s[hole]=Math.max(1,Math.min(15,v));
   queueSave(); renderAll();
-  if(hole<17) setTimeout(()=>{ if(hole<17){ hole++; renderAll(); } },320);
+  const nextH = hole<17 ? evt.holes[hole+1].h : null;
+  const warn = nextH && isContestHole(nextH) && !popSeen(nextH);
+  if(hole<17) setTimeout(()=>{
+    if(hole<17){ hole++; renderAll(); }
+    if(warn){ markPop(nextH); openContestPop(nextH,true); }
+  },320);
 }
 function bumpScore(d){
   if(isFinal()) return toast('Year is locked');
@@ -990,21 +1179,46 @@ async function saveContest(){
   contest=Object.assign({},remote,contest,{u:Date.now()});
   await store.set(K.contest(year),JSON.stringify(contest),true);
 }
+function isAdminHere(){ return !store.server || !!store.auth.admin; }
+
 function renderContests(){
   document.getElementById('contestEyebrow').textContent = `${year} · ${evt.course||'Course TBD'}`;
+  const lock = isFinal() ? 'disabled' : '';
+
+  /* --- hole-in-one gallery --- */
+  const hioHoles = Object.keys(evt.hio||{}).map(Number).filter(h=>evt.holes[h-1]).sort((a,b)=>a-b);
+  const grid=document.getElementById('hioGrid');
+  grid.innerHTML = hioHoles.length ? hioHoles.map(h=>{
+    const H=evt.holes[h-1], p=evt.hio[h], ace=(contest.hio[h]||{}).name;
+    return `<button class="hio-tile ${ace?'aced':''} ${p.img?'':'noimg'}" type="button" data-zoom="${h}">
+      ${p.img?`<img src="${esc(p.img)}" alt="${esc(p.prize)}" loading="lazy">`:`<span class="hio-ph">⛳</span>`}
+      <span class="hio-cap"><span class="hio-h">Hole ${h}</span><span class="hio-y">${H.yds} yds</span></span>
+      <span class="hio-p">${esc(p.prize)}</span>
+      ${ace?`<span class="hio-ace">ACE · ${esc(ace)}</span>`:''}
+    </button>`;
+  }).join('') : '<div class="empty-state" style="color:#cfe0ff">Hole-in-one prizes not set yet.</div>';
+  grid.querySelectorAll('[data-zoom]').forEach(b=>{
+    const p=evt.hio[b.dataset.zoom];
+    b.onclick=()=>{ if(p.img) openLightbox(p.img,`Hole ${b.dataset.zoom} · ${p.prize}`); };
+  });
+
+  /* --- contest holes --- */
   const wrap=document.getElementById('contestList');
   let html='';
-  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach((h,i)=>{
+  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach(h=>{
     const H=evt.holes[h-1]; if(!H) return;
-    const cur=contest.ctp[h]||{name:'',dist:''};
-    html+=`<div class="contest ${cur.name?'won':''}">
+    const cur=contest.ctp[h]||{name:'',dist:''}, hio=hioOf(h), ace=(contest.hio[h]||{}).name||'';
+    html+=`<div class="contest ${cur.name||ace?'won':''}">
       <div class="contest-hd"><span class="diamond ghost"><span>${h}</span></span>
-        <h3>Closest to the pin</h3>
+        <h3>Closest to the pin${hio?' <em>+ ace</em>':''}</h3>
         <span class="prize">${H.yds} yds · par ${H.par}</span></div>
+      ${hio?`<div class="ace-line">${hio.img?`<img src="${esc(hio.img)}" alt="">`:''}<span>Hole-in-one: <b>${esc(hio.prize)}</b></span></div>`:''}
       <div class="fields">
-        <input placeholder="Name" value="${esc(cur.name)}" data-ctp="${h}" data-f="name" ${isFinal()?'disabled':''}>
-        <input class="dist" placeholder="Ft / in" value="${esc(cur.dist)}" data-ctp="${h}" data-f="dist" ${isFinal()?'disabled':''}>
-      </div></div>`;
+        <input placeholder="Closest — name" value="${esc(cur.name)}" data-ctp="${h}" data-f="name" ${lock}>
+        <input class="dist" placeholder="Ft / in" value="${esc(cur.dist)}" data-ctp="${h}" data-f="dist" ${lock}>
+      </div>
+      ${hio?`<div class="fields" style="margin-top:7px"><input placeholder="Aced by (if anyone!)" value="${esc(ace)}" data-hio="${h}" ${lock}></div>`:''}
+    </div>`;
   });
   const L=evt.holes[(+evt.ldHole||10)-1];
   if(L) html+=`<div class="contest ${contest.ld.name?'won':''}">
@@ -1012,42 +1226,52 @@ function renderContests(){
       <h3>Long drive</h3>
       <span class="prize">${L.yds} yds · par ${L.par}</span></div>
     <div class="fields">
-      <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${isFinal()?'disabled':''}>
-      <input class="dist" placeholder="Yards" value="${esc(contest.ld.yds)}" data-ld="yds" ${isFinal()?'disabled':''}>
+      <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${lock}>
+      <input class="dist" placeholder="Yards" value="${esc(contest.ld.yds)}" data-ld="yds" ${lock}>
     </div></div>`;
   html+=`<div class="contest ${contest.putt.name?'won':''}">
     <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
       <h3>Putting contest</h3>
       <span class="prize">Practice green, pre-round</span></div>
-    <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${isFinal()?'disabled':''}></div></div>`;
+    <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${lock}></div></div>`;
   wrap.innerHTML=html;
   wrap.querySelectorAll('input').forEach(i=>{ i.addEventListener('change',onContestEdit); });
 
+  /* --- admin: which par 3s carry CTP --- */
+  document.getElementById('ctpAdmin').style.display = isAdminHere() ? '' : 'none';
   const pick=document.getElementById('ctpPicker');
   pick.innerHTML=par3s().map(h=>`<button class="toggle ${evt.ctpHoles.includes(h)?'on':''}" data-par3="${h}">Hole ${h}</button>`).join('')
     || '<span class="muted">No par 3s on this scorecard yet.</span>';
-  renderDraw();
   pick.querySelectorAll('[data-par3]').forEach(b=>{
     b.onclick=async()=>{
       if(isFinal()) return toast('Year is locked');
       const h=+b.dataset.par3, has=evt.ctpHoles.includes(h);
-      evt.ctpHoles = has ? evt.ctpHoles.filter(x=>x!==h) : [...evt.ctpHoles,h];
+      evt.ctpHoles = has ? evt.ctpHoles.filter(x=>x!==h) : [...evt.ctpHoles,h].sort((a,b)=>a-b);
       await saveEvent(); renderContests(); if(card) renderHole();
     };
   });
+
+  /* --- prize art --- */
+  const art=document.getElementById('prizeArt');
+  if(evt.prizeArt){
+    art.style.display='';
+    art.innerHTML=`<img src="${esc(evt.prizeArt)}" alt="Contest prizes" loading="lazy"><span>Tap to enlarge</span>`;
+    art.onclick=()=>openLightbox(evt.prizeArt,'Contest prizes');
+  } else art.style.display='none';
+
+  renderDraw();
 }
-function drawEntrants(){
-  const pool=(contest.draw&&contest.draw.pool)||'winners';
-  if(pool==='field'){
-    const all=[];
-    evt.teams.forEach(t=>{ if(t.a) all.push(t.a); if(t.b) all.push(t.b); });
-    return all;
-  }
-  const names=[];
-  Object.values(contest.ctp||{}).forEach(c=>{ if(c&&c.name) names.push(c.name.trim()); });
-  if(contest.ld&&contest.ld.name) names.push(contest.ld.name.trim());
-  if(contest.putt&&contest.putt.name) names.push(contest.putt.name.trim());
-  return [...new Set(names.filter(Boolean))];
+
+/* One entry per contest won — a player who wins two contests draws two balls. */
+function contestWins(){
+  const w=[];
+  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach(h=>{
+    const n=((contest.ctp[h]||{}).name||'').trim();
+    if(n) w.push({key:'ctp'+h, label:`Closest · #${h}`, name:n});
+  });
+  if((contest.ld.name||'').trim()) w.push({key:'ld', label:`Long drive · #${evt.ldHole}`, name:contest.ld.name.trim()});
+  if((contest.putt.name||'').trim()) w.push({key:'putt', label:'Putting', name:contest.putt.name.trim()});
+  return w;
 }
 function shuffle(a){
   const x=[...a];
@@ -1055,55 +1279,74 @@ function shuffle(a){
   return x;
 }
 function renderDraw(){
-  const d=contest.draw||{pool:'winners',picks:[]};
-  document.querySelectorAll('[data-pool]').forEach(b=>{
-    b.classList.toggle('on', b.dataset.pool===(d.pool||'winners'));
-  });
-  const board=document.getElementById('drawBoard');
-  const btn=document.getElementById('runDraw');
-  const entrants=drawEntrants(), prizes=(evt.prizes||[]);
+  const picks=contest.draw.picks||[], prizes=evt.prizes||[];
+  const taken={}; picks.forEach(p=>{ if(p.prize) taken[p.prize]=p; });
+  const wins=contestWins();
 
-  if(d.picks&&d.picks.length){
-    board.innerHTML=d.picks.map((p,i)=>`
-      <div class="contest won" style="margin-bottom:7px">
-        <div class="contest-hd" style="margin-bottom:0">
-          <span class="diamond ${i===0?'lead':''}"><span>${i+1}</span></span>
-          <h3>${esc(p.name)}</h3>
-          <span class="prize">${esc(p.prize)}</span>
-        </div>
-      </div>`).join('');
-    btn.textContent='Draw again';
-  } else {
-    board.innerHTML=`<div class="empty-state">
-      ${entrants.length} in the hat · ${prizes.length} prize${prizes.length===1?'':'s'} on the table<br>
-      ${entrants.length?'Ready when you are.':'No names yet.'}</div>`;
-    btn.textContent='Run the draw';
-  }
-  btn.disabled = !entrants.length || !prizes.length;
+  document.getElementById('balls').innerHTML = prizes.length ? prizes.map((p,i)=>{
+    const t=taken[p];
+    return `<div class="ball ${t?'drawn':''}">
+      <span class="ball-face"><span>${i+1}</span></span>
+      <span class="ball-name">${esc(p)}</span>
+      ${t?`<span class="ball-who">${esc(t.name)}</span>`:''}
+    </div>`;
+  }).join('') : '<div class="empty-state">No contest prizes set. Add them in Setup.</div>';
+
+  const board=document.getElementById('drawBoard');
+  const lock = isFinal() || !isAdminHere() ? 'disabled' : '';
+  board.innerHTML = wins.length ? wins.map(w=>{
+    const mine=picks.find(p=>p.key===w.key), cur=mine?mine.prize:'';
+    const opts=['<option value="">— ball not drawn yet —</option>']
+      .concat(prizes.map(p=>{
+        const by=taken[p], off=by && by.key!==w.key;
+        return `<option value="${esc(p)}" ${p===cur?'selected':''} ${off?'disabled':''}>${esc(p)}${off?' (taken)':''}</option>`;
+      })).join('');
+    return `<div class="draw-row ${cur?'done':''}">
+      <div class="draw-who"><b>${esc(w.name)}</b><small>${esc(w.label)}</small></div>
+      <select data-drawkey="${w.key}" ${lock}>${opts}</select>
+    </div>`;
+  }).join('') : '<div class="empty-state">Winners show up here once names go on the contest holes.</div>';
+  board.querySelectorAll('[data-drawkey]').forEach(s=>s.onchange=()=>setPick(s.dataset.drawkey,s.value));
+
+  const btn=document.getElementById('runDraw');
+  const open=wins.filter(w=>!picks.find(p=>p.key===w.key&&p.prize));
+  btn.style.display = isAdminHere() && !isFinal() ? '' : 'none';
+  btn.disabled = !open.length || prizes.length<=Object.keys(taken).length;
+}
+async function setPick(key,prize){
+  const w=contestWins().find(x=>x.key===key); if(!w) return;
+  let picks=(contest.draw.picks||[]).filter(p=>p.key!==key);
+  if(prize) picks.push({key,name:w.name,label:w.label,prize});
+  contest.draw=Object.assign({},contest.draw,{picks,at:Date.now()});
+  await saveContest(); renderDraw();
+  toast(prize?`${first(w.name)} drew ${prize}`:'Pick cleared');
 }
 async function runDraw(){
-  const entrants=drawEntrants(), prizes=(evt.prizes||[]);
-  if(!entrants.length||!prizes.length) return toast('Need names and prizes');
-  if(contest.draw&&contest.draw.picks&&contest.draw.picks.length
-     && !confirm('Redraw? The current results are replaced.')) return;
-  const names=shuffle(entrants), pool=shuffle(prizes);
-  const n=Math.min(names.length,pool.length);
-  const picks=[];
-  for(let i=0;i<n;i++) picks.push({name:names[i],prize:pool[i]});
-  contest.draw=Object.assign({pool:'winners'},contest.draw,{picks,at:Date.now()});
+  const picks=contest.draw.picks||[];
+  const taken=new Set(picks.map(p=>p.prize));
+  const open=contestWins().filter(w=>!picks.find(p=>p.key===w.key&&p.prize));
+  const left=shuffle((evt.prizes||[]).filter(p=>!taken.has(p)));
+  if(!open.length||!left.length) return toast('Nothing left to draw');
+  if(!confirm(`Randomly assign ${Math.min(open.length,left.length)} prize ball(s) to winners still waiting?`)) return;
+  const add=shuffle(open).slice(0,left.length).map((w,i)=>({key:w.key,name:w.name,label:w.label,prize:left[i]}));
+  contest.draw=Object.assign({},contest.draw,{picks:[...picks.filter(p=>p.prize),...add],at:Date.now()});
   await saveContest(); renderDraw();
-  toast(names.length>pool.length?'Drawn — more names than prizes':'Prizes drawn');
+  toast(open.length>left.length?'Drawn — more winners than balls':'Prize balls drawn');
 }
 async function onContestEdit(e){
   const el=e.target, v=el.value.trim();
   if(el.dataset.ctp){
     const h=el.dataset.ctp;
     contest.ctp[h]=Object.assign({name:'',dist:''},contest.ctp[h],{[el.dataset.f]:v});
+  } else if(el.dataset.hio){
+    contest.hio[el.dataset.hio]={name:v};
+    if(v) toast(`ACE on ${el.dataset.hio}! 🎉`);
   } else if(el.dataset.ld) contest.ld[el.dataset.ld]=v;
   else if(el.dataset.putt) contest.putt.name=v;
-  await saveContest(); renderContests(); toast('Contest updated');
+  // a renamed winner keeps their ball
+  (contest.draw.picks||[]).forEach(p=>{ const w=contestWins().find(x=>x.key===p.key); if(w) p.name=w.name; });
+  await saveContest(); renderContests(); if(!el.dataset.hio||!v) toast('Contest updated');
 }
-
 /* ==========================================================
    THE CUP — engraving + records
    ========================================================== */
@@ -1137,6 +1380,7 @@ function renderCup(){
     <li><strong>${esc(evt.tee||'')} tees</strong> — par ${coursePar()}, ${(+evt.yards||0).toLocaleString()} yards, slope ${esc(evt.slope||'—')}.</li>
     <li><strong>Breakfast ball</strong> off the 1st if you want it.</li>
     <li><strong>One mulligan per player</strong> — not on the green, not on a contest hole.</li>
+    <li><strong>Contests:</strong> closest to the pin + hole-in-one on every par 3 (${evt.ctpHoles.slice().sort((a,b)=>a-b).join(', ')}), long drive on ${evt.ldHole}. Winners draw a prize ball.</li>
     <li><strong>One club length</strong> of movement, no closer to the hole and no change in lie conditions.</li>
     <li><strong>Winter rules.</strong> Leaf rule applies if everyone agrees on the exact spot.</li>
     <li><strong>Ties</strong> break by regression on hole handicap — hardest hole first.</li>
@@ -1170,6 +1414,11 @@ function renderSetup(){
   v('sDate',evt.date); v('sTime',evt.time); v('sCourse',evt.course); v('sCity',evt.city);
   v('sTee',evt.tee); v('sYards',evt.yards); v('sSlope',evt.slope); v('sPot',evt.pot);
   v('sLd',evt.ldHole); v('sPrizes',(evt.prizes||[]).join('\n'));
+  document.getElementById('hioEditor').innerHTML = par3s().map(h=>`
+    <div class="team-edit">
+      <span class="diamond ghost sm"><span>${h}</span></span>
+      <input data-hioed="${h}" value="${esc((hioOf(h)||{}).prize||'')}" placeholder="Prize for an ace on ${h}">
+    </div>`).join('') || '<div class="muted">No par 3s on the scorecard.</div>';
   v('nyYear', Math.max(...idx.years)+1);
 
   let t=`<tr><th></th>${evt.holes.map(h=>`<th>${h.h}</th>`).join('')}</tr>`;
@@ -1254,6 +1503,7 @@ function applyAdminUI(){
   const nav=document.querySelector('nav.tabs');
   const hide = store.server && !store.auth.admin;
   nav.classList.toggle('locked', hide);
+  if(evt) renderContests();
   if(hide && document.getElementById('v-setup').classList.contains('on')){
     document.querySelector('nav.tabs button[data-tab="card"]').click();
   }
@@ -1313,7 +1563,22 @@ async function switchYear(y){
 document.getElementById('plus').onclick=()=>bumpScore(1);
 document.getElementById('minus').onclick=()=>bumpScore(-1);
 document.getElementById('prevHole').onclick=()=>{ if(hole>0){hole--;renderAll();} };
-document.getElementById('nextHole').onclick=()=>{ if(hole<17){hole++;renderAll();} };
+document.getElementById('nextHole').onclick=()=>{
+  if(hole>=17) return;
+  const scored = card.s[hole]!==null;
+  hole++; renderAll();
+  const h=evt.holes[hole].h;
+  if(scored && isContestHole(h) && !popSeen(h)){ markPop(h); openContestPop(h,true); }
+};
+document.getElementById('popGo').onclick=closePop;
+document.getElementById('pop').onclick=e=>{ if(e.target.id==='pop') closePop(); };
+document.getElementById('lightbox').onclick=()=>document.getElementById('lightbox').classList.remove('on');
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePop(); document.getElementById('lightbox').classList.remove('on'); } });
+function openLightbox(src,cap){
+  document.getElementById('lbImg').src=src;
+  document.getElementById('lbCap').textContent=cap||'';
+  document.getElementById('lightbox').classList.add('on');
+}
 document.querySelectorAll('[data-drive]').forEach(b=>b.onclick=()=>{
   if(isFinal()) return toast('Year is locked');
   const i=+b.dataset.drive; card.d[hole]=card.d[hole]===i?null:i; queueSave(); renderHole();
@@ -1338,10 +1603,6 @@ document.getElementById('lockSetup').onclick=()=>{
   document.querySelector('nav.tabs button[data-tab="card"]').click();
   toast('Setup locked');
 };
-document.querySelectorAll('[data-pool]').forEach(b=>b.onclick=async()=>{
-  contest.draw=Object.assign({picks:[]},contest.draw,{pool:b.dataset.pool});
-  await saveContest(); renderDraw();
-});
 
 document.getElementById('addChamp').onclick=async()=>{
   const g=id=>document.getElementById(id).value.trim();
@@ -1385,7 +1646,14 @@ document.getElementById('saveTeams').onclick=async()=>{
 document.getElementById('savePrizes').onclick=async()=>{
   evt.ldHole=+document.getElementById('sLd').value||10;
   evt.prizes=document.getElementById('sPrizes').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  await saveEvent(); renderContests(); toast('Prizes saved');
+  const hio={};
+  document.querySelectorAll('[data-hioed]').forEach(i=>{
+    const h=+i.dataset.hioed, prize=i.value.trim(); if(!prize) return;
+    const old=hioOf(h);
+    hio[h]={prize, img: old && old.prize===prize ? old.img : (old&&old.img)||''};
+  });
+  evt.hio=hio;
+  await saveEvent(); renderContests(); if(card) renderHole(); toast('Prizes saved');
 };
 document.getElementById('newYear').onclick=async()=>{
   const y=+document.getElementById('nyYear').value;
@@ -1398,7 +1666,8 @@ document.getElementById('newYear').onclick=async()=>{
       tee:carry==='all'?evt.tee:'', yards:carry==='all'?evt.yards:0, slope:carry==='all'?evt.slope:0,
       holes:carry==='all'?evt.holes.map(h=>({...h})):RIVER_FOREST.map(h=>({...h})),
       teams:carry==='none'?[]:evt.teams.map(t=>({...t})),
-      ctpHoles:[...evt.ctpHoles], ldHole:evt.ldHole, prizes:[...evt.prizes]};
+      ctpHoles:[...evt.ctpHoles], ldHole:evt.ldHole, prizes:[...evt.prizes],
+      hio:JSON.parse(JSON.stringify(evt.hio||{})), prizeArt:evt.prizeArt||'', v:SCHEMA_V};
     await store.set(K.evt(y),JSON.stringify(base),true);
     idx.years.push(y); idx.years.sort((a,b)=>b-a); idx.activeYear=y;
     await saveIndex();
