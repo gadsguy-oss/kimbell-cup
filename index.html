@@ -128,6 +128,33 @@
   .lb-fig .th{font-family:var(--num);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600;margin-top:2px}
   .bottles{display:flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--gold),#e0bd48);color:var(--ink);border-radius:0 0 12px 12px;margin-top:-7px;padding:6px 13px 7px;font-family:var(--num);font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
   .cardoff{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin-top:2px}
+  button.lb-row{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+  .lb-chev{width:9px;height:9px;border-right:2px solid rgba(7,22,71,.35);border-bottom:2px solid rgba(7,22,71,.35);transform:rotate(45deg);margin:-4px 2px 0 2px;transition:transform .2s;flex:0 0 auto}
+  .lb-item.open .lb-chev{transform:rotate(-135deg);margin-top:4px}
+  .lb-item.open .lb-row{border-radius:13px 13px 0 0}
+  .lb-hint{margin:0 0 2px !important;text-align:center;font-family:var(--num);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600;margin:6px 0 0}
+  .tc{background:var(--white);border:1.5px solid rgba(7,22,71,.06);border-top:none;border-radius:0 0 13px 13px;padding:4px 10px 11px;animation:fade .2s ease}
+  .lb-item.open .bottles{margin-top:0}
+  .lb-item.open .tc:has(+.bottles){border-radius:0}
+  .tc-nine{margin-top:9px}
+  .tc-hd{display:flex;align-items:baseline;gap:8px;font-family:var(--num);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);margin-bottom:5px}
+  .tc-hd b{margin-left:auto;font-family:var(--display);font-size:17px;color:var(--ink);letter-spacing:0}
+  .tc-hd small{font-size:10px}
+  .tc-row{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}
+  .tc-h{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--tint);border-radius:8px;padding:4px 0 5px}
+  .tc-num{font-family:var(--num);font-size:10.5px;font-weight:700;color:var(--navy)}
+  .tc-par{font-family:var(--num);font-size:9.5px;color:rgba(7,22,71,.45)}
+  .tc-sc{display:inline-grid;place-items:center;min-width:22px;height:22px;font-family:var(--display);font-weight:700;font-size:14px;line-height:1;color:var(--ink);border:1.5px solid transparent;font-variant-numeric:tabular-nums}
+  .tc-sc.none{color:rgba(7,22,71,.25)}
+  .tc-sc.bir{border-color:var(--red);border-radius:50%;color:var(--red)}
+  .tc-sc.eag,.tc-sc.ace{border-radius:50%;background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--gold)}
+  .tc-sc.bog{border-color:rgba(7,22,71,.55);border-radius:3px}
+  .tc-sc.dbl{border-radius:3px;border-color:var(--navy);background:var(--navy);color:#fff}
+  .tc-lbl{font-family:var(--num);font-size:7.5px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:rgba(7,22,71,.5);min-height:9px;white-space:nowrap}
+  .tc-sum{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:11px;padding-top:9px;border-top:1px solid var(--line)}
+  .tc-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--num);font-size:11.5px;font-weight:600;color:rgba(7,22,71,.7)}
+  .tc-chip .tc-sc{min-width:20px;height:20px;font-size:12px}
+  .tc-foot{margin-top:8px;font-family:var(--num);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:rgba(7,22,71,.5);text-align:right}
 
   .contest{border:1.5px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:9px}
   .contest.won{border-color:var(--navy);background:var(--tint)}
@@ -1104,6 +1131,46 @@ function standings(){
   rows.forEach(r=>{ r.tied = rows.filter(o=>o.pos===r.pos).length>1; });
   return rows;
 }
+/* ---- Board: expandable team cards ---- */
+const openCards=new Set();
+const RESULT=[[-3,'alb','Albatross'],[-2,'eag','Eagle'],[-1,'bir','Birdie'],[0,'par','Par'],[1,'bog','Bogey'],[2,'dbl','Double']];
+function resultOf(score,par){
+  if(score===null||score===undefined) return null;
+  if(score===1) return {cls:'ace',name:'Ace'};
+  const d=score-par;
+  if(d<=-3) return {cls:'eag',name:d===-3?'Albatross':'Eagle'};
+  if(d>=3) return {cls:'dbl',name:`+${d}`};
+  const r=RESULT.find(x=>x[0]===d); return {cls:r[1],name:r[2]};
+}
+function teamCardHTML(r){
+  const s=r.c.s||[], holes=evt.holes;
+  const tally={ace:0,eag:0,bir:0,par:0,bog:0,dbl:0};
+  const nine=(from)=>{
+    const hs=holes.slice(from,from+9);
+    let par=0,tot=0,n=0;
+    const cells=hs.map((H,i)=>{
+      const v=s[from+i], res=resultOf(v,H.par); par+=H.par;
+      if(v!==null&&v!==undefined){ tot+=v; n++; tally[res.cls]=(tally[res.cls]||0)+1; }
+      return `<div class="tc-h">
+        <span class="tc-num">${H.h}</span>
+        <span class="tc-par">${H.par}</span>
+        <span class="tc-sc ${res?res.cls:'none'}" title="${res?res.name:'Not played'}">${v??'·'}</span>
+        <span class="tc-lbl">${res?res.name:''}</span>
+      </div>`;
+    }).join('');
+    return `<div class="tc-nine">
+      <div class="tc-hd"><span>${from?'Back nine':'Front nine'}</span><b>${n?tot:'–'}</b><small>Par ${par}</small></div>
+      <div class="tc-row">${cells}</div></div>`;
+  };
+  const body=nine(0)+nine(9);
+  const chips=[['ace','Ace'],['eag','Eagle'],['bir','Birdie'],['par','Par'],['bog','Bogey'],['dbl','Double+']]
+    .filter(([k])=>tally[k]).map(([k,l])=>`<span class="tc-chip"><span class="tc-sc ${k}">${tally[k]}</span>${l}${tally[k]>1&&k!=='par'?(l.endsWith('+')?'':'s'):''}</span>`).join('');
+  return `<div class="tc">
+    ${body}
+    <div class="tc-sum">${chips||'<span class="muted">No holes posted yet</span>'}</div>
+    <div class="tc-foot">Gross ${r.g} · ${fmtPar(r.tp)} · Thru ${r.thru}</div>
+  </div>`;
+}
 function renderBoard(){
   const rows=standings(), lb=document.getElementById('lb');
   document.getElementById('crown').style.display = isFinal()?'none':'';
@@ -1114,8 +1181,9 @@ function renderBoard(){
   }
   lb.innerHTML=rows.map((r,i)=>{
     const lead=i===0, mine=r.t.id===myTeam, done=r.thru===18;
-    return `<div>
-      <div class="lb-row ${lead?'lead':''} ${mine?'me':''}">
+    const open=openCards.has(r.t.id);
+    return `<div class="lb-item ${open?'open':''}">
+      <button type="button" class="lb-row ${lead?'lead':''} ${mine?'me':''}" data-card="${r.t.id}" aria-expanded="${open}">
         <span class="diamond ${lead?'lead':''}"><span>${r.pos}</span></span>
         <div class="lb-name">
           <div class="p">${esc(r.t.a)} &amp; ${esc(r.t.b)}</div>
@@ -1126,10 +1194,18 @@ function renderBoard(){
           <div class="tp ${parClass(r.tp)}">${fmtPar(r.tp)}</div>
           <div class="th">Thru ${r.thru}</div>
         </div>
-      </div>
+        <span class="lb-chev" aria-hidden="true"></span>
+      </button>
+      ${open?teamCardHTML(r):''}
       ${lead&&!r.tied?`<div class="bottles">🍾 ${isFinal()?'Took the Cup':'Holding the bottles'}</div>`:''}
     </div>`;
   }).join('');
+  lb.insertAdjacentHTML('afterbegin',`<p class="lb-hint">👆 Tap any team to see their hole-by-hole card</p>`);
+  lb.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{
+    const id=+b.dataset.card||b.dataset.card;
+    openCards.has(id)?openCards.delete(id):openCards.add(id);
+    renderBoard();
+  });
   const t=new Date(), hh=t.getHours()%12||12, mm=String(t.getMinutes()).padStart(2,'0'), ap=t.getHours()>=12?'pm':'am';
   document.getElementById('lbStamp').textContent = isFinal()
     ? `${year} final · ${rows.length} cards`
