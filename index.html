@@ -311,6 +311,32 @@
   .draw-who b{display:block;font-size:14px}
   .draw-who small{font-family:var(--num);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.5);font-weight:600}
   .draw-row select{flex:0 0 52%;max-width:52%;border:1.5px solid var(--line);border-radius:10px;padding:8px;font-size:13px;background:#fff}
+  /* ---- live alerts ---- */
+  .alert{position:fixed;inset:0;z-index:85;background:rgba(7,22,71,.6);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+  .alert.on{display:flex}
+  .alert.on .al-card{animation:alPop .45s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes alPop{from{opacity:0;transform:scale(.7) translateY(30px)}to{opacity:1;transform:none}}
+  .al-card{background:#fff;border-radius:22px;max-width:360px;width:100%;overflow:hidden;text-align:center;padding:0 18px 14px;box-shadow:0 30px 70px -20px rgba(0,0,0,.65)}
+  .al-stage{margin:0 -18px 12px;height:190px;display:grid;place-items:center;position:relative;overflow:hidden}
+  .al-stage::before{content:"";position:absolute;inset:auto -10% -55% -10%;height:80%;border-radius:50%;background:rgba(255,255,255,.14)}
+  .al-stage::after{content:"";position:absolute;right:18px;top:16px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:-30px 22px 0 -2px rgba(255,255,255,.5),-64px 6px 0 -3px rgba(255,255,255,.35)}
+  .al-red .al-stage{background:linear-gradient(160deg,#cfe0ff,#9fbaf2)}
+  .al-gold .al-stage{background:linear-gradient(160deg,#fff3c4,#e0bd48)}
+  .al-dark .al-stage{background:linear-gradient(160deg,#2b3550,#071647)}
+  .al-dark .al-stage::before{background:rgba(213,32,47,.18)}
+  .al-art{width:150px;height:150px;position:relative;z-index:1;filter:drop-shadow(0 8px 10px rgba(7,22,71,.25))}
+  .alert.on .al-art{animation:alBob 2.4s ease-in-out infinite}
+  @keyframes alBob{50%{transform:translateY(-6px)}}
+  .al-photo{position:relative;z-index:1;max-width:86%;max-height:160px;border-radius:12px;box-shadow:0 10px 24px -10px rgba(0,0,0,.6)}
+  .al-kicker{margin:0;font-family:var(--num);font-weight:700;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--red)}
+  .al-gold .al-kicker{color:#9a7a10}
+  .al-dark .al-kicker{color:var(--red)}
+  .al-title{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:27px;line-height:1.05;margin:4px 0 8px;color:var(--ink)}
+  .al-team{margin:0;font-weight:600;font-size:15px}
+  .al-you{display:inline-block;margin-right:6px;background:var(--navy);color:#fff;font-family:var(--num);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:999px;vertical-align:2px}
+  .al-line{margin:3px 0 14px;font-family:var(--num);font-weight:600;font-size:13px;letter-spacing:.06em;color:rgba(7,22,71,.6)}
+  .al-mute{margin-top:8px;background:none;border:none;color:rgba(7,22,71,.45);font-size:12px;text-decoration:underline;cursor:pointer}
+  .al-toggle{display:block;margin:-4px auto 10px;background:none;border:none;font-family:var(--num);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);cursor:pointer}
   .draw-row.done select{border-color:var(--gold);background:rgba(201,162,39,.08)}
 </style>
 </head>
@@ -401,6 +427,7 @@
 
   <section class="view" id="v-board">
     <div class="stamp"><span class="dot"></span><span id="lbStamp">Loading the board…</span></div>
+    <button class="al-toggle" id="muteAlerts" type="button"></button>
     <div class="lb" id="lb"></div>
     <div class="btn-row">
       <button class="btn ghost" id="refreshLb">Refresh board</button>
@@ -604,6 +631,14 @@
   </div>
 </div>
 
+<div class="alert" id="alert" role="dialog" aria-modal="true" aria-label="Live alert">
+  <div class="al-card">
+    <div id="alertBody"></div>
+    <button class="btn gold wide" id="alertGo">Nice!</button>
+    <button class="al-mute" id="alertMute" type="button">Mute alerts on this phone</button>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Prize picture">
   <img id="lbImg" alt="">
   <p id="lbCap"></p>
@@ -783,7 +818,7 @@ function relLabel(v,par){
   if(d<=-3) return 'Albatross'; if(d===-2) return 'Eagle'; if(d===-1) return 'Birdie';
   if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
 }
-function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],u:0}; }
+function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],ts:Array(18).fill(0),u:0}; }
 function blankContest(){ return {ctp:{},hio:{},ld:{name:'',yds:''},putt:{name:''},draw:{picks:[]},u:0}; }
 const hioOf = h => (evt.hio||{})[h] || null;
 const isContestHole = h => evt.ctpHoles.includes(+h) || +evt.ldHole===+h;
@@ -866,6 +901,7 @@ function safeCard(o,id){
   if(Array.isArray(o.s)) o.s.forEach((v,i)=>{ if(i<18) c.s[i]= typeof v==='number'?v:null; });
   if(Array.isArray(o.d)) o.d.forEach((v,i)=>{ if(i<18) c.d[i]=v; });
   if(Array.isArray(o.m)) c.m=[!!o.m[0],!!o.m[1]];
+  if(Array.isArray(o.ts)) o.ts.forEach((v,i)=>{ if(i<18) c.ts[i]=+v||0; });
   c.u=o.u||0; return c;
 }
 function renderPicker(){
@@ -1078,10 +1114,170 @@ function queueSave(){
 }
 async function saveNow(){
   if(!card||isFinal()) return;
-  card.u=Date.now();
+  const now=Date.now(); card.u=now;
+  if(!Array.isArray(card.ts)) card.ts=Array(18).fill(0);
+  card.s.forEach((v,i)=>{ if(v!==null && !card.ts[i]) card.ts[i]=now; else if(v===null) card.ts[i]=0; });
   const ok=await store.set(K.card(year,card.t),JSON.stringify(card),true);
   if(!ok) toast('Saved locally — sync retrying');
+  if(field) field[card.t]=card;
+  checkAlerts();
 }
+
+/* ==========================================================
+   LIVE ALERTS — first blood, first eagle, back-to-back,
+   turkey, double bogey, hole-in-one. Shown on every phone.
+   ========================================================== */
+const ALERT_FRESH_MS = 20*60*1000;           // only announce things from the last 20 min
+const alertKey = ()=>`kc:alerts:${year}`;
+let alertQueue=[], alertOpen=false, alertTimer=null;
+function alertsMuted(){ try{ return localStorage.getItem('kc:mute')==='1'; }catch(e){ return false; } }
+function setMuted(v){ try{ localStorage.setItem('kc:mute',v?'1':'0'); }catch(e){} renderMuteBtn(); }
+function seenAlerts(){ try{ return new Set(JSON.parse(localStorage.getItem(alertKey())||'[]')); }catch(e){ return new Set(); } }
+function saveSeen(set){ try{ localStorage.setItem(alertKey(),JSON.stringify([...set].slice(-400))); }catch(e){} }
+
+const ART = {
+  bird:(c='#d5202f',x=0,y=0,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M32 66 L10 50 L17 73 Z" fill="${c}"/>
+    <path d="M30 70 Q30 40 60 38 Q86 36 90 60 Q88 92 58 94 Q34 94 30 70Z" fill="${c}"/>
+    <path d="M88 52 L107 60 L88 67Z" fill="#c9a227"/>
+    <path d="M42 68 Q60 54 80 68 Q62 82 42 68Z" fill="#fff" opacity=".28"/>
+    <circle cx="76" cy="53" r="4" fill="#fff"/><circle cx="77" cy="53" r="1.8" fill="#071647"/>
+    <path d="M52 93 v12 M66 92 v12" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/></g>`,
+  eagle:()=>`<g>
+    <path d="M58 56 L6 30 L13 44 L2 46 L13 56 L4 62 L18 66 L12 72 L30 74 L52 76Z" fill="#0e2a8c"/>
+    <path d="M62 56 L114 30 L107 44 L118 46 L107 56 L116 62 L102 66 L108 72 L90 74 L68 76Z" fill="#0e2a8c"/>
+    <path d="M48 90 L60 112 L72 90Z" fill="#071647"/>
+    <ellipse cx="60" cy="72" rx="13" ry="22" fill="#071647"/>
+    <circle cx="60" cy="42" r="12" fill="#fff" stroke="#071647" stroke-width="2.5"/>
+    <path d="M58 44 L71 47 Q70 56 62 54Z" fill="#c9a227"/>
+    <circle cx="56" cy="40" r="2" fill="#071647"/><circle cx="64" cy="40" r="2" fill="#071647"/></g>`,
+  turkey:()=>{
+    const cols=['#d5202f','#c9a227','#8a5a2b','#c9a227','#d5202f'];
+    const fan=[-64,-32,0,32,64].map((a,i)=>`<ellipse cx="60" cy="36" rx="11" ry="28" fill="${cols[i]}" transform="rotate(${a} 60 74)"/>`).join('');
+    return `<g>${fan}
+      <circle cx="60" cy="80" r="24" fill="#6b4220"/>
+      <path d="M44 84 Q60 74 76 84 Q60 98 44 84Z" fill="#fff" opacity=".18"/>
+      <circle cx="60" cy="52" r="11" fill="#d9b48a"/>
+      <path d="M60 54 L68 57 L60 60Z" fill="#c9a227"/>
+      <path d="M57 57 q-5 6 -1 14 q5 -4 1 -14z" fill="#d5202f"/>
+      <circle cx="56" cy="49" r="1.9" fill="#071647"/><circle cx="64" cy="49" r="1.9" fill="#071647"/>
+      <path d="M52 103 v9 M68 103 v9" stroke="#c9a227" stroke-width="3.5" stroke-linecap="round"/></g>`;
+  },
+  thumbsDown:()=>`<g transform="rotate(180 60 60)">
+    <rect x="19" y="50" width="18" height="52" rx="4" fill="#cfe0ff"/>
+    <path d="M37 54 L52 26 Q56 16 64 19 Q72 23 68 35 L64 50 L90 50 Q101 51 99 62 L93 91 Q90 100 80 100 L38 100Z" fill="#d5202f"/></g>`,
+  ace:()=>`<g>
+    <ellipse cx="60" cy="100" rx="34" ry="8" fill="#071647" opacity=".85"/>
+    <path d="M60 100 V18" stroke="#071647" stroke-width="4" stroke-linecap="round"/>
+    <path d="M62 20 L96 31 L62 42Z" fill="#d5202f"/>
+    <circle cx="60" cy="96" r="9" fill="#fff" stroke="#071647" stroke-width="2"/></g>`
+};
+const svgWrap = inner => `<svg viewBox="0 0 120 120" class="al-art" aria-hidden="true">${inner}</svg>`;
+
+/* Order holes as the team actually played them (first-entry time), so shotgun starts work. */
+function playOrder(c){
+  const idx=[]; (c.s||[]).forEach((v,i)=>{ if(v!==null&&v!==undefined) idx.push(i); });
+  const ts=c.ts||[];
+  return idx.sort((a,b)=>((ts[a]||0)-(ts[b]||0))||(a-b));
+}
+function detectEvents(){
+  const ev=[]; let fb=null, fe=null;
+  evt.teams.forEach(t=>{
+    const c=field[t.id]; if(!c||!c.ts) return;
+    const ord=playOrder(c); let streak=0, prev=null;
+    ord.forEach(i=>{
+      const v=c.s[i], par=evt.holes[i].par, d=v-par, at=c.ts[i]||0;
+      if(!at) { streak=0; prev=i; return; }
+      const base={team:t, hole:evt.holes[i].h, i, score:v, par, at};
+      if(v===1) ev.push({...base,kind:'ace',id:`ace:${t.id}:${i}:${at}`});
+      if(d<0){
+        if(!fb||at<fb.at) fb={...base,kind:'fb'};
+        if(d<=-2 && (!fe||at<fe.at)) fe={...base,kind:'fe'};
+        // consecutive = next hole in play order, holes adjacent on the course (18 wraps to 1)
+        const adj = prev!==null && (i===prev+1 || (prev===17&&i===0));
+        streak = (streak>0 && adj) ? streak+1 : 1;
+        if(streak===2) ev.push({...base,kind:'b2',id:`b2:${t.id}:${i}:${at}`});
+        if(streak>=3) ev.push({...base,kind:'b3',n:streak,id:`b3:${t.id}:${i}:${at}`});
+      } else streak=0;
+      if(d>=2) ev.push({...base,kind:'dbl',over:d,id:`dbl:${t.id}:${i}:${at}`});
+      prev=i;
+    });
+  });
+  if(fb) ev.push({...fb,id:`fb:${fb.team.id}:${fb.i}:${fb.at}`});
+  if(fe) ev.push({...fe,id:`fe:${fe.team.id}:${fe.i}:${fe.at}`});
+  return ev.sort((a,b)=>a.at-b.at);
+}
+function checkAlerts(){
+  if(!evt||isFinal()) return;
+  const seen=seenAlerts(), now=Date.now(), fresh=[];
+  const all=detectEvents();
+  all.forEach(e=>{
+    if(seen.has(e.id)) return;
+    seen.add(e.id);
+    if(now-e.at<=ALERT_FRESH_MS) fresh.push(e);
+  });
+  saveSeen(seen);
+  // a turkey replaces the back-to-back alert from the same run
+  const show=fresh.filter(e=>!(e.kind==='b2' && fresh.some(o=>o.kind==='b3'&&o.team.id===e.team.id))
+    && !(e.kind==='fe' && fresh.some(o=>o.kind==='ace'&&o.team.id===e.team.id&&o.i===e.i)));
+  if(alertsMuted()) return;
+  alertQueue.push(...show);
+  showNextAlert();
+}
+const NAMES={'-1':'Birdie','-2':'Eagle','-3':'Albatross'};
+function overName(n){ return n===2?'Double bogey':n===3?'Triple bogey':`+${n} on the hole`; }
+function showNextAlert(){
+  if(alertOpen || !alertQueue.length) return;
+  if(document.getElementById('pop').classList.contains('on')){ setTimeout(showNextAlert,1500); return; }
+  const e=alertQueue.shift(), t=e.team, names=`${esc(t.a)} &amp; ${esc(t.b)}`;
+  const hole=`Hole ${e.hole} · Par ${e.par}`;
+  let theme='', art='', kicker='', title='', line='', btn='Nice!';
+  if(e.kind==='fb'){ theme='al-red'; art=ART.bird(); kicker='First blood'; title='First birdie of the day';
+    line=`${NAMES[e.score-e.par]||'Birdie'} on ${hole}`; }
+  else if(e.kind==='fe'){ theme='al-gold'; art=ART.eagle(); kicker='First eagle'; title='Eagle has landed';
+    line=`${e.score} on ${hole}`; btn='Big time'; }
+  else if(e.kind==='b2'){ theme='al-red'; art=ART.bird('#d5202f',-10,22,.7)+ART.bird('#0e2a8c',42,4,.7);
+    kicker='Back-to-back'; title='Two birdies in a row'; line=`Holes ${evt.holes[(e.i+17)%18].h} &amp; ${e.hole}`; }
+  else if(e.kind==='b3'){ theme='al-gold'; art=ART.turkey(); kicker=e.n>3?`${e.n} in a row`:'Turkey!';
+    title=e.n>3?'The turkey keeps going':'Three birdies in a row'; line=`Holes ${evt.holes[(e.i-e.n+1+36)%18].h}–${e.hole} · ${e.n} straight under par`; btn='Gobble gobble'; }
+  else if(e.kind==='dbl'){ theme='al-dark'; art=ART.thumbsDown(); kicker='Ouch'; title=overName(e.over);
+    line=`${e.score} on ${hole}`; btn='Shake it off'; }
+  else if(e.kind==='ace'){ theme='al-gold'; const p=hioOf(e.hole);
+    art = p&&p.img ? `<img class="al-photo" src="${esc(p.img)}" alt="">` : ART.ace();
+    kicker='Hole-in-one'; title='ACE!'; line=p?`Wins ${esc(p.prize)}`:`${hole}`; btn='Unreal'; }
+  const mine = t.id===myTeam ? '<span class="al-you">Your team</span>' : '';
+  document.getElementById('alertBody').innerHTML=`
+    <div class="al-stage ${theme}">${art.startsWith('<img')?art:svgWrap(art)}</div>
+    <p class="al-kicker">${kicker}</p>
+    <h3 class="al-title">${title}</h3>
+    <p class="al-team">${mine}Team ${t.id} · ${names}</p>
+    <p class="al-line">${line}</p>`;
+  document.getElementById('alertGo').textContent=btn;
+  const box=document.getElementById('alert');
+  box.className='alert on '+theme;
+  alertOpen=true;
+  clearTimeout(alertTimer); alertTimer=setTimeout(closeAlert,12000);
+}
+function closeAlert(){
+  clearTimeout(alertTimer);
+  document.getElementById('alert').classList.remove('on');
+  alertOpen=false;
+  setTimeout(showNextAlert,450);
+}
+function renderMuteBtn(){
+  const b=document.getElementById('muteAlerts'); if(!b) return;
+  b.textContent = alertsMuted() ? '🔕 Alerts off — tap to turn on' : '🔔 Live alerts on — tap to mute';
+}
+/* Poll the field on every tab so alerts reach everyone, not just people on the Board. */
+let pollTimer=null;
+async function pollField(){
+  if(document.hidden || !evt) return;
+  try{ await loadField(); }catch(e){ return; }
+  if(document.getElementById('v-board').classList.contains('on')) renderBoard();
+  checkAlerts();
+}
+function startPolling(){ clearInterval(pollTimer); pollTimer=setInterval(pollField,30000); }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pollField(); });
 
 /* ==========================================================
    BOARD
@@ -1626,7 +1822,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+tab));
     window.scrollTo({top:0});
     clearInterval(lbTimer);
-    if(tab==='board'){ refreshBoard(); if(!isFinal()) lbTimer=setInterval(refreshBoard,45000); }
+    if(tab==='board'){ refreshBoard(); }
     if(tab==='contests') renderContests();
     if(tab==='cup') renderCup();
     if(tab==='setup') renderSetup();
@@ -1676,6 +1872,10 @@ document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
 });
 document.getElementById('pushNow').onclick=async()=>{ await saveNow(); toast('Posted to the board'); };
 document.getElementById('switchTeam').onclick=()=>{ hideCard(); renderPicker(); window.scrollTo({top:0,behavior:'smooth'}); };
+document.getElementById('alertGo').onclick=closeAlert;
+document.getElementById('alert').onclick=e=>{ if(e.target.id==='alert') closeAlert(); };
+document.getElementById('alertMute').onclick=()=>{ setMuted(true); alertQueue=[]; closeAlert(); toast('Alerts muted — turn back on from the Board'); };
+document.getElementById('muteAlerts').onclick=()=>{ setMuted(!alertsMuted()); toast(alertsMuted()?'Alerts muted':'Alerts on'); };
 document.getElementById('refreshLb').onclick=()=>{ refreshBoard(); toast('Board refreshed'); };
 document.getElementById('crown').onclick=crownChampion;
 document.getElementById('runDraw').onclick=runDraw;
@@ -1798,7 +1998,7 @@ document.addEventListener('keydown',e=>{
   }
   const saved=(me.teams||{})[year];
   if(saved && teamOf(saved)) await chooseTeam(saved);
-  else loadField();
+  await loadField(); checkAlerts(); startPolling(); renderMuteBtn();
 })();
 </script>
 </body>
