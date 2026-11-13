@@ -164,6 +164,8 @@
   .fields{display:flex;gap:7px}
   .fields input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--white)}
   .fields input.dist{flex:0 0 96px}
+  .ftin{display:flex;gap:5px;flex:0 0 auto}
+  .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
 
   .btn{border:none;border-radius:10px;background:var(--navy);color:#fff;padding:11px 15px;font-family:var(--num);font-weight:700;font-size:12.5px;letter-spacing:.13em;text-transform:uppercase}
@@ -1484,12 +1486,34 @@ function renderContests(){
     b.onclick=()=>{ if(p.img) openLightbox(p.img,`Hole ${b.dataset.zoom} · ${p.prize}`); };
   });
 
-  /* --- contest holes --- */
+  /* --- contest holes — Jonathan's order (Nov 13): putting, then every contest hole in course order --- */
   const wrap=document.getElementById('contestList');
   let html='';
-  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach(h=>{
-    const H=evt.holes[h-1]; if(!H) return;
-    const cur=contest.ctp[h]||{name:'',dist:''}, hio=hioOf(h), ace=(contest.hio[h]||{}).name||'';
+  contestOrder().forEach(c=>{
+    if(c.type==='putt'){
+      html+=`<div class="contest ${contest.putt.name?'won':''}">
+        <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
+          <h3>Putting contest</h3>
+          <span class="prize">Practice green, pre-round</span></div>
+        <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${lock}></div></div>`;
+      return;
+    }
+    const H=evt.holes[c.h-1]; if(!H) return;
+    if(c.type==='ld'){
+      html+=`<div class="contest ${contest.ld.name?'won':''}">
+        <div class="contest-hd"><span class="diamond ghost"><span>${H.h}</span></span>
+          <h3>Long drive</h3>
+          <span class="prize">${H.yds} yds · par ${H.par}</span></div>
+        <div class="fields">
+          <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${lock}>
+          <input class="dist" placeholder="Yards" inputmode="numeric" value="${esc(contest.ld.yds)}" data-ld="yds" ${lock}>
+        </div></div>`;
+      return;
+    }
+    const h=c.h, cur=contest.ctp[h]||{name:'',dist:''}, hio=hioOf(h), ace=(contest.hio[h]||{}).name||'';
+    const fi=ftIn(cur);
+    const ftOpts='<option value="">ft</option>'+Array.from({length:31},(_,i)=>`<option value="${i}" ${fi.ft===i?'selected':''}>${i}′</option>`).join('');
+    const inOpts='<option value="">in</option>'+Array.from({length:12},(_,i)=>`<option value="${i}" ${fi.inch===i?'selected':''}>${i}″</option>`).join('');
     html+=`<div class="contest ${cur.name||ace?'won':''}">
       <div class="contest-hd"><span class="diamond ghost"><span>${h}</span></span>
         <h3>Closest to the pin${hio?' <em>+ ace</em>':''}</h3>
@@ -1497,27 +1521,16 @@ function renderContests(){
       ${hio?`<div class="ace-line">${hio.img?`<img src="${esc(hio.img)}" alt="">`:''}<span>Hole-in-one: <b>${esc(hio.prize)}</b></span></div>`:''}
       <div class="fields">
         <input placeholder="Closest — name" value="${esc(cur.name)}" data-ctp="${h}" data-f="name" ${lock}>
-        <input class="dist" placeholder="Ft / in" value="${esc(cur.dist)}" data-ctp="${h}" data-f="dist" ${lock}>
+        <span class="ftin">
+          <select aria-label="Feet" data-ctp="${h}" data-f="ft" ${lock}>${ftOpts}</select>
+          <select aria-label="Inches" data-ctp="${h}" data-f="in" ${lock}>${inOpts}</select>
+        </span>
       </div>
       ${hio?`<div class="fields" style="margin-top:7px"><input placeholder="Aced by (if anyone!)" value="${esc(ace)}" data-hio="${h}" ${lock}></div>`:''}
     </div>`;
   });
-  const L=evt.holes[(+evt.ldHole||10)-1];
-  if(L) html+=`<div class="contest ${contest.ld.name?'won':''}">
-    <div class="contest-hd"><span class="diamond ghost"><span>${L.h}</span></span>
-      <h3>Long drive</h3>
-      <span class="prize">${L.yds} yds · par ${L.par}</span></div>
-    <div class="fields">
-      <input placeholder="Name" value="${esc(contest.ld.name)}" data-ld="name" ${lock}>
-      <input class="dist" placeholder="Yards" value="${esc(contest.ld.yds)}" data-ld="yds" ${lock}>
-    </div></div>`;
-  html+=`<div class="contest ${contest.putt.name?'won':''}">
-    <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
-      <h3>Putting contest</h3>
-      <span class="prize">Practice green, pre-round</span></div>
-    <div class="fields"><input placeholder="Winner" value="${esc(contest.putt.name)}" data-putt="name" ${lock}></div></div>`;
   wrap.innerHTML=html;
-  wrap.querySelectorAll('input').forEach(i=>{ i.addEventListener('change',onContestEdit); });
+  wrap.querySelectorAll('input,select').forEach(i=>{ i.addEventListener('change',onContestEdit); });
 
   /* --- admin: which par 3s carry CTP --- */
   document.getElementById('ctpAdmin').style.display = isAdminHere() ? '' : 'none';
@@ -1544,15 +1557,28 @@ function renderContests(){
   renderDraw();
 }
 
+/* Putting first, then CTP + long-drive holes in course order (e.g. P, 4, 7, 10 LD, 11, 13, 16) */
+function contestOrder(){
+  const list=[{type:'putt'}];
+  const holes=evt.ctpHoles.map(h=>({type:'ctp',h:+h}));
+  const ld=+evt.ldHole||10;
+  if(evt.holes[ld-1] && !evt.ctpHoles.includes(ld)) holes.push({type:'ld',h:ld});
+  return list.concat(holes.sort((a,b)=>a.h-b.h));
+}
+/* Closest-to distance as feet + inches; reads older free-text entries like 5' 7" or 5-7 */
+function ftIn(c){
+  if(c && c.ft!=null && c.ft!=='') return {ft:+c.ft, inch:(c.in==null||c.in==='')?null:+c.in};
+  const m=String((c&&c.dist)||'').match(/(\d+)\D+(\d+)?/)||String((c&&c.dist)||'').match(/^(\d+)$/);
+  return m ? {ft:Math.min(30,+m[1]), inch:m[2]!=null?Math.min(11,+m[2]):null} : {ft:null,inch:null};
+}
 /* One entry per contest won — a player who wins two contests draws two balls. */
 function contestWins(){
   const w=[];
-  evt.ctpHoles.slice().sort((a,b)=>a-b).forEach(h=>{
-    const n=((contest.ctp[h]||{}).name||'').trim();
-    if(n) w.push({key:'ctp'+h, label:`Closest · #${h}`, name:n});
+  contestOrder().forEach(c=>{
+    if(c.type==='putt'){ if((contest.putt.name||'').trim()) w.push({key:'putt', label:'Putting', name:contest.putt.name.trim()}); }
+    else if(c.type==='ld'){ if((contest.ld.name||'').trim()) w.push({key:'ld', label:`Long drive · #${c.h}`, name:contest.ld.name.trim()}); }
+    else { const n=((contest.ctp[c.h]||{}).name||'').trim(); if(n) w.push({key:'ctp'+c.h, label:`Closest · #${c.h}`, name:n}); }
   });
-  if((contest.ld.name||'').trim()) w.push({key:'ld', label:`Long drive · #${evt.ldHole}`, name:contest.ld.name.trim()});
-  if((contest.putt.name||'').trim()) w.push({key:'putt', label:'Putting', name:contest.putt.name.trim()});
   return w;
 }
 function shuffle(a){
@@ -1618,8 +1644,16 @@ async function runDraw(){
 async function onContestEdit(e){
   const el=e.target, v=el.value.trim();
   if(el.dataset.ctp){
-    const h=el.dataset.ctp;
-    contest.ctp[h]=Object.assign({name:'',dist:''},contest.ctp[h],{[el.dataset.f]:v});
+    const h=el.dataset.ctp, f=el.dataset.f;
+    const cur=Object.assign({name:'',dist:''},contest.ctp[h]);
+    if(f==='ft'||f==='in'){
+      const fi=ftIn(cur);
+      if(f==='ft') fi.ft = v===''?null:+v; else fi.inch = v===''?null:+v;
+      if(fi.ft!=null && fi.inch==null) fi.inch=0;
+      cur.ft = fi.ft==null?'':fi.ft; cur.in = fi.ft==null?'':fi.inch;
+      cur.dist = fi.ft==null?'':`${fi.ft}' ${fi.inch}"`;
+    } else cur[f]=v;
+    contest.ctp[h]=cur;
   } else if(el.dataset.hio){
     contest.hio[el.dataset.hio]={name:v};
     if(v) toast(`ACE on ${el.dataset.hio}! 🎉`);
