@@ -30,7 +30,7 @@ const configured = Boolean(URL_VAR && TOKEN_VAR);
 
 const ADMIN_KEY = 'kc:admin';
 const codesKey = (y) => `kc:codes:${y}`;
-const PRIVATE = /^kc:(admin|codes)/;
+const PRIVATE = /^kc:(admin|codes|lock)/;
 
 async function redis(command) {
   const res = await fetch(URL_VAR, {
@@ -141,6 +141,74 @@ export default async function handler(req, res) {
       await redis(['DEL', codesKey(body.year)]);
       await redis(['HSET', codesKey(body.year)].concat(args));
       return res.status(200).json({ ok: true });
+    }
+
+    /* Contest claim (closest-to-the-pin / long drive). Any team in the field can claim
+       with its team code; the server appends to the running log only if the new mark
+       beats the current one, so two phones claiming at once can't overwrite each other. */
+    if (action === 'contestclaim') {
+      const year = String(body.year || '');
+      if (!/^\d{4}$/.test(year)) return res.status(400).json({ error: 'bad year' });
+      let allowed = await isAdmin(body.admin);
+      if (!allowed) allowed = await isTeam(year, body.team, body.code);
+      if (!allowed && !Number(await redis(['HLEN', codesKey(year)]))) allowed = true;   // no codes issued yet
+      if (!allowed) return res.status(401).json({ error: 'code required' });
+
+      const name = String(body.name || '').trim().slice(0, 60);
+      if (!name) return res.status(400).json({ error: 'name required' });
+      const isLd = body.which === 'ld';
+      const hole = Number(body.hole);
+      if (!Number.isInteger(hole) || hole < 1 || hole > 18) return res.status(400).json({ error: 'bad hole' });
+      let entry;
+      if (isLd) {
+        const yds = Number(body.yds);
+        if (!Number.isInteger(yds) || yds < 1 || yds > 450) return res.status(400).json({ error: 'yards 1-450' });
+        entry = { n: name, y: yds };
+      } else {
+        const ft = Number(body.ft), inch = Number(body.inch);
+        if (!Number.isInteger(ft) || ft < 0 || ft > 75 || !Number.isInteger(inch) || inch < 0 || inch > 11)
+          return res.status(400).json({ error: 'feet 0-75, inches 0-11' });
+        if (ft === 0 && inch === 0) return res.status(400).json({ error: 'that is a hole-in-one' });
+        entry = { n: name, d: ft * 12 + inch };
+      }
+      entry.t = String(body.team || '');
+
+      // one claim at a time per year, so simultaneous claims queue instead of overwriting
+      const ckey = `kc:ct:${year}`, lockKey = `kc:lock:ct:${year}`;
+      const token = Math.random().toString(36).slice(2);
+      let locked = false;
+      for (let i = 0; i < 40 && !locked; i++) {
+        locked = (await redis(['SET', lockKey, token, 'NX', 'PX', '5000'])) === 'OK';
+        if (!locked) await new Promise((r) => setTimeout(r, 120));
+      }
+      if (!locked) return res.status(503).json({ error: 'busy — try again' });
+      try {
+      const raw = await redis(['GET', ckey]);
+      let c = {};
+      try { c = raw ? JSON.parse(raw) : {}; } catch (e) { c = {}; }
+      c.claims = c.claims || {};
+      const slot = isLd ? 'ld' : 'ctp' + hole;
+      const log = Array.isArray(c.claims[slot]) ? c.claims[slot] : [];
+      const best = log[log.length - 1];
+      if (best && (isLd ? entry.y <= best.y : entry.d >= best.d)) {
+        return res.status(409).json({ error: 'beat', best, contest: c });
+      }
+      entry.at = Math.max(Date.now(), best ? best.at + 1 : 0);   // unique, ordered ids
+      log.push(entry);
+      c.claims[slot] = log;
+      // keep the simple holder fields in step for older screens
+      if (isLd) c.ld = Object.assign({}, c.ld, { name, yds: String(entry.y) });
+      else {
+        c.ctp = c.ctp || {};
+        const ft = Math.floor(entry.d / 12), inch = entry.d % 12;
+        c.ctp[hole] = { name, dist: `${ft}' ${inch}"`, ft, in: inch };
+      }
+      c.u = Date.now();
+      await redis(['SET', ckey, JSON.stringify(c)]);
+      return res.status(200).json({ ok: true, entry, contest: c });
+      } finally {
+        if ((await redis(['GET', lockKey])) === token) await redis(['DEL', lockKey]);
+      }
     }
 
     const { key, hash, field, value } = body;

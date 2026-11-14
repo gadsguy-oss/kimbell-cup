@@ -184,6 +184,39 @@
   .np-row.on{background:var(--tint)}
   .np-row.on span::after{content:" ✓";color:var(--navy)}
   .np-card .btn-row .btn{flex:1}
+  .add-champ{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;padding:13px;border:1.5px dashed rgba(14,42,140,.35);border-radius:12px;background:var(--tint);color:var(--navy);font-family:var(--num);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  .add-champ span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:18px;line-height:1}
+  .putt-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}
+  .putt-grid label{font-family:var(--num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--navy)}
+  .putt-grid label.loser{color:var(--red)}
+  .claim-row{display:flex;align-items:center;gap:10px;margin-top:4px}
+  .btn.claim-btn{flex:0 0 auto;padding:10px 18px;background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .btn.claim-btn.ld{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .claim-mark{font-size:13px;color:rgba(7,22,71,.65);line-height:1.3}
+  .claim-mark b{font-family:var(--num);color:var(--ink)}
+  .claim-log{margin-top:10px;border-radius:10px;background:var(--paper);overflow:hidden}
+  .cl-row{display:flex;align-items:center;gap:10px;padding:8px 11px;border-bottom:1px solid var(--line);font-size:14px;color:rgba(7,22,71,.6)}
+  .cl-row:last-child{border-bottom:none}
+  .cl-row .cl-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cl-row .cl-d{font-family:var(--num);font-weight:700;letter-spacing:.03em}
+  .cl-row .cl-i{width:20px;text-align:center;font-family:var(--num);font-size:12px;font-weight:700}
+  .cl-row.lead{background:#fff8dc;color:var(--ink);font-weight:700}
+  .cl-row.lead .cl-d{color:var(--navy)}
+  .cl-x{border:none;background:none;color:var(--red);font-size:20px;line-height:1;padding:0 2px;cursor:pointer}
+  .cl-empty{padding:10px 12px;font-size:13px;color:rgba(7,22,71,.5)}
+  .pop-card.cl-card{padding-top:0;overflow:hidden;border-top:none}
+  .cl-stage{margin:0 -18px 12px;height:120px;display:grid;place-items:center}
+  .cl-stage .al-art{width:104px;height:104px}
+  .cl-stage.al-red{background:linear-gradient(160deg,#cfe0ff,#9fbaf2)}
+  .cl-stage.al-green,.al-green .al-stage{background:linear-gradient(160deg,#d9f2d8,#7cc58a)}
+  .al-green .al-kicker{color:#1f7a3e}
+  .cl-best{margin:-4px 0 12px;font-size:13px;color:rgba(7,22,71,.65)}
+  .cl-field{text-align:left;margin-top:10px}
+  .cl-field label{display:block;font-family:var(--num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--navy);margin-bottom:5px}
+  .cl-field .name-btn{width:100%}
+  .cl-field select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 8px;background:#fff;font-family:var(--num);font-weight:700;font-size:17px;color:var(--ink)}
+  .ftin.big{display:flex;gap:8px}
+  .ftin.big select{flex:1}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -255,7 +288,7 @@
   .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
   .empty-state{text-align:center;padding:26px 14px;color:rgba(7,22,71,.5);font-size:14px}
-  .toast{position:fixed;left:50%;bottom:98px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-family:var(--num);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88vw;text-align:center}
+  .toast{position:fixed;left:50%;bottom:98px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-family:var(--num);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:95;max-width:88vw;text-align:center}
   .toast.on{opacity:1;transform:translateX(-50%)}
   .finished{background:linear-gradient(135deg,var(--navy),#1b3ec0);color:#fff;border-radius:16px;padding:18px;margin-bottom:14px;text-align:center}
   .finished h3{font-family:var(--display);font-size:22px;margin:0 0 4px;letter-spacing:.06em;text-transform:uppercase}
@@ -444,8 +477,7 @@
         <div class="nine-lbl"><span>Back nine</span><b id="inTot">–</b></div>
         <div class="grid18" id="back"></div>
         <div class="btn-row">
-          <button class="btn ghost" id="switchTeam">Change team</button>
-          <button class="btn" id="pushNow">Post to board</button>
+          <button class="btn ghost wide" id="switchTeam">Change team</button>
         </div>
       </div>
     </div>
@@ -465,13 +497,6 @@
   </section>
 
   <section class="view" id="v-contests">
-    <div class="hio-hero">
-      <p class="eyebrow light" id="contestEyebrow">Contests</p>
-      <h2>Hole-in-One Prizes</h2>
-      <p class="hero-sub">Every par 3 is live. Ace it and it's yours.</p>
-      <div class="hio-grid" id="hioGrid"></div>
-    </div>
-
     <div class="card">
       <p class="eyebrow">Win a prize ball</p>
       <h2 class="sec">Contest holes</h2>
@@ -486,13 +511,20 @@
     <div class="card">
       <p class="eyebrow">Contest prizes</p>
       <h2 class="sec">The prize ball draw</h2>
-      <p class="muted" style="margin:0 0 13px">Each contest winner draws a labeled golf ball to see what they won. Record each ball here as it's drawn.</p>
+      <p class="muted" style="margin:0 0 13px">Each Contest Winner for Closest to the Pins, Putting Contest, and Long Drive will draw a labeled golf ball at the end of the tournament to see what they have won.</p>
       <button class="prize-art" id="prizeArt" type="button" aria-label="View contest prizes"></button>
       <div class="balls" id="balls"></div>
       <h3 class="sub-sec">Who drew what</h3>
       <div id="drawBoard"></div>
       <button class="btn ghost wide" id="runDraw" style="margin-top:12px">No balls? Draw at random</button>
     </div>
+    <div class="hio-hero" style="margin-top:16px">
+      <p class="eyebrow light" id="contestEyebrow">Contests</p>
+      <h2>Hole-in-One Prizes</h2>
+      <p class="hero-sub">Every par 3 is live. Ace it and it's yours.</p>
+      <div class="hio-grid" id="hioGrid"></div>
+    </div>
+
   </section>
 
   <section class="view" id="v-cup">
@@ -505,6 +537,8 @@
       <p class="eyebrow">Record book</p>
       <h2 class="sec">Standing records</h2>
       <div class="recs" id="records" style="margin-top:12px"></div>
+      <button class="add-champ" id="openChamp" type="button"><span>+</span> Add a Past Champion</button>
+      <div id="champForm" hidden>
       <h3 class="sub-sec">Add a past champion</h3>
       <div class="row3">
         <div class="field-row"><label>Year</label><input id="cy" inputmode="numeric" placeholder="1998"></div>
@@ -518,7 +552,11 @@
         <div class="field-row"><label>Gross</label><input id="cg" inputmode="numeric" placeholder="61"></div>
         <div class="field-row"><label>To par</label><input id="ctp" placeholder="-11"></div>
       </div>
-      <button class="btn wide" id="addChamp">Engrave it</button>
+      <div class="btn-row">
+        <button class="btn ghost" id="closeChamp" type="button">Cancel</button>
+        <button class="btn" id="addChamp">Engrave it</button>
+      </div>
+      </div>
     </div>
     <div class="card">
       <p class="eyebrow" id="fmtEyebrow">This year</p>
@@ -662,6 +700,22 @@
     <div id="alertBody"></div>
     <button class="btn gold wide" id="alertGo">Nice!</button>
     <button class="al-mute" id="alertMute" type="button">Mute alerts on this phone</button>
+  </div>
+</div>
+
+<div class="pop" id="claimSheet" role="dialog" aria-modal="true" aria-label="Claim a contest">
+  <div class="pop-card cl-card">
+    <div class="cl-stage" id="clStage"><span id="clArt"></span></div>
+    <p class="pop-eyebrow">Claim it</p>
+    <h3 class="pop-title" id="clTitle"></h3>
+    <p class="cl-best" id="clBest"></p>
+    <div class="cl-field"><label>Player</label>
+      <button type="button" class="name-btn empty" id="clName" data-claimname="">Tap to pick your name<span class="nb-chev" aria-hidden="true">▾</span></button></div>
+    <div class="cl-field" id="clDist"></div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn ghost" id="clCancel" type="button">Cancel</button>
+      <button class="btn gold" id="clGo" type="button">Claim it</button>
+    </div>
   </div>
 </div>
 
@@ -857,7 +911,33 @@ function relLabel(v,par){
   if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
 }
 function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],ts:Array(18).fill(0),sg:0,u:0}; }
-function blankContest(){ return {ctp:{},hio:{},ld:{name:'',yds:''},putt:{name:''},draw:{picks:[]},u:0}; }
+function blankContest(){ return {ctp:{},hio:{},ld:{name:'',yds:''},putt:{name:'',loser:''},claims:{},draw:{picks:[]},u:0}; }
+function normContest(o){
+  const c=Object.assign(blankContest(),o||{});
+  if(!c.ctp) c.ctp={}; if(!c.hio) c.hio={};
+  if(!c.ld) c.ld={name:'',yds:''};
+  c.putt=Object.assign({name:'',loser:''},c.putt||{});
+  if(!c.claims||typeof c.claims!=='object') c.claims={};
+  Object.keys(c.claims).forEach(k=>{ if(!Array.isArray(c.claims[k])) c.claims[k]=[]; });
+  if(!c.draw) c.draw={picks:[]};
+  if(!Array.isArray(c.draw.picks)) c.draw.picks=[];
+  c.draw.picks=c.draw.picks.filter(p=>p&&p.key);   // old name-only draws don't map to a contest
+  return c;
+}
+const claimsOf = slot => ((contest&&contest.claims)||{})[slot]||[];
+const holderOf = slot => { const l=claimsOf(slot); return l.length?l[l.length-1]:null; };
+const fmtD = d => `${Math.floor(d/12)}' ${d%12}"`;
+const fmtClaim = (slot,c) => slot==='ld' ? `${c.y} yds` : fmtD(c.d);
+/* keep the simple holder fields in step with the claim logs */
+function syncHolders(c){
+  c.ctp={}; c.ld={name:'',yds:''};
+  Object.keys(c.claims||{}).forEach(k=>{
+    const l=c.claims[k]; if(!l.length) return; const b=l[l.length-1];
+    if(k==='ld') c.ld={name:b.n,yds:String(b.y)};
+    else { const h=+k.slice(3); c.ctp[h]={name:b.n,dist:fmtD(b.d),ft:Math.floor(b.d/12),in:b.d%12}; }
+  });
+  return c;
+}
 const hioOf = h => (evt.hio||{})[h] || null;
 const isContestHole = h => evt.ctpHoles.includes(+h) || +evt.ldHole===+h;
 function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -911,14 +991,7 @@ async function loadEvent(y){
   }
 
   const craw=await store.get(K.contest(y),true);
-  contest = craw ? Object.assign(blankContest(),JSON.parse(craw)) : blankContest();
-  if(!contest.ctp) contest.ctp={};
-  if(!contest.hio) contest.hio={};
-  if(!contest.ld) contest.ld={name:'',yds:''};
-  if(!contest.putt) contest.putt={name:''};
-  if(!contest.draw) contest.draw={picks:[]};
-  if(!Array.isArray(contest.draw.picks)) contest.draw.picks=[];
-  contest.draw.picks=contest.draw.picks.filter(p=>p&&p.key);   // old name-only draws don't map to a contest
+  contest = normContest(craw?JSON.parse(craw):null);
 
   // Only the admin (or a device-only copy) can write the event back to the shared board.
   if(upgraded && (!store.server || store.auth.admin)) await saveEvent();
@@ -1231,6 +1304,30 @@ const ART = {
   thumbsDown:()=>`<g transform="rotate(180 60 60)">
     <rect x="19" y="50" width="18" height="52" rx="4" fill="#cfe0ff"/>
     <path d="M37 54 L52 26 Q56 16 64 19 Q72 23 68 35 L64 50 L90 50 Q101 51 99 62 L93 91 Q90 100 80 100 L38 100Z" fill="#d5202f"/></g>`,
+  /* closest to the pin — a dart stuck in the green next to the cup */
+  dart:()=>`<g>
+    <ellipse cx="60" cy="88" rx="52" ry="20" fill="#2e8b4e"/>
+    <ellipse cx="60" cy="86" rx="40" ry="13" fill="#3fa862"/>
+    <ellipse cx="78" cy="86" rx="7.5" ry="3" fill="#071647"/>
+    <path d="M78 86 V40" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M79 41 L97 47 L79 53Z" fill="#d5202f"/>
+    <ellipse cx="58" cy="86" rx="9" ry="2.6" fill="none" stroke="#fff" stroke-width="1.6" opacity=".7"/>
+    <g transform="rotate(-38 58 84)">
+      <path d="M58 84 L58 70" stroke="#c9d3e6" stroke-width="2.6" stroke-linecap="round"/>
+      <rect x="55" y="44" width="6" height="27" rx="3" fill="#0e2a8c"/>
+      <path d="M58 46 L58 28" stroke="#071647" stroke-width="2.2"/>
+      <path d="M58 34 L46 22 L49 38Z" fill="#d5202f"/><path d="M58 34 L70 22 L67 38Z" fill="#d5202f"/>
+    </g></g>`,
+  /* long drive — a ball launched hard with speed streaks */
+  drive:()=>`<g>
+    <path d="M10 92 Q52 88 88 46" stroke="#0e2a8c" stroke-width="3" fill="none" stroke-dasharray="2 7" stroke-linecap="round" opacity=".55"/>
+    <path d="M18 54 H62" stroke="#0e2a8c" stroke-width="6" stroke-linecap="round"/>
+    <path d="M28 66 H66" stroke="#d5202f" stroke-width="6" stroke-linecap="round"/>
+    <path d="M38 78 H68" stroke="#0e2a8c" stroke-width="6" stroke-linecap="round" opacity=".6"/>
+    <circle cx="86" cy="62" r="20" fill="#fff" stroke="#071647" stroke-width="3"/>
+    <g fill="#9db8e0"><circle cx="80" cy="55" r="2"/><circle cx="88" cy="53" r="2"/><circle cx="95" cy="59" r="2"/>
+      <circle cx="78" cy="64" r="2"/><circle cx="86" cy="62" r="2"/><circle cx="94" cy="68" r="2"/><circle cx="84" cy="71" r="2"/></g>
+    <path d="M104 44 l8 -6 M108 56 l10 -2 M104 76 l8 5" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/></g>`,
   ace:()=>`<g>
     <ellipse cx="60" cy="100" rx="34" ry="8" fill="#071647" opacity=".85"/>
     <path d="M60 100 V18" stroke="#071647" stroke-width="4" stroke-linecap="round"/>
@@ -1267,6 +1364,16 @@ function detectEvents(){
       } else streak=0;
       if(d>=2) ev.push({...base,kind:'dbl',over:d,id:`dbl:${t.id}:${i}:${at}`});
       prev=i;
+    });
+  });
+  // contest claims — every claim and every time someone beats the mark
+  Object.keys((contest&&contest.claims)||{}).forEach(slot=>{
+    const list=contest.claims[slot]||[], isLd=slot==='ld', hole=isLd?(+evt.ldHole||10):+slot.slice(3);
+    list.forEach((c,i)=>{
+      if(!c||!c.at) return;
+      const tid=+c.t||teamOfName(c.n);
+      ev.push({kind:isLd?'ldc':'ctpc', id:`cl:${slot}:${c.at}`, at:c.at, slot, hole, claim:c, prev:list[i-1]||null,
+               team:teamOf(tid)||{id:'',a:'',b:''}});
     });
   });
   if(fb) ev.push({...fb,id:`fb:${fb.team.id}:${fb.i}:${fb.at}`});
@@ -1314,12 +1421,24 @@ function showNextAlert(){
   else if(e.kind==='ace'){ theme='al-gold'; const p=hioOf(e.hole);
     art = p&&p.img ? `<img class="al-photo" src="${esc(p.img)}" alt="">` : ART.ace();
     kicker='Hole-in-one'; title='ACE!'; line=p?`Wins ${esc(p.prize)}`:`${hole}`; btn='Unreal'; }
-  const mine = t.id===myTeam ? '<span class="al-you">Your team</span>' : '';
+  let who='';
+  if(e.kind==='ctpc'||e.kind==='ldc'){
+    const c=e.claim, p=e.prev, isLd=e.kind==='ldc';
+    theme=isLd?'al-red':'al-green'; art=isLd?ART.drive():ART.dart();
+    kicker=isLd?`Long drive · Hole #${e.hole}`:`Closest to the pin · Hole #${e.hole}`;
+    title=isLd?"Got 'Em!":(c.d<=36?'Dropped a dime':'Throwing darts');
+    who = !p ? `${esc(c.n)} claims hole #${e.hole}`
+        : p.n===c.n ? `${esc(c.n)} just beat their own mark on hole #${e.hole}`
+        : `${esc(c.n)} just got ${esc(p.n)} on hole #${e.hole}`;
+    line = p ? `${fmtClaim(e.slot,c)} beats ${fmtClaim(e.slot,p)}` : (isLd?`${c.y} yds off the tee`:`${fmtD(c.d)} from the cup`);
+    btn = isLd?'Send it':'Dialed';
+  }
+  const mine = t.id&&t.id===myTeam ? '<span class="al-you">Your team</span>' : '';
   document.getElementById('alertBody').innerHTML=`
     <div class="al-stage ${theme}">${art.startsWith('<img')?art:svgWrap(art)}</div>
     <p class="al-kicker">${kicker}</p>
     <h3 class="al-title">${title}</h3>
-    <p class="al-team">${mine}Team ${t.id} · ${names}</p>
+    <p class="al-team">${who?`${mine}${who}`:`${mine}Team ${t.id} · ${names}`}</p>
     <p class="al-line">${line}</p>`;
   document.getElementById('alertGo').textContent=btn;
   const box=document.getElementById('alert');
@@ -1342,6 +1461,17 @@ let pollTimer=null;
 async function pollField(){
   if(document.hidden || !evt) return;
   try{ await loadField(); }catch(e){ return; }
+  try{
+    const raw=await store.get(K.contest(year),true);
+    if(raw){
+      const c=normContest(JSON.parse(raw));
+      if((c.u||0)!==(contest.u||0)){
+        contest=c;
+        const busy=document.getElementById('claimSheet').classList.contains('on')||document.getElementById('namePick').classList.contains('on');
+        if(document.getElementById('v-contests').classList.contains('on') && !busy) renderContests();
+      }
+    }
+  }catch(e){}
   if(document.getElementById('v-board').classList.contains('on')) renderBoard();
   checkAlerts();
 }
@@ -1529,6 +1659,8 @@ async function saveContest(){
   const raw=await store.get(K.contest(year),true);
   const remote=raw?JSON.parse(raw):blankContest();
   contest=Object.assign({},remote,contest,{u:Date.now()});
+  if(store.server){ contest.claims=remote.claims||{}; contest.ctp=remote.ctp||{}; contest.ld=remote.ld||{name:'',yds:''}; }
+  contest=normContest(contest);
   await store.set(K.contest(year),JSON.stringify(contest),true);
 }
 function isAdminHere(){ return !store.server || !!store.auth.admin; }
@@ -1563,43 +1695,39 @@ function renderContests(){
         <div class="contest-hd"><span class="diamond ghost"><span>P</span></span>
           <h3>Putting contest</h3>
           <span class="prize">Practice green, pre-round</span></div>
-        <div class="fields">${nameBtn(contest.putt.name,'Pick the winner','data-putt="name"',lock)}</div></div>`;
-      return;
-    }
-    const H=evt.holes[c.h-1]; if(!H) return;
-    if(c.type==='ld'){
-      html+=`<div class="contest ${contest.ld.name?'won':''}">
-        <div class="contest-hd"><span class="diamond ghost"><span>${H.h}</span></span>
-          <h3>Long drive</h3>
-          <span class="prize">${H.yds} yds · par ${H.par}</span></div>
-        <div class="fields">
-          ${nameBtn(contest.ld.name,'Pick the leader','data-ld="name"',lock)}
-          <input class="dist" placeholder="Yards" inputmode="numeric" value="${esc(contest.ld.yds)}" data-ld="yds" ${lock}>
+        <div class="putt-grid">
+          <label>Winner</label>${nameBtn(contest.putt.name,'Pick the winner','data-putt="name"',lock)}
+          <label class="loser">Big loser</label>${nameBtn(contest.putt.loser,'Pick the big loser','data-putt="loser"',lock)}
         </div></div>`;
       return;
     }
-    const h=c.h, cur=contest.ctp[h]||{name:'',dist:''}, hio=hioOf(h), ace=(contest.hio[h]||{}).name||'';
-    const fi=ftIn(cur);
-    const ftOpts='<option value="">ft</option>'+Array.from({length:31},(_,i)=>`<option value="${i}" ${fi.ft===i?'selected':''}>${i}′</option>`).join('');
-    const inOpts='<option value="">in</option>'+Array.from({length:12},(_,i)=>`<option value="${i}" ${fi.inch===i?'selected':''}>${i}″</option>`).join('');
-    html+=`<div class="contest ${cur.name||ace?'won':''}">
+    const H=evt.holes[c.h-1]; if(!H) return;
+    const slot = c.type==='ld' ? 'ld' : 'ctp'+c.h, log=claimsOf(slot), best=log[log.length-1];
+    const isLd = c.type==='ld', h=c.h, hio=isLd?null:hioOf(h), ace=isLd?'':((contest.hio[h]||{}).name||'');
+    const admin = isAdminHere();
+    const rows = log.length ? log.map((e,i)=>`<div class="cl-row ${i===log.length-1?'lead':''}">
+        <span class="cl-i">${i===log.length-1?(isLd?'💥':'🎯'):i+1}</span>
+        <span class="cl-n">${esc(e.n)}</span><span class="cl-d">${fmtClaim(slot,e)}</span>
+        ${admin&&!isFinal()?`<button class="cl-x" type="button" data-slot="${slot}" data-at="${e.at}" aria-label="Remove">×</button>`:''}</div>`).join('')
+      : `<div class="cl-empty">No one on the board yet — first to claim it holds it.</div>`;
+    html+=`<div class="contest ${best||ace?'won':''}">
       <div class="contest-hd"><span class="diamond ghost"><span>${h}</span></span>
-        <h3>Closest to the pin${hio?' <em>+ ace</em>':''}</h3>
+        <h3>${isLd?'Long drive':'Closest to the pin'}${hio?' <em>+ ace</em>':''}</h3>
         <span class="prize">${H.yds} yds · par ${H.par}</span></div>
       ${hio?`<div class="ace-line">${hio.img?`<img src="${esc(hio.img)}" alt="">`:''}<span>Hole-in-one: <b>${esc(hio.prize)}</b></span></div>`:''}
-      <div class="fields">
-        ${nameBtn(cur.name,'Pick who\'s closest',`data-ctp="${h}" data-f="name"`,lock)}
-        <span class="ftin">
-          <select aria-label="Feet" data-ctp="${h}" data-f="ft" ${lock}>${ftOpts}</select>
-          <select aria-label="Inches" data-ctp="${h}" data-f="in" ${lock}>${inOpts}</select>
-        </span>
+      <div class="claim-row">
+        <button class="btn claim-btn ${isLd?'ld':''}" type="button" data-claim="${slot}" data-h="${h}" ${lock}>Claim</button>
+        <span class="claim-mark">${best?`${isLd?'To beat':'To beat'}: <b>${fmtClaim(slot,best)}</b> · ${esc(first(best.n))}`:'Open — set the first mark'}</span>
       </div>
-      ${hio?`<div class="fields" style="margin-top:7px">${nameBtn(ace,'Aced by (if anyone!)',`data-hio="${h}"`,lock)}</div>`:''}
+      <div class="claim-log">${rows}</div>
+      ${hio?`<div class="fields" style="margin-top:9px">${nameBtn(ace,'Aced by (if anyone!)',`data-hio="${h}"`,lock)}</div>`:''}
     </div>`;
   });
   wrap.innerHTML=html;
   wrap.querySelectorAll('input,select').forEach(i=>{ i.addEventListener('change',onContestEdit); });
   wrap.querySelectorAll('.name-btn').forEach(b=>{ b.onclick=()=>openNamePick(b); });
+  wrap.querySelectorAll('[data-claim]').forEach(b=>{ b.onclick=()=>openClaim(b.dataset.claim,+b.dataset.h); });
+  wrap.querySelectorAll('.cl-x').forEach(b=>{ b.onclick=()=>removeClaim(b.dataset.slot,+b.dataset.at); });
 
   /* --- admin: which par 3s carry CTP --- */
   document.getElementById('ctpAdmin').style.display = isAdminHere() ? '' : 'none';
@@ -1645,8 +1773,8 @@ function contestWins(){
   const w=[];
   contestOrder().forEach(c=>{
     if(c.type==='putt'){ if((contest.putt.name||'').trim()) w.push({key:'putt', label:'Putting', name:contest.putt.name.trim()}); }
-    else if(c.type==='ld'){ if((contest.ld.name||'').trim()) w.push({key:'ld', label:`Long drive · #${c.h}`, name:contest.ld.name.trim()}); }
-    else { const n=((contest.ctp[c.h]||{}).name||'').trim(); if(n) w.push({key:'ctp'+c.h, label:`Closest · #${c.h}`, name:n}); }
+    else if(c.type==='ld'){ const b=holderOf('ld'); if(b) w.push({key:'ld', label:`Long drive · #${c.h}`, name:b.n}); }
+    else { const b=holderOf('ctp'+c.h); if(b) w.push({key:'ctp'+c.h, label:`Closest · #${c.h}`, name:b.n}); }
   });
   return w;
 }
@@ -1723,7 +1851,8 @@ let namePickFor=null;
 function openNamePick(btn){
   if(btn.disabled) return;
   namePickFor=btn;
-  const ttl = btn.dataset.putt?'Putting contest':btn.dataset.ld?`Long drive · #${evt.ldHole}`:
+  const ttl = btn.dataset.putt?(btn.dataset.putt==='loser'?'Putting contest · big loser':'Putting contest · winner'):
+              btn.dataset.claimname!==undefined?claimTitle():btn.dataset.ld?`Long drive · #${evt.ldHole}`:
               btn.dataset.hio?`Hole-in-one · #${btn.dataset.hio}`:`Closest to the pin · #${btn.dataset.ctp}`;
   document.getElementById('npTitle').textContent=ttl;
   const cur=btn.classList.contains('empty')?'':btn.firstChild.textContent;
@@ -1739,26 +1868,91 @@ function openNamePick(btn){
 function closeNamePick(){ document.getElementById('namePick').classList.remove('on'); namePickFor=null; }
 function pickName(n){
   const b=namePickFor; closeNamePick(); if(!b) return;
+  if(b.id==='clName'){ if(claimCtx){ claimCtx.name=n; b.classList.toggle('empty',!n); b.firstChild.textContent=n||'Tap to pick your name'; } return; }
   b.dataset.pick=n; onContestEdit({target:b});
+}
+/* ---- Claim a contest (Nov 14 request): running log, closest / longest at the bottom ---- */
+let claimCtx=null;
+function claimTitle(){ return claimCtx ? (claimCtx.slot==='ld'?`Long drive · #${claimCtx.h}`:`Closest to the pin · #${claimCtx.h}`) : 'Claim'; }
+function openClaim(slot,h){
+  if(isFinal()) return toast('Year is locked');
+  claimCtx={slot,h,name:''};
+  const isLd=slot==='ld', best=holderOf(slot);
+  document.getElementById('clTitle').textContent=claimTitle();
+  document.getElementById('clArt').innerHTML=svgWrap(isLd?ART.drive():ART.dart());
+  document.getElementById('clStage').className='cl-stage '+(isLd?'al-red':'al-green');
+  document.getElementById('clBest').innerHTML = best
+    ? `${isLd?'Longest':'Closest'} so far: <b>${fmtClaim(slot,best)}</b> · ${esc(best.n)}`
+    : 'Nobody has claimed it yet.';
+  const nb=document.getElementById('clName');
+  nb.classList.add('empty'); nb.firstChild.textContent='Tap to pick your name';
+  const d=document.getElementById('clDist');
+  if(isLd){
+    d.innerHTML=`<label>Yards</label><select id="clYds" aria-label="Yards">${Array.from({length:351},(_,i)=>i+100).map(y=>`<option value="${y}" ${best&&y===best.y+1||!best&&y===250?'selected':''}>${y} yds</option>`).join('')}</select>`;
+  } else {
+    const bf=best?Math.floor(best.d/12):10;
+    d.innerHTML=`<label>Distance to the cup</label><span class="ftin big">
+      <select id="clFt" aria-label="Feet">${Array.from({length:76},(_,i)=>`<option value="${i}" ${i===bf?'selected':''}>${i} ft</option>`).join('')}</select>
+      <select id="clIn" aria-label="Inches">${Array.from({length:12},(_,i)=>`<option value="${i}">${i} in</option>`).join('')}</select></span>`;
+  }
+  document.getElementById('claimSheet').classList.add('on');
+}
+function closeClaim(){ document.getElementById('claimSheet').classList.remove('on'); claimCtx=null; }
+function teamOfName(n){ const p=fieldPlayers().find(x=>x.n===n); return p?p.t:null; }
+async function submitClaim(){
+  if(!claimCtx) return;
+  const {slot,h,name}=claimCtx, isLd=slot==='ld';
+  if(!name) return toast('Pick your name first');
+  const best=holderOf(slot), body={action:'contestclaim',year,which:isLd?'ld':'ctp',hole:h,name};
+  let entry;
+  if(isLd){ body.yds=+document.getElementById('clYds').value; entry={n:name,y:body.yds}; }
+  else{
+    body.ft=+document.getElementById('clFt').value; body.inch=+document.getElementById('clIn').value;
+    if(!body.ft&&!body.inch) return toast('0′ 0″ is an ace — record it in "Aced by"');
+    entry={n:name,d:body.ft*12+body.inch};
+  }
+  if(best && (isLd ? entry.y<=best.y : entry.d>=best.d))
+    return toast(`Need to beat ${fmtClaim(slot,best)}`);
+  const go=document.getElementById('clGo'); go.disabled=true;
+  try{
+    if(store.server){
+      if(store.auth.admin) body.admin=store.auth.admin;
+      else{
+        let t=teamOfName(name);
+        if(t===null) t=myTeam;
+        if(!(await unlockTeam(t))) return;
+        body.team=t; body.code=store.teamCode(year,t);
+      }
+      const r=await store.post(body);
+      if(r.data&&r.data.contest) contest=normContest(r.data.contest);
+      if(r.status===409){ renderContests(); openClaim(slot,h); return toast(`Someone just beat you to it — mark is now ${fmtClaim(slot,r.data.best)}`); }
+      if(r.status===401) return toast('Team code needed to claim');
+      if(!r.ok) return toast(r.data.error||'Claim did not go through — try again');
+    } else {
+      entry.t=String(teamOfName(name)||myTeam||''); entry.at=Date.now();
+      contest.claims[slot]=claimsOf(slot).concat(entry); syncHolders(contest);
+      contest.u=Date.now(); await store.set(K.contest(year),JSON.stringify(contest),true);
+    }
+    closeClaim(); renderContests(); toast(isLd?"Got 'Em! You're on the board":'Claimed — you hold the pin');
+    checkAlerts();
+  } finally { go.disabled=false; }
+}
+async function removeClaim(slot,at){
+  if(!isAdminHere()) return;
+  const e=claimsOf(slot).find(x=>x.at===at); if(!e) return;
+  if(!confirm(`Remove ${e.n} — ${fmtClaim(slot,e)} from this contest?`)) return;
+  const raw=await store.get(K.contest(year),true);
+  const c=normContest(raw?JSON.parse(raw):contest);
+  c.claims[slot]=(c.claims[slot]||[]).filter(x=>x.at!==at);
+  syncHolders(c); c.u=Date.now();
+  if(await store.set(K.contest(year),JSON.stringify(c),true)){ contest=c; renderContests(); toast('Entry removed'); }
 }
 async function onContestEdit(e){
   const el=e.target, v=(el.dataset.pick!==undefined ? el.dataset.pick : el.value).trim();
-  if(el.dataset.ctp){
-    const h=el.dataset.ctp, f=el.dataset.f;
-    const cur=Object.assign({name:'',dist:''},contest.ctp[h]);
-    if(f==='ft'||f==='in'){
-      const fi=ftIn(cur);
-      if(f==='ft') fi.ft = v===''?null:+v; else fi.inch = v===''?null:+v;
-      if(fi.ft!=null && fi.inch==null) fi.inch=0;
-      cur.ft = fi.ft==null?'':fi.ft; cur.in = fi.ft==null?'':fi.inch;
-      cur.dist = fi.ft==null?'':`${fi.ft}' ${fi.inch}"`;
-    } else cur[f]=v;
-    contest.ctp[h]=cur;
-  } else if(el.dataset.hio){
+  if(el.dataset.hio){
     contest.hio[el.dataset.hio]={name:v};
     if(v) toast(`ACE on ${el.dataset.hio}! 🎉`);
-  } else if(el.dataset.ld) contest.ld[el.dataset.ld]=v;
-  else if(el.dataset.putt) contest.putt.name=v;
+  } else if(el.dataset.putt) contest.putt[el.dataset.putt]=v;
   // a renamed winner keeps their ball
   (contest.draw.picks||[]).forEach(p=>{ const w=contestWins().find(x=>x.key===p.key); if(w) p.name=w.name; });
   await saveContest(); renderContests(); if(!el.dataset.hio||!v) toast('Contest updated');
@@ -2005,9 +2199,12 @@ document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
   toast(card.m[i]?'Mulligan spent':'Mulligan back in the bag');
 });
 document.getElementById('npCancel').onclick=closeNamePick;
+document.getElementById('clName').onclick=e=>openNamePick(e.currentTarget);
+document.getElementById('clCancel').onclick=closeClaim;
+document.getElementById('clGo').onclick=submitClaim;
+document.getElementById('claimSheet').addEventListener('click',e=>{ if(e.target.id==='claimSheet') closeClaim(); });
 document.getElementById('npClear').onclick=()=>pickName('');
 document.getElementById('namePick').addEventListener('click',e=>{ if(e.target.id==='namePick') closeNamePick(); });
-document.getElementById('pushNow').onclick=async()=>{ await saveNow(); toast('Posted to the board'); };
 document.getElementById('switchTeam').onclick=()=>{ hideCard(); renderPicker(); window.scrollTo({top:0,behavior:'smooth'}); };
 document.getElementById('alertGo').onclick=closeAlert;
 document.getElementById('alert').onclick=e=>{ if(e.target.id==='alert') closeAlert(); };
@@ -2027,7 +2224,21 @@ document.getElementById('lockSetup').onclick=()=>{
   toast('Setup locked');
 };
 
+document.getElementById('openChamp').onclick=async()=>{
+  if(store.server && !store.auth.admin){
+    if(!(await requireAdmin())) return;
+    applyAdminUI();
+  }
+  document.getElementById('champForm').hidden=false;
+  document.getElementById('openChamp').hidden=true;
+  document.getElementById('cy').focus();
+};
+document.getElementById('closeChamp').onclick=()=>{
+  document.getElementById('champForm').hidden=true;
+  document.getElementById('openChamp').hidden=false;
+};
 document.getElementById('addChamp').onclick=async()=>{
+  if(store.server && !store.auth.admin && !(await requireAdmin())) return;
   const g=id=>document.getElementById(id).value.trim();
   const y=+g('cy');
   if(!y||!g('ca')) return toast('Year and a name, minimum');
@@ -2035,6 +2246,7 @@ document.getElementById('addChamp').onclick=async()=>{
   champs.push({year:y,a:g('ca'),b:g('cb'),course:g('cc'),gross:+g('cg')||'',toPar:g('ctp')});
   await saveChamps(); renderCup();
   ['cy','cc','ca','cb','cg','ctp'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('closeChamp').click();
   toast('Engraved');
 };
 
