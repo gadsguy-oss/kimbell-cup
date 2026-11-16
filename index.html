@@ -234,6 +234,9 @@
   .np-row{gap:10px}
   .np-row .np-n{flex:1}
   .np-row.on .np-n::after{content:" ✓";color:var(--navy)}
+  .course-card{position:relative}
+  .course-card .course-logo{position:absolute;top:14px;right:14px;width:118px;height:auto;pointer-events:none}
+  .course-card .eyebrow,.course-card .sec,.course-card #courseSub{padding-right:126px}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -591,7 +594,8 @@
       <h2 class="sec">Format</h2>
       <ul class="rules" id="rulesList"></ul>
     </div>
-    <div class="card">
+    <div class="card course-card">
+      <img class="course-logo" src="/img/river-forest.png" alt="River Forest">
       <p class="eyebrow" id="courseEyebrow">Course</p>
       <h2 class="sec" id="courseName">—</h2>
       <p class="muted" id="courseSub" style="margin:0 0 12px"></p>
