@@ -248,6 +248,13 @@
   .rules li{margin-bottom:7px}
   .rules li::marker{color:var(--red)}
 
+  /* the Cup — winners engraved on the base plates */
+  .trophy{position:relative;max-width:440px;margin:0 auto 14px;container-type:inline-size}
+  .trophy img{display:block;width:100%;height:auto;border-radius:16px}
+  .tplate{position:absolute;left:31.6%;width:37%;height:4.8%;gap:.3cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.05;color:#2f3440;text-shadow:0 1px 0 rgba(255,255,255,.7);overflow:hidden}
+  .tplate b{font-family:var(--display);font-weight:700;font-size:2.35cqw;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .tplate small{font-family:var(--num);font-size:1.75cqw;letter-spacing:.06em;text-transform:uppercase;opacity:.8;white-space:nowrap}
+  .tplate.pending b{opacity:.45}
   /* trophy plaque */
   .plaque{background:linear-gradient(160deg,#0d2377,var(--navy));border-radius:16px;padding:18px 16px;color:#fff;margin-bottom:14px}
   .plaque .est{font-family:var(--num);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--sky);text-align:center}
@@ -537,9 +544,13 @@
   </section>
 
   <section class="view" id="v-cup">
+    <div class="trophy" id="trophy">
+      <img src="/img/cup.jpg" alt="The Kimbell Cup">
+      <div id="trophyPlates"></div>
+    </div>
     <div class="plaque">
       <div class="est">Established 1983</div>
-      <h2>The Cup</h2>
+      <h2>Past champions</h2>
       <div id="engraving"></div>
     </div>
     <div class="card">
@@ -1978,7 +1989,23 @@ async function onContestEdit(e){
 /* ==========================================================
    THE CUP — engraving + records
    ========================================================== */
+function renderTrophy(){
+  const tops=[63.0,68.85,74.6,80.45];            // the four plates on the base, top to bottom (oldest first)
+  const asc=[...champs].sort((a,b)=>a.year-b.year).slice(-4);
+  const slots=asc.map(c=>({c}));
+  if(slots.length<4 && !champs.some(c=>+c.year===+year)) slots.push({pending:year});
+  while(slots.length<4) slots.push({});
+  const last=n=>String(n||'').trim().split(/\s+/).slice(-1)[0];
+  document.getElementById('trophyPlates').innerHTML=slots.map((sl,i)=>{
+    const st=`top:${tops[i]}%`;
+    if(sl.c){ const c=sl.c;
+      return `<div class="tplate" style="${st}" title="${esc(c.a)} & ${esc(c.b)}"><b>${c.year} · ${esc(last(c.a))} &amp; ${esc(last(c.b))}</b><small>${esc(c.course||'')}${c.gross?` · ${c.gross}${c.toPar?' ('+esc(c.toPar)+')':''}`:''}</small></div>`; }
+    if(sl.pending) return `<div class="tplate pending" style="${st}"><b>${sl.pending} · ?</b><small>To be engraved</small></div>`;
+    return `<div class="tplate" style="${st}"></div>`;
+  }).join('');
+}
 function renderCup(){
+  renderTrophy();
   const list=[...champs].sort((a,b)=>b.year-a.year);
   const eng=document.getElementById('engraving');
   eng.innerHTML = list.length ? list.map(c=>`
