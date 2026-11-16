@@ -137,7 +137,7 @@
   .lb-row.me{border-color:var(--navy);background:var(--tint)}
   .lb-row.lead{border-color:var(--gold);box-shadow:0 6px 20px -12px rgba(201,162,39,.9)}
   .lb-name{min-width:0;flex:1}
-  .lb-name .p{font-size:14.5px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lb-name .p{font-size:14.5px;font-weight:600;line-height:1.22;overflow-wrap:anywhere}
   .lb-name .u{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:500;margin-top:1px}
   .lb-fig{text-align:right}
   .lb-fig .tp{font-family:var(--display);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
@@ -145,7 +145,9 @@
   .lb-fig .th.fin{font-size:15px;letter-spacing:.06em;color:var(--navy);font-weight:800}
   .bottles{display:flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--gold),#e0bd48);color:var(--ink);border-radius:0 0 12px 12px;margin-top:-7px;padding:6px 13px 7px;font-family:var(--num);font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
   .cardoff{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin-top:2px}
-  button.lb-row{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+  .lb-item{min-width:0}
+  .lb-row .av-pair.sm .av{width:30px;height:30px}
+  button.lb-row{max-width:100%;min-width:0;overflow:hidden;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
   .lb-chev{width:9px;height:9px;border-right:2px solid rgba(7,22,71,.35);border-bottom:2px solid rgba(7,22,71,.35);transform:rotate(45deg);margin:-4px 2px 0 2px;transition:transform .2s;flex:0 0 auto}
   .lb-item.open .lb-chev{transform:rotate(-135deg);margin-top:4px}
   .lb-item.open .lb-row{border-radius:13px 13px 0 0}
@@ -1610,6 +1612,7 @@ function renderBoard(){
     return `<div class="lb-item ${open?'open':''}">
       <button type="button" class="lb-row ${lead?'lead':''} ${mine?'me':''}" data-card="${r.t.id}" aria-expanded="${open}">
         <span class="diamond ${lead?'lead':''} ${posTxt.length>2?'long':''}"><span>${posTxt}</span></span>
+        ${avPair(r.t,'sm')}
         <div class="lb-name">
           <div class="p">${esc(r.t.a)} &amp; ${esc(r.t.b)}</div>
           <div class="u">${r.signed?'Final · signed':(r.thru===18?'Thru 18 · not signed':'In play')} · Gross ${r.g}${r.tied?' · Tied '+ordinal(r.pos):''}</div>
@@ -2057,7 +2060,7 @@ function renderCup(){
     `<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line)">
       <span class="diamond ghost sm"><span>${t.id}</span></span>
       ${avPair(t,'sm')}
-      <span><strong>${esc(t.a)}</strong> &amp; ${esc(t.b)}</span></div>`).join('')
+      <span style="font-weight:600">${esc(t.a)} &amp; ${esc(t.b)}</span></div>`).join('')
     : '<div class="muted">Field not set yet.</div>';
 }
 
