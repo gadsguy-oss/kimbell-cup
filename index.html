@@ -193,7 +193,6 @@
   .np-row:last-child{border-bottom:none}
   .np-row small{font-family:var(--num);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600}
   .np-row.on{background:var(--tint)}
-  .np-row.on span::after{content:" ✓";color:var(--navy)}
   .np-card .btn-row .btn{flex:1}
   .add-champ{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;padding:13px;border:1.5px dashed rgba(14,42,140,.35);border-radius:12px;background:var(--tint);color:var(--navy);font-family:var(--num);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
   .add-champ span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:18px;line-height:1}
@@ -228,6 +227,13 @@
   .cl-field select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 8px;background:#fff;font-family:var(--num);font-weight:700;font-size:17px;color:var(--ink)}
   .ftin.big{display:flex;gap:8px}
   .ftin.big select{flex:1}
+  .name-btn .av,.cl-row .av,.np-row .av{width:30px;height:30px;border-width:2px;flex:0 0 auto}
+  .name-btn .av{margin:-4px 0}
+  .name-btn .nb-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .cl-row .av{width:26px;height:26px}
+  .np-row{gap:10px}
+  .np-row .np-n{flex:1}
+  .np-row.on .np-n::after{content:" ✓";color:var(--navy)}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -732,7 +738,7 @@
     <h3 class="pop-title" id="clTitle"></h3>
     <p class="cl-best" id="clBest"></p>
     <div class="cl-field"><label>Player</label>
-      <button type="button" class="name-btn empty" id="clName" data-claimname="">Tap to pick your name<span class="nb-chev" aria-hidden="true">▾</span></button></div>
+      <button type="button" class="name-btn empty" id="clName" data-claimname=""><span class="nb-t">Tap to pick your name</span><span class="nb-chev" aria-hidden="true">▾</span></button></div>
     <div class="cl-field" id="clDist"></div>
     <div class="btn-row" style="margin-top:14px">
       <button class="btn ghost" id="clCancel" type="button">Cancel</button>
@@ -1739,7 +1745,7 @@ function renderContests(){
     const admin = isAdminHere();
     const rows = log.length ? log.map((e,i)=>`<div class="cl-row ${i===log.length-1?'lead':''}">
         <span class="cl-i">${i===log.length-1?(isLd?'💥':'🎯'):i+1}</span>
-        <span class="cl-n">${esc(e.n)}</span><span class="cl-d">${fmtClaim(slot,e)}</span>
+        ${avatar(e.n)}<span class="cl-n">${esc(e.n)}</span><span class="cl-d">${fmtClaim(slot,e)}</span>
         ${admin&&!isFinal()?`<button class="cl-x" type="button" data-slot="${slot}" data-at="${e.at}" aria-label="Remove">×</button>`:''}</div>`).join('')
       : `<div class="cl-empty">No one on the board yet — first to claim it holds it.</div>`;
     html+=`<div class="contest ${best||ace?'won':''}">
@@ -1872,7 +1878,7 @@ async function runDraw(){
 }
 /* ---- Contest winner: tap to pick from the field (Nov 13 request) ---- */
 function nameBtn(val,ph,attrs,lock){
-  return `<button type="button" class="name-btn ${val?'':'empty'}" ${attrs} ${lock}>${val?esc(val):esc(ph)}<span class="nb-chev" aria-hidden="true">▾</span></button>`;
+  return `<button type="button" class="name-btn ${val?'':'empty'}" ${attrs} ${lock}>${val?`${avatar(val)}<span class="nb-t">${esc(val)}</span>`:`<span class="nb-t">${esc(ph)}</span>`}<span class="nb-chev" aria-hidden="true">▾</span></button>`;
 }
 function fieldPlayers(){
   const out=[];
@@ -1887,10 +1893,10 @@ function openNamePick(btn){
               btn.dataset.claimname!==undefined?claimTitle():btn.dataset.ld?`Long drive · #${evt.ldHole}`:
               btn.dataset.hio?`Hole-in-one · #${btn.dataset.hio}`:`Closest to the pin · #${btn.dataset.ctp}`;
   document.getElementById('npTitle').textContent=ttl;
-  const cur=btn.classList.contains('empty')?'':btn.firstChild.textContent;
+  const cur=btn.classList.contains('empty')?'':btn.querySelector('.nb-t').textContent;
   const list=fieldPlayers();
   document.getElementById('npList').innerHTML = list.length ? list.map(p=>
-    `<button type="button" class="np-row ${p.n===cur?'on':''}" data-name="${esc(p.n)}"><span>${esc(p.n)}</span><small>Team ${p.t}</small></button>`).join('')
+    `<button type="button" class="np-row ${p.n===cur?'on':''}" data-name="${esc(p.n)}">${avatar(p.n)}<span class="np-n">${esc(p.n)}</span><small>Team ${p.t}</small></button>`).join('')
     : '<div class="empty-state">No players in the field yet.</div>';
   document.getElementById('npClear').style.display = cur?'':'none';
   document.querySelectorAll('#npList .np-row').forEach(r=>r.onclick=()=>pickName(r.dataset.name));
@@ -1900,7 +1906,7 @@ function openNamePick(btn){
 function closeNamePick(){ document.getElementById('namePick').classList.remove('on'); namePickFor=null; }
 function pickName(n){
   const b=namePickFor; closeNamePick(); if(!b) return;
-  if(b.id==='clName'){ if(claimCtx){ claimCtx.name=n; b.classList.toggle('empty',!n); b.firstChild.textContent=n||'Tap to pick your name'; } return; }
+  if(b.id==='clName'){ if(claimCtx){ claimCtx.name=n; b.classList.toggle('empty',!n); b.innerHTML=(n?avatar(n):'')+`<span class="nb-t">${esc(n||'Tap to pick your name')}</span><span class="nb-chev" aria-hidden="true">▾</span>`; } return; }
   b.dataset.pick=n; onContestEdit({target:b});
 }
 /* ---- Claim a contest (Nov 14 request): running log, closest / longest at the bottom ---- */
@@ -1917,7 +1923,7 @@ function openClaim(slot,h){
     ? `${isLd?'Longest':'Closest'} so far: <b>${fmtClaim(slot,best)}</b> · ${esc(best.n)}`
     : 'Nobody has claimed it yet.';
   const nb=document.getElementById('clName');
-  nb.classList.add('empty'); nb.firstChild.textContent='Tap to pick your name';
+  nb.classList.add('empty'); nb.innerHTML='<span class="nb-t">Tap to pick your name</span><span class="nb-chev" aria-hidden="true">▾</span>';
   const d=document.getElementById('clDist');
   if(isLd){
     d.innerHTML=`<label>Yards</label><select id="clYds" aria-label="Yards">${Array.from({length:351},(_,i)=>i+100).map(y=>`<option value="${y}" ${best&&y===best.y+1||!best&&y===250?'selected':''}>${y} yds</option>`).join('')}</select>`;
