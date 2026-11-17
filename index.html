@@ -521,7 +521,7 @@
   .hv-top{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;color:#fff;background:#0e2a8c}
   .hv-top h3{margin:0;font-size:24px;flex:1;letter-spacing:.02em;text-align:center}
   .hv-top small{display:block;font-size:12px;font-weight:600;opacity:.8;letter-spacing:.04em}
-  .hv-x{border:0;background:#fff;color:#0e2a8c;width:50px;height:50px;border-radius:50%;font-weight:700;font-size:30px;line-height:1;font-family:inherit}
+  .hv-x{border:0;background:#fff;color:#0e2a8c;height:56px;padding:0 12px;border-radius:16px;white-space:nowrap;letter-spacing:.01em;font-weight:800;font-size:15px;line-height:1;font-family:inherit}
   .hv-nav{border:0;background:rgba(255,255,255,.2);color:#fff;width:50px;height:50px;border-radius:50%;font-weight:700;font-size:34px;line-height:1;font-family:inherit}
   .hv-nav:disabled{opacity:.3}
   .hv-map{position:relative;flex:1;overflow:hidden;touch-action:none;background:#2c3d22}
@@ -905,7 +905,7 @@
     <button type="button" class="hv-nav" id="hvPrev" aria-label="Previous hole">&lsaquo;</button>
     <h3 id="hvTitle">Hole 1<small></small></h3>
     <button type="button" class="hv-nav" id="hvNext" aria-label="Next hole">&rsaquo;</button>
-    <button type="button" class="hv-x" id="hvClose" aria-label="Close">&times;</button>
+    <button type="button" class="hv-x" id="hvClose">Back to Card</button>
   </div>
   <div class="hv-map" id="hvMap">
     <div class="hv-tiles" id="hvTiles"></div>
@@ -2514,6 +2514,7 @@ function applyAdminUI(){
   const nav=document.querySelector('nav.tabs');
   const hide = store.server && !store.auth.admin;
   nav.classList.toggle('locked', hide);
+  const sw=document.getElementById('switchTeam'); if(sw) sw.style.display = hide ? 'none' : '';
   if(evt) renderContests();
   if(hide && document.getElementById('v-setup').classList.contains('on')){
     document.querySelector('nav.tabs button[data-tab="card"]').click();
@@ -2785,10 +2786,13 @@ function hvTiles(){
   const zi=Math.min(19,Math.max(1,Math.floor(HV.z))), sc=Math.pow(2,HV.z-zi), c=hvPx(HV.c,zi);
   const R=Math.hypot(W,H)/2/sc+256, n=Math.pow(2,zi);
   const x0=Math.floor((c[0]-R)/256), x1=Math.floor((c[0]+R)/256), y0=Math.floor((c[1]-R)/256), y1=Math.floor((c[1]+R)/256);
-  let html='';
-  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ if(y<0||y>=n) continue; const xx=((x%n)+n)%n;
-    html+=`<img alt="" draggable="false" src="${hvTile(zi,xx,y)}" style="left:${(x*256-c[0]).toFixed(1)}px;top:${(y*256-c[1]).toFixed(1)}px">`; }
-  el.innerHTML=html;
+  const keep=new Set(), have=HV.imgs||(HV.imgs=new Map());
+  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ if(y<0||y>=n) continue; const xx=((x%n)+n)%n, k=zi+'/'+x+'/'+y;
+    keep.add(k); let im=have.get(k);
+    if(!im){ im=new Image(); im.alt=''; im.draggable=false; im.src=hvTile(zi,xx,y); have.set(k,im); }
+    im.style.left=(x*256-c[0]).toFixed(1)+'px'; im.style.top=(y*256-c[1]).toFixed(1)+'px';
+    if(im.parentNode!==el) el.appendChild(im); }
+  for(const [k,im] of have){ if(!keep.has(k)){ im.remove(); if(have.size>400) have.delete(k); } }
   el.style.transform=`translate(${W/2}px,${H/2}px) rotate(${-HV.rot}deg) scale(${sc})`;
 }
 function hvMark(ll,kind,label){
@@ -2815,7 +2819,15 @@ function hvDraw(){
   const ov=document.getElementById('hvOv'), H=evt.holes[HV.h], path=HV.setup?HV.pts:(hvPath()||[]);
   let g='';
   if(HV.setup && path.length>1) g+=`<polyline points="${path.map(p=>hvScr(p).join(',')).join(' ')}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="${HV.setup?'0':'7 6'}" opacity=".9"/>`;
-  if(!HV.setup && path.length>1){
+  const par3=evt.holes[HV.h].par===3;
+  if(!HV.setup && path.length>1 && par3){
+    const g0=path[path.length-1], useMe=HV.me&&hvYds(HV.me,g0)<1500, s0=useMe?HV.me:path[0], S=hvScr(s0), G=hvScr(g0);
+    g+=`<line x1="${S[0]}" y1="${S[1]}" x2="${G[0]}" y2="${G[1]}" stroke="#fff" stroke-width="3"/>`;
+    g+=useMe?`<circle cx="${S[0]}" cy="${S[1]}" r="8" fill="#e5252a" stroke="#fff" stroke-width="2.5"/>`:hvMark(path[0],'tee');
+    g+=hvMark(g0,'green');
+    g+=hvPillAt((S[0]+G[0])/2,(S[1]+G[1])/2,Math.round(hvYds(s0,g0))+'');
+  }
+  else if(!HV.setup && path.length>1){
     if(!HV.tgt) HV.tgt=hvDefaultTgt(path);
     const t=HV.tgt, g0=path[path.length-1], useMe=HV.me&&hvYds(HV.me,g0)<1500, s0=useMe?HV.me:path[0];
     const S=hvScr(s0), T=hvScr(t), G=hvScr(g0);
@@ -2851,10 +2863,10 @@ function hvDraw(){
     bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Yards</span></div><div class="hv-stat"><b>${H.par}</b><span>Par</span></div></div>`;
   }else{
     const gr=path[path.length-1], near=HV.me&&hvYds(HV.me,gr)<1500;
-    msg.textContent = HV.moved ? '' : (near?'Drag the crosshair to see yardage from you.':'Drag the crosshair to check yardages from the gold tee.');
+    msg.textContent = (HV.moved||evt.holes[HV.h].par===3) ? '' : (near?'Drag the crosshair to see yardage from you.':'Drag the crosshair to check yardages from the gold tee.');
     bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Gold tees</span></div>${near?`<div class="hv-stat"><b>${Math.round(hvYds(HV.me,gr))}</b><span>You to pin</span></div>`:''}</div>
-      <button type="button" class="hv-act" id="hvClr">Reset</button>`;
-    document.getElementById('hvClr').onclick=()=>{HV.tgt=null;hvDraw();};
+      ${evt.holes[HV.h].par===3?'':'<button type="button" class="hv-act" id="hvClr">Reset</button>'}`;
+    const clr=document.getElementById('hvClr'); if(clr) clr.onclick=()=>{HV.tgt=null;hvDraw();};
   }
 }
 function renderCourseSetup(){
@@ -2863,6 +2875,28 @@ function renderCourseSetup(){
   el.innerHTML=evt.holes.map((h,i)=>{ const ok=(map[h.h]||[]).length>1;
     return `<button type="button" class="cs-h ${ok?'ok':''}" data-cs="${i}">${h.h}<small>${ok?'Set':'Not set'}</small></button>`; }).join('');
   el.querySelectorAll('[data-cs]').forEach(b=>b.onclick=async()=>{ if(!(await requireAdmin())) return; hvOpen(+b.dataset.cs,true); });
+}
+function hvFly(from,path){
+  HV.setup=false; HV.tgt=null; HV.moved=false; hvFit(path);
+  const to={c:HV.c.slice(),z:HV.z,rot:HV.rot};
+  let dr=((to.rot-from.rot+540)%360)-180;
+  const far=hvYds(from.c,to.c), dip=Math.min(1.6,0.4+far/600), T=850, t0=performance.now(), tl=document.getElementById('hvTiles');
+  HV.anim=true; document.getElementById('hvOv').style.opacity='0';
+  const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  (function step(now){
+    const t=Math.min(1,(now-t0)/T), e=ease(t), b=Math.sin(Math.PI*t);
+    HV.c=[from.c[0]+(to.c[0]-from.c[0])*e, from.c[1]+(to.c[1]-from.c[1])*e];
+    HV.rot=from.rot+dr*e; HV.z=from.z+(to.z-from.z)*e-dip*b;
+    tl.style.filter=`blur(${(2.6*b).toFixed(2)}px)`;
+    hvTiles();
+    if(t<1) requestAnimationFrame(step);
+    else { HV.c=to.c; HV.rot=to.rot; HV.z=to.z; tl.style.filter=''; HV.anim=false;
+      const ov=document.getElementById('hvOv'); ov.style.transition='opacity .25s'; ov.style.opacity='1'; hvDraw(); }
+  })(t0);
+  /* header updates right away */
+  const H=evt.holes[HV.h];
+  document.getElementById('hvTitle').innerHTML=`Hole ${H.h}<small>PAR ${H.par} · ${H.yds} YDS</small>`;
+  document.getElementById('hvPrev').disabled=HV.h===0; document.getElementById('hvNext').disabled=HV.h===17;
 }
 function hvShow(){
   const path=hvPath(); HV.tgt=null; HV.moved=false;
@@ -2889,7 +2923,10 @@ function hvCloseFn(){
 (function hvWire(){
   const $=id=>document.getElementById(id);
   $('hvBtn').onclick=()=>hvOpen(); $('hvClose').onclick=hvCloseFn;
-  const hvGo=d=>{ const n=HV.h+d; if(n<0||n>17) return; const st=HV.setup; HV.h=n; HV.setup=false; hvShow();
+  const hvGo=d=>{ const n=HV.h+d; if(n<0||n>17||HV.anim) return; const st=HV.setup;
+    const from={c:HV.c.slice(),z:HV.z,rot:HV.rot}, nextPath=(evt.holeMap||{})[evt.holes[n].h];
+    if(!st && nextPath && nextPath.length>1 && !matchMedia('(prefers-reduced-motion: reduce)').matches){ HV.h=n; hvFly(from,nextPath); return; }
+    HV.h=n; HV.setup=false; hvShow();
     if(st){ HV.setup=true; HV.pts=(hvPath()||[]).map(p=>p.slice()); HV.rot=0; hvDraw(); } };
   $('hvPrev').onclick=()=>hvGo(-1); $('hvNext').onclick=()=>hvGo(1);
   $('hvIn').onclick=()=>{HV.z=Math.min(20,HV.z+0.5);hvDraw();};
@@ -2909,7 +2946,7 @@ function hvCloseFn(){
   const up=e=>{ const d=HV.drag; pts.delete(e.pointerId); if(!d||pts.size) return; HV.drag=null; if(d.moved) return;
     const r=m.getBoundingClientRect(), ll=hvUnscr(e.clientX-r.left,e.clientY-r.top);
     if(HV.setup){ if(HV.pts.length>=2 && HV.pts.length>=3) HV.pts[HV.pts.length-1]=ll; else HV.pts.push(ll); }
-    else if((hvPath()||[]).length>1){ HV.tgt=ll; HV.moved=true; }
+    else if((hvPath()||[]).length>1 && evt.holes[HV.h].par!==3){ HV.tgt=ll; HV.moved=true; }
     hvDraw(); };
   m.addEventListener('pointerup',up); m.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);HV.drag=null;});
   addEventListener('resize',()=>HV.open&&hvDraw());
