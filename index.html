@@ -269,9 +269,18 @@
   .ps-card.none{opacity:.7}
   .ps-none{font-size:13px;color:rgba(7,22,71,.55);margin-top:4px}
   .wx-msg{font-size:13.5px;color:rgba(7,22,71,.7);line-height:1.45;background:var(--paper);border-radius:10px;padding:11px 12px}
-  .wx-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,#0e2a8c,#3a64c9);color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px}
-  .wx-big{font-family:var(--display);font-size:56px;line-height:.9;font-weight:700}
-  .wx-sum{display:flex;flex-direction:column;gap:2px}
+  .wx-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(150deg,#0e2a8c,#3a64c9);color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+  .wx-big{font-family:var(--display);font-size:52px;margin:2px 0;line-height:.9;font-weight:700}
+  .wx-sum{display:flex;flex-direction:column;gap:2px;text-align:right}
+  .wx-now{display:flex;flex-direction:column}
+  .wx-k{font-family:var(--num);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:700}
+  .wx-nowtxt{font-size:12.5px;color:rgba(255,255,255,.9);margin-top:2px}
+  .wx-tee-card{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#fff8e1,#fdeeb8);border:1.5px solid var(--gold);border-radius:14px;padding:9px 12px;margin-bottom:10px}
+  .wx-tee-art svg{width:34px;height:46px;display:block}
+  .wx-tee-txt{display:flex;flex-direction:column}
+  .wx-tee-txt .wx-k{color:#9a7a12}
+  .wx-tee-txt b{font-family:var(--display);font-size:26px;line-height:1;color:var(--ink)}
+  .wx-tee-wx{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-family:var(--num);font-size:12.5px;font-weight:700;color:var(--ink)}
   .wx-sum b{font-size:17px}
   .wx-sum small{font-size:12px;color:rgba(255,255,255,.8)}
   .wx-ico{font-size:24px;line-height:1}
@@ -289,6 +298,40 @@
   .wx-arrow{display:inline-block;font-size:12px;color:var(--navy)}
   .wx-d{font-family:var(--num);font-size:10px;letter-spacing:.06em;color:rgba(7,22,71,.55)}
   .wx-foot{font-size:11px;color:rgba(7,22,71,.5);margin-top:6px;text-align:center}
+  .ace-win{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#fff4d6,#fde3a0);border:1.5px solid var(--gold);border-radius:12px;padding:9px 11px;margin:4px 0 8px}
+  .ace-win .av{width:34px;height:34px}
+  .ace-win span:not(.av){display:flex;flex-direction:column}
+  .ace-win b{font-family:var(--display);font-size:17px;letter-spacing:.03em;color:var(--ink)}
+  .ace-win small{font-size:12px;color:rgba(7,22,71,.65)}
+  .ace-win .ace-flag{margin-left:auto;font-size:22px}
+  .claim-log.beaten .cl-row.lead{background:var(--paper);color:rgba(7,22,71,.6);font-weight:500;text-decoration:line-through}
+  .leaders{background:#fff;border:3px solid #0b5d36;border-radius:16px 16px 10px 10px;margin-bottom:14px;box-shadow:0 8px 20px -14px rgba(7,22,71,.5);overflow:hidden}
+  .ld-top{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 10px 6px;border-bottom:2px solid #0b5d36;background:linear-gradient(#fff,#f3f6f1)}
+  .ld-top svg{width:34px;height:34px}
+  .ld-cup{font-family:var(--num);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#0b5d36;font-weight:700;text-align:center}
+  .ld-title{font-family:var(--display);font-size:26px;letter-spacing:.12em;color:#0b2e1c;line-height:1;font-weight:700}
+  .ld-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.ld{border-collapse:collapse;font-family:var(--num);font-size:13px;min-width:100%}
+  table.ld th,table.ld td{border:1px solid #d6dfd8;text-align:center;padding:0;height:30px;min-width:26px;color:#0b2e1c}
+  table.ld thead th{font-weight:800;background:#f3f6f1;font-size:12px}
+  table.ld .ld-par th{font-weight:700;color:#0b5d36}
+  table.ld .ld-name{position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:0 7px;min-width:0;white-space:nowrap;font-family:var(--display);font-size:12px;letter-spacing:.02em;font-weight:700;border-right:2px solid #0b5d36}
+  table.ld .ld-name span{color:#9aa7a0;margin:0 2px;font-weight:400}
+  table.ld thead .ld-name{background:#f3f6f1}
+  table.ld .ld-pos{min-width:30px;font-weight:800;color:#0b5d36}
+  table.ld tr.lead .ld-name,table.ld tr.lead td.ld-pos{background:#fff4d6}
+  table.ld .ld-tp{min-width:38px;font-weight:800;border-left:2px solid #0b5d36}
+  table.ld .ld-tp.under{color:#c8102e}
+  table.ld .ld-thru{min-width:34px;font-size:11.5px;color:#556}
+  .ld-s{display:inline-grid;place-items:center;width:21px;height:21px;font-weight:700;font-style:normal;line-height:1}
+  .ld-s.bd{border:1.6px solid #c8102e;border-radius:50%;color:#c8102e}
+  .ld-s.eg{border:1.6px solid #c8102e;border-radius:50%;color:#c8102e;box-shadow:0 0 0 2px #fff,0 0 0 3.6px #c8102e}
+  .ld-s.pr{color:#0b2e1c}
+  .ld-s.bg{border:1.6px solid #0e2a8c;color:#0e2a8c}
+  .ld-s.db{border:1.6px solid #0e2a8c;color:#0e2a8c;box-shadow:0 0 0 2px #fff,0 0 0 3.6px #0e2a8c}
+  .ld-key{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;padding:8px 8px 10px;font-size:11px;color:#556;border-top:1px solid #d6dfd8}
+  .ld-key span{display:flex;align-items:center;gap:5px}
+  .ld-key .ld-s{width:18px;height:18px;font-size:10.5px}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -559,6 +602,7 @@
   <section class="view" id="v-board">
     <div class="stamp"><span class="dot"></span><span id="lbStamp">Loading the board…</span></div>
     <button class="al-toggle" id="muteAlerts" type="button"></button>
+    <div id="leaders"></div>
     <div class="lb" id="lb"></div>
     <div class="btn-row">
       <button class="btn ghost" id="refreshLb">Refresh board</button>
@@ -1729,6 +1773,33 @@ function renderPostStats(){
     <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>
     <div class="bp"><div class="bp-title">Scoring by par</div>${byPar}</div>${cards}</div>`;
 }
+function renderLeaders(rows){
+  const el=document.getElementById('leaders'); if(!el) return;
+  if(!rows.length){ el.innerHTML=''; return; }
+  const last=n=>String(n||'').trim().split(/\s+/).slice(-1)[0].toUpperCase();
+  const H=evt.holes;
+  const mark=(v,i)=>{ if(v===null||v===undefined) return '<td></td>';
+    const d=v-parAt(i), cls=d<=-2?'eg':d===-1?'bd':d===0?'pr':d===1?'bg':'db';
+    return `<td><span class="ld-s ${cls}">${v}</span></td>`; };
+  const body=rows.map(r=>{
+    const c=r.c||{s:[]}, tp=r.thru?fmtPar(r.tp):'–';
+    return `<tr class="${r.pos===1?'lead':''}">
+      <td class="ld-pos">${r.thru?(r.tied?'T':'')+r.pos:''}</td>
+      <th class="ld-name">${esc(last(r.t.a))}<span>/</span>${esc(last(r.t.b))}</th>
+      ${H.map((h,i)=>mark(c.s[i],i)).join('')}
+      <td class="ld-tp ${r.tp<0?'under':r.tp>0?'over':''}">${tp}</td>
+      <td class="ld-thru">${r.signed?'F':r.thru||''}</td></tr>`;
+  }).join('');
+  el.innerHTML=`<div class="leaders">
+    <div class="ld-top"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="#0e2a8c" stroke-width="6"/><line x1="50" y1="30" x2="50" y2="62" stroke="#0e2a8c" stroke-width="4" stroke-linecap="round"/><path d="M50 31 C58 33 62 38 70 35 C64 41 63 44 50 44 Z" fill="#D5202F"/><ellipse cx="50" cy="64" rx="7" ry="2.6" fill="none" stroke="#0e2a8c" stroke-width="3"/></svg>
+      <div><div class="ld-cup">Kimbell Cup</div><div class="ld-title">Leaders</div></div></div>
+    <div class="ld-wrap"><table class="ld">
+      <thead><tr><th class="ld-pos">Pos</th><th class="ld-name">Hole</th>${H.map(h=>`<th>${h.h}</th>`).join('')}<th class="ld-tp">Tot</th><th class="ld-thru">Thru</th></tr>
+      <tr class="ld-par"><th></th><th class="ld-name">Par</th>${H.map(h=>`<th>${h.par}</th>`).join('')}<th class="ld-tp">${H.reduce((x,h)=>x+h.par,0)}</th><th></th></tr></thead>
+      <tbody>${body}</tbody></table></div>
+    <div class="ld-key"><span><i class="ld-s eg">3</i>Eagle</span><span><i class="ld-s bd">3</i>Birdie</span><span><i class="ld-s pr">4</i>Par</span><span><i class="ld-s bg">5</i>Bogey</span><span><i class="ld-s db">6</i>Double+</span></div>
+  </div>`;
+}
 function renderBoard(){
   renderPostStats();
   const rows=standings(), lb=document.getElementById('lb');
@@ -1738,6 +1809,7 @@ function renderBoard(){
     document.getElementById('lbStamp').textContent=`${year} board open · ${evt.teams.length} teams`;
     return;
   }
+  renderLeaders(rows);
   lb.innerHTML=rows.map((r,i)=>{
     const lead=r.pos===1, mine=r.t.id===myTeam, posTxt=(r.tied?'T':'')+r.pos;
     const open=openCards.has(r.t.id);
@@ -1879,11 +1951,12 @@ function renderContests(){
         <h3>${isLd?'Long drive':'Closest to the pin'}${hio?' <em>+ ace</em>':''}</h3>
         <span class="prize">${H.yds} yds · par ${H.par}</span></div>
       ${hio?`<div class="ace-line">${hio.img?`<img src="${esc(hio.img)}" alt="">`:''}<span>Hole-in-one: <b>${esc(hio.prize)}</b></span></div>`:''}
+      ${ace?`<div class="ace-win">${avatar(ace)}<span><b>ACE! ${esc(ace)}</b><small>Hole-in-one wins closest to the pin on #${h}</small></span><span class="ace-flag">⛳</span></div>`:''}
       <div class="claim-row">
-        <button class="btn claim-btn ${isLd?'ld':''}" type="button" data-claim="${slot}" data-h="${h}" ${lock}>Claim</button>
-        <span class="claim-mark">${best?`${isLd?'To beat':'To beat'}: <b>${fmtClaim(slot,best)}</b> · ${esc(first(best.n))}`:'Open — set the first mark'}</span>
+        <button class="btn claim-btn ${isLd?'ld':''}" type="button" data-claim="${slot}" data-h="${h}" ${lock||ace?'disabled':''}>Claim</button>
+        <span class="claim-mark">${ace?'Closed — the ace wins this hole':best?`To beat: <b>${fmtClaim(slot,best)}</b> · ${esc(first(best.n))}`:'Open — set the first mark'}</span>
       </div>
-      <div class="claim-log">${rows}</div>
+      <div class="claim-log ${ace?'beaten':''}">${rows}</div>
       ${hio?`<div class="fields" style="margin-top:9px">${nameBtn(ace,'Aced by (if anyone!)',`data-hio="${h}"`,lock)}</div>`:''}
     </div>`;
   });
@@ -1938,7 +2011,9 @@ function contestWins(){
   contestOrder().forEach(c=>{
     if(c.type==='putt'){ if((contest.putt.name||'').trim()) w.push({key:'putt', label:'Putting', name:contest.putt.name.trim()}); }
     else if(c.type==='ld'){ const b=holderOf('ld'); if(b) w.push({key:'ld', label:`Long drive · #${c.h}`, name:b.n}); }
-    else { const b=holderOf('ctp'+c.h); if(b) w.push({key:'ctp'+c.h, label:`Closest · #${c.h}`, name:b.n}); }
+    else { const ace=((contest.hio||{})[c.h]||{}).name; const b=holderOf('ctp'+c.h);   // an ace wins the hole outright
+      if(ace) w.push({key:'ctp'+c.h, label:`Ace · #${c.h}`, name:ace});
+      else if(b) w.push({key:'ctp'+c.h, label:`Closest · #${c.h}`, name:b.n}); }
   });
   return w;
 }
@@ -2142,7 +2217,7 @@ function renderTrophy(){
 /* ---- Forecast (Nov 16): hourly 8am–6pm for tournament day at River Forest, Forsyth GA.
    Open-Meteo, no key. Refreshes every hour while the app is open. ---- */
 const WX={lat:33.034,lon:-83.938,from:8,to:18};
-let wxData=null, wxAt=0, wxBusy=false;
+let wxData=null, wxAt=0, wxBusy=false, wxNow=null;
 function eventDateISO(){
   const m=String(evt.date||'').match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})/i);
   if(!m) return null;
@@ -2174,6 +2249,12 @@ async function loadWeather(force){
     const j=await r.json();
     if(!r.ok||!j.hourly) throw new Error(j.reason||'no data');
     wxData=j.hourly; wxAt=Date.now();
+    try{   // current conditions at River Forest for the big number
+      const c=await (await fetch('https://api.open-meteo.com/v1/forecast?'+new URLSearchParams({latitude:WX.lat,longitude:WX.lon,
+        current:'temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,precipitation_probability',
+        temperature_unit:'fahrenheit',wind_speed_unit:'mph',timezone:'America/New_York'}))).json();
+      if(c&&c.current) wxNow=c.current;
+    }catch(e){}
   }catch(e){
     if(!wxData){ el.innerHTML='<div class="wx-msg">Couldn\'t reach the weather service right now. It will try again in an hour.</div>'; wxBusy=false; return; }
   }
@@ -2198,11 +2279,25 @@ function renderWeather(){
   const th=teeHour(), tee=rows.find(r=>r.hr===th)||rows[0];
   const codes=rows.map(r=>r.c), main=codes.sort((a,b)=>codes.filter(x=>x===b).length-codes.filter(x=>x===a).length)[0];
   const span=Math.max(1,hi-lo);
+  const now=wxNow;
+  const teeSvg=`<svg viewBox="0 0 48 64" aria-hidden="true"><path d="M24 64 L24 38" stroke="#c9a227" stroke-width="5" stroke-linecap="round"/><path d="M14 36 h20 l-6 5 h-8z" fill="#c9a227"/><circle cx="24" cy="24" r="12" fill="#fff" stroke="#071647" stroke-width="2"/><g fill="#c7d3ea"><circle cx="20" cy="20" r="1.5"/><circle cx="26" cy="19" r="1.5"/><circle cx="29" cy="25" r="1.5"/><circle cx="19" cy="27" r="1.5"/><circle cx="24" cy="29" r="1.5"/></g></svg>`;
   el.innerHTML=`<div class="wx-hero">
-      <div class="wx-big">${tee.t}°</div>
-      <div class="wx-sum"><span class="wx-ico">${WX_ICON(tee.c)}</span><b>${WX_TEXT(main)}</b>
-        <small>At first tee time (${h12(th)}) · feels like ${tee.f}°</small>
-        <small>H ${hi}° · L ${lo}° · Rain chance up to ${maxP}%</small></div>
+      <div class="wx-now">
+        <span class="wx-k">Now at River Forest</span>
+        <div class="wx-big">${now?Math.round(now.temperature_2m)+'°':'--'}</div>
+        <span class="wx-nowtxt">${now?`${WX_ICON(now.weather_code)} ${WX_TEXT(now.weather_code)} · feels ${Math.round(now.apparent_temperature)}°`:'Current conditions loading…'}</span>
+      </div>
+      <div class="wx-sum">
+        <span class="wx-k">${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · tournament day</span>
+        <b>${WX_TEXT(main)}</b>
+        <small>H ${hi}° · L ${lo}°</small>
+        <small>Rain chance up to ${maxP}%</small>
+      </div>
+    </div>
+    <div class="wx-tee-card">
+      <div class="wx-tee-art">${teeSvg}</div>
+      <div class="wx-tee-txt"><span class="wx-k">First tee time</span><b>${h12(th).replace(' ',':00 ')}</b></div>
+      <div class="wx-tee-wx"><span>${WX_ICON(tee.c)} ${tee.t}°</span><span>💧${tee.p}%</span><span><span class="wx-arrow" style="transform:rotate(${tee.d+180}deg)">↑</span>${tee.w} mph ${WX_DIR(tee.d)}</span></div>
     </div>
     <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===th?'tee':''}">
         <div class="wx-t">${h12(r.hr)}</div>${r.hr===th?'<div class="wx-tee">Tee off</div>':''}
