@@ -237,6 +237,20 @@
   .course-card{position:relative}
   .course-card .course-logo{position:absolute;top:14px;right:14px;width:118px;height:auto;pointer-events:none}
   .course-card .eyebrow,.course-card .sec,.course-card #courseSub{padding-right:126px}
+  .post-stats{margin-top:20px}
+  .ps-card{background:var(--white);border:1.5px solid rgba(7,22,71,.06);border-radius:13px;padding:12px 13px;margin-bottom:9px}
+  .ps-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .ps-hd b{font-family:var(--display);font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy)}
+  .ps-hd small{font-family:var(--num);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(7,22,71,.45);font-weight:600;text-align:right}
+  .ps-val{font-family:var(--num);font-weight:700;font-size:14px;color:var(--ink);margin:4px 0 8px}
+  .ps-val em{font-style:normal;color:var(--red)}
+  .ps-team{display:flex;align-items:center;gap:10px;padding:5px 0}
+  .ps-team .av{width:32px;height:32px}
+  .ps-team .ps-n{display:flex;flex-direction:column;min-width:0}
+  .ps-team .ps-n b{font-size:14.5px;font-weight:600}
+  .ps-team .ps-n small{font-family:var(--num);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45)}
+  .ps-card.none{opacity:.7}
+  .ps-none{font-size:13px;color:rgba(7,22,71,.55);margin-top:4px}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -512,6 +526,7 @@
       <button class="btn ghost" id="refreshLb">Refresh board</button>
       <button class="btn gold" id="crown">Crown the champion</button>
     </div>
+    <div id="postStats"></div>
     <p class="muted" style="text-align:center;margin-top:12px;font-size:12px">
       Every posted card is visible to the whole field. Teams level on score share the position (T2, T3…). Only a tie for 1st goes to the 18th Hole Closest-To Shootout.
     </p>
@@ -1595,7 +1610,52 @@ function teamCardHTML(r){
     <div class="tc-foot">Gross ${r.g} · ${fmtPar(r.tp)} · ${r.signed?'Final (signed)':'Thru '+r.thru}</div>
   </div>`;
 }
+/* ---- Post Cup Stats (Nov 16): shows once the champion is crowned ---- */
+function renderPostStats(){
+  const el=document.getElementById('postStats'); if(!el) return;
+  if(!isFinal()){ el.innerHTML=''; return; }
+  const teams=evt.teams.map(t=>{ const c=(field||{})[t.id]; return c&&played(c)===18?{t,c}:null; }).filter(Boolean);
+  if(!teams.length){ el.innerHTML=''; return; }
+  const sum=(c,a,b)=>c.s.slice(a,b).reduce((x,v)=>x+(+v||0),0);
+  const parSum=(a,b)=>evt.holes.slice(a,b).reduce((x,h)=>x+h.par,0);
+  const cnt=(c,f)=>c.s.filter((v,i)=>v!==null&&f(v-parAt(i))).length;
+  const d=teams.map(({t,c})=>{
+    const f9=sum(c,0,9), b9=sum(c,9,18), fp=f9-parSum(0,9), bp=b9-parSum(9,18);
+    return {t,g:gross(c),tp:toPar(c),f9,b9,fp,bp,swing:fp-bp,
+      bird:cnt(c,x=>x===-1),eag:cnt(c,x=>x<=-2),par:cnt(c,x=>x===0),bog:cnt(c,x=>x===1),dbl:cnt(c,x=>x>=2)};
+  });
+  const pick=(key,best,detail,skipZero)=>{
+    const vals=d.map(x=>x[key]); const v=best==='min'?Math.min(...vals):Math.max(...vals);
+    if(skipZero && v<=0) return null;
+    return {v,teams:d.filter(x=>x[key]===v),detail:detail(d.find(x=>x[key]===v))};
+  };
+  const fp=n=>fmtPar(n), pl=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
+  const stats=[
+    ['Low Man','Lowest round',pick('g','min',x=>`${x.g} (${fp(x.tp)})`)],
+    ['High Man','Highest round',pick('g','max',x=>`${x.g} (${fp(x.tp)})`)],
+    ['Most Bagged','Most birdies',pick('bird','max',x=>pl(x.bird,'birdie'),true)],
+    ['Most Big Birds','Most eagles',pick('eag','max',x=>pl(x.eag,'eagle'),true)],
+    ['Most Basic','Most pars',pick('par','max',x=>pl(x.par,'par'),true)],
+    ['Most Whoops','Most bogeys',pick('bog','max',x=>pl(x.bog,'bogey'),true)],
+    ["Most Club Toss's",'Most double bogeys',pick('dbl','max',x=>pl(x.dbl,'double bogey'),true)],
+    ['Hot Start','Best front 9',pick('f9','min',x=>`${x.f9} (${fp(x.fp)})`)],
+    ['Coming in Hot','Best back 9',pick('b9','min',x=>`${x.b9} (${fp(x.bp)})`)],
+    ['Back on Track','Most improved sides',pick('swing','max',x=>`${x.swing} better on the back · ${fp(x.fp)} → ${fp(x.bp)}`,true)],
+    ['Wrong Way','Least improved sides',pick('swing','min',x=>`${-x.swing} worse on the back · ${fp(x.fp)} → ${fp(x.bp)}`)],
+  ];
+  const cards=stats.map(([title,sub,r])=>{
+    if(!r) return `<div class="ps-card none"><div class="ps-hd"><b>${title}</b><small>${sub}</small></div><div class="ps-none">Nobody — clean sheet</div></div>`;
+    if(title==='Wrong Way' && r.v>=0) return `<div class="ps-card none"><div class="ps-hd"><b>${title}</b><small>${sub}</small></div><div class="ps-none">Nobody got worse on the back</div></div>`;
+    return `<div class="ps-card"><div class="ps-hd"><b>${title}</b><small>${sub}</small></div>
+      <div class="ps-val">${r.detail}${r.teams.length>1?` · <em>${r.teams.length}-way tie</em>`:''}</div>
+      ${r.teams.map(x=>`<div class="ps-team">${avPair(x.t,'sm')}<span class="ps-n"><b>${esc(x.t.a)} &amp; ${esc(x.t.b)}</b><small>Team ${x.t.id}</small></span></div>`).join('')}
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="post-stats"><p class="eyebrow">${year} · Final</p><h2 class="sec">Post Cup Stats</h2>
+    <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>${cards}</div>`;
+}
 function renderBoard(){
+  renderPostStats();
   const rows=standings(), lb=document.getElementById('lb');
   document.getElementById('crown').style.display = isFinal()?'none':'';
   if(!rows.length){
