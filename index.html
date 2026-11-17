@@ -268,6 +268,26 @@
   .ps-team .ps-n small{font-family:var(--num);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45)}
   .ps-card.none{opacity:.7}
   .ps-none{font-size:13px;color:rgba(7,22,71,.55);margin-top:4px}
+  .wx-msg{font-size:13.5px;color:rgba(7,22,71,.7);line-height:1.45;background:var(--paper);border-radius:10px;padding:11px 12px}
+  .wx-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,#0e2a8c,#3a64c9);color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+  .wx-big{font-family:var(--display);font-size:56px;line-height:.9;font-weight:700}
+  .wx-sum{display:flex;flex-direction:column;gap:2px}
+  .wx-sum b{font-size:17px}
+  .wx-sum small{font-size:12px;color:rgba(255,255,255,.8)}
+  .wx-ico{font-size:24px;line-height:1}
+  .wx-strip{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;scroll-snap-type:x proximity}
+  .wx-h{flex:0 0 66px;scroll-snap-align:start;background:var(--paper);border-radius:12px;padding:8px 4px 9px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .wx-h.tee{background:#fff4d6;box-shadow:inset 0 0 0 1.5px var(--gold)}
+  .wx-t{font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(7,22,71,.6)}
+  .wx-i{font-size:20px;margin:3px 0}
+  .wx-deg{font-family:var(--display);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:auto}
+  .wx-p{font-family:var(--num);font-size:11.5px;color:#2b6cb0;margin-top:6px;font-weight:600}
+  .wx-p.hi{color:#1d4ed8;font-weight:800}
+  .wx-w{font-family:var(--num);font-size:12.5px;font-weight:700;color:var(--ink);margin-top:3px;display:flex;align-items:center;gap:2px}
+  .wx-w small{font-size:9.5px;font-weight:600;color:rgba(7,22,71,.55)}
+  .wx-arrow{display:inline-block;font-size:12px;color:var(--navy)}
+  .wx-d{font-family:var(--num);font-size:10px;letter-spacing:.06em;color:rgba(7,22,71,.55)}
+  .wx-foot{font-size:11px;color:rgba(7,22,71,.5);margin-top:6px;text-align:center}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -619,6 +639,11 @@
       <p class="eyebrow" id="fmtEyebrow">This year</p>
       <h2 class="sec">Format</h2>
       <ul class="rules" id="rulesList"></ul>
+    </div>
+    <div class="card wx-card">
+      <p class="eyebrow" id="wxEyebrow">Forsyth, GA</p>
+      <h2 class="sec">Forecast</h2>
+      <div id="wx"><div class="wx-msg">Loading the forecast…</div></div>
     </div>
     <div class="card course-card">
       <img class="course-logo" src="/img/river-forest.png" alt="River Forest">
@@ -2113,7 +2138,77 @@ function renderTrophy(){
     return `<div class="tplate" style="${st}"></div>`;
   }).join('');
 }
+/* ---- Forecast (Nov 16): hourly 8am–6pm for tournament day at River Forest, Forsyth GA.
+   Open-Meteo, no key. Refreshes every hour while the app is open. ---- */
+const WX={lat:33.034,lon:-83.938,from:8,to:18};
+let wxData=null, wxAt=0, wxBusy=false;
+function eventDateISO(){
+  const m=String(evt.date||'').match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})/i);
+  if(!m) return null;
+  const mo=['january','february','march','april','may','june','july','august','september','october','november','december'].indexOf(m[1].toLowerCase())+1;
+  return `${year}-${String(mo).padStart(2,'0')}-${String(+m[2]).padStart(2,'0')}`;
+}
+const WX_ICON=c=> c===0?'☀️':c<=2?'🌤️':c===3?'☁️':c<=48?'🌫️':c<=57?'🌦️':c<=67?'🌧️':c<=77?'🌨️':c<=82?'🌧️':c<=86?'🌨️':'⛈️';
+const WX_TEXT=c=> c===0?'Sunny':c===1?'Mostly sunny':c===2?'Partly cloudy':c===3?'Cloudy':c<=48?'Fog':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Showers':c<=86?'Snow showers':'Storms';
+const WX_DIR=d=>['N','NE','E','SE','S','SW','W','NW'][Math.round(((d%360)+360)%360/45)%8];
+async function loadWeather(force){
+  const day=eventDateISO(); const el=document.getElementById('wx'); if(!el) return;
+  if(!day){ el.innerHTML='<div class="wx-msg">Set the tournament date in Setup to see the forecast.</div>'; return; }
+  if(wxBusy || (!force && wxData && Date.now()-wxAt<55*60e3)) return renderWeather();
+  const ev=new Date(day+'T12:00:00'), now=new Date();
+  const daysOut=Math.ceil((ev-now)/864e5);
+  if(daysOut>15){
+    const opens=new Date(ev.getTime()-15*864e5);
+    el.innerHTML=`<div class="wx-msg"><b>Hourly forecast opens ${opens.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}.</b><br>Forecasts only reach about 16 days out, so ${ev.toLocaleDateString('en-US',{month:'long',day:'numeric'})} isn't available yet. This fills in on its own once it is.</div>`;
+    return;
+  }
+  if(daysOut<-1){ el.innerHTML='<div class="wx-msg">Tournament day has passed.</div>'; return; }
+  wxBusy=true;
+  try{
+    const q=new URLSearchParams({latitude:WX.lat,longitude:WX.lon,
+      hourly:'temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code',
+      temperature_unit:'fahrenheit',wind_speed_unit:'mph',timezone:'America/New_York',start_date:day,end_date:day});
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?'+q);
+    const j=await r.json();
+    if(!r.ok||!j.hourly) throw new Error(j.reason||'no data');
+    wxData=j.hourly; wxAt=Date.now();
+  }catch(e){
+    if(!wxData){ el.innerHTML='<div class="wx-msg">Couldn\'t reach the weather service right now. It will try again in an hour.</div>'; wxBusy=false; return; }
+  }
+  wxBusy=false; renderWeather();
+}
+function renderWeather(){
+  const el=document.getElementById('wx'); if(!el||!wxData) return;
+  const H=wxData, rows=[];
+  H.time.forEach((t,i)=>{ const hr=+t.slice(11,13); if(hr>=WX.from&&hr<=WX.to) rows.push({hr,
+    t:Math.round(H.temperature_2m[i]), f:Math.round(H.apparent_temperature?.[i]??H.temperature_2m[i]),
+    p:H.precipitation_probability[i]??0, w:Math.round(H.wind_speed_10m[i]), g:Math.round(H.wind_gusts_10m?.[i]??0),
+    d:H.wind_direction_10m[i], c:H.weather_code[i]}); });
+  if(!rows.length){ el.innerHTML='<div class="wx-msg">No hourly data yet for tournament day.</div>'; return; }
+  const temps=rows.map(r=>r.t), hi=Math.max(...temps), lo=Math.min(...temps), maxP=Math.max(...rows.map(r=>r.p));
+  const tee=rows.find(r=>r.hr===12)||rows[0];
+  const codes=rows.map(r=>r.c), main=codes.sort((a,b)=>codes.filter(x=>x===b).length-codes.filter(x=>x===a).length)[0];
+  const h12=h=>h===12?'12 PM':h>12?`${h-12} PM`:`${h} AM`;
+  const span=Math.max(1,hi-lo);
+  el.innerHTML=`<div class="wx-hero">
+      <div class="wx-big">${tee.t}°</div>
+      <div class="wx-sum"><span class="wx-ico">${WX_ICON(tee.c)}</span><b>${WX_TEXT(main)}</b>
+        <small>At tee time (noon) · feels like ${tee.f}°</small>
+        <small>H ${hi}° · L ${lo}° · Rain chance up to ${maxP}%</small></div>
+    </div>
+    <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===12?'tee':''}">
+        <div class="wx-t">${h12(r.hr)}</div>
+        <div class="wx-i">${WX_ICON(r.c)}</div>
+        <div class="wx-deg" style="margin-top:${Math.round((hi-r.t)/span*14)}px">${r.t}°</div>
+        <div class="wx-p ${r.p>=40?'hi':''}">💧${r.p}%</div>
+        <div class="wx-w"><span class="wx-arrow" style="transform:rotate(${r.d+180}deg)">↑</span>${r.w}<small> mph</small></div>
+        <div class="wx-d">${WX_DIR(r.d)}${r.g>r.w+5?` · G${r.g}`:''}</div>
+      </div>`).join('')}</div>
+    <div class="wx-foot">Hourly for ${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} · updated ${new Date(wxAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · refreshes every hour</div>`;
+}
+setInterval(()=>loadWeather(true),60*60e3);
 function renderCup(){
+  loadWeather(false);
   renderTrophy();
   const list=[...champs].sort((a,b)=>b.year-a.year);
   const eng=document.getElementById('engraving');
