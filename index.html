@@ -279,6 +279,7 @@
   .wx-h{flex:0 0 66px;scroll-snap-align:start;background:var(--paper);border-radius:12px;padding:8px 4px 9px;text-align:center;display:flex;flex-direction:column;align-items:center}
   .wx-h.tee{background:#fff4d6;box-shadow:inset 0 0 0 1.5px var(--gold)}
   .wx-t{font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(7,22,71,.6)}
+  .wx-tee{font-family:var(--num);font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9a7a12;margin-top:1px}
   .wx-i{font-size:20px;margin:3px 0}
   .wx-deg{font-family:var(--display);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:auto}
   .wx-p{font-family:var(--num);font-size:11.5px;color:#2b6cb0;margin-top:6px;font-weight:600}
@@ -854,7 +855,7 @@ const HIO_2026 = {
 const SCHEMA_V = 2;
 
 const SEED_2026 = {
-  year:2026, date:'Wednesday, December 2', time:'12:00 pm', course:'River Forest', city:'Forsyth, GA',
+  year:2026, date:'Wednesday, December 2', time:'11:00 am', course:'River Forest', city:'Forsyth, GA',
   tee:'Gold', yards:6280, slope:136, pot:'Bottle of your choice — winning team takes all 28',
   holes:RIVER_FOREST.map(h=>({...h})),
   teams:[
@@ -2156,7 +2157,8 @@ async function loadWeather(force){
   if(!day){ el.innerHTML='<div class="wx-msg">Set the tournament date in Setup to see the forecast.</div>'; return; }
   if(wxBusy || (!force && wxData && Date.now()-wxAt<55*60e3)) return renderWeather();
   const ev=new Date(day+'T12:00:00'), now=new Date();
-  const daysOut=Math.ceil((ev-now)/864e5);
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+  const daysOut=Math.round((ev-today)/864e5);      // whole calendar days; forecasts cover today + 15
   if(daysOut>15){
     const opens=new Date(ev.getTime()-15*864e5);
     el.innerHTML=`<div class="wx-msg"><b>Hourly forecast opens ${opens.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}.</b><br>Forecasts only reach about 16 days out, so ${ev.toLocaleDateString('en-US',{month:'long',day:'numeric'})} isn't available yet. This fills in on its own once it is.</div>`;
@@ -2177,6 +2179,12 @@ async function loadWeather(force){
   }
   wxBusy=false; renderWeather();
 }
+/* first tee time from the event's start time in Setup (11:00 am); 11 if not set */
+function teeHour(){
+  const m=String(evt.time||'').match(/(\d{1,2})(?::\d{2})?\s*(am|pm)?/i); if(!m) return 11;
+  let h=+m[1]; const ap=(m[2]||'').toLowerCase(); if(ap==='pm'&&h<12) h+=12; if(ap==='am'&&h===12) h=0;
+  return Math.min(WX.to,Math.max(WX.from,h));
+}
 function renderWeather(){
   const el=document.getElementById('wx'); if(!el||!wxData) return;
   const H=wxData, rows=[];
@@ -2186,18 +2194,18 @@ function renderWeather(){
     d:H.wind_direction_10m[i], c:H.weather_code[i]}); });
   if(!rows.length){ el.innerHTML='<div class="wx-msg">No hourly data yet for tournament day.</div>'; return; }
   const temps=rows.map(r=>r.t), hi=Math.max(...temps), lo=Math.min(...temps), maxP=Math.max(...rows.map(r=>r.p));
-  const tee=rows.find(r=>r.hr===12)||rows[0];
-  const codes=rows.map(r=>r.c), main=codes.sort((a,b)=>codes.filter(x=>x===b).length-codes.filter(x=>x===a).length)[0];
   const h12=h=>h===12?'12 PM':h>12?`${h-12} PM`:`${h} AM`;
+  const th=teeHour(), tee=rows.find(r=>r.hr===th)||rows[0];
+  const codes=rows.map(r=>r.c), main=codes.sort((a,b)=>codes.filter(x=>x===b).length-codes.filter(x=>x===a).length)[0];
   const span=Math.max(1,hi-lo);
   el.innerHTML=`<div class="wx-hero">
       <div class="wx-big">${tee.t}°</div>
       <div class="wx-sum"><span class="wx-ico">${WX_ICON(tee.c)}</span><b>${WX_TEXT(main)}</b>
-        <small>At tee time (noon) · feels like ${tee.f}°</small>
+        <small>At first tee time (${h12(th)}) · feels like ${tee.f}°</small>
         <small>H ${hi}° · L ${lo}° · Rain chance up to ${maxP}%</small></div>
     </div>
-    <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===12?'tee':''}">
-        <div class="wx-t">${h12(r.hr)}</div>
+    <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===th?'tee':''}">
+        <div class="wx-t">${h12(r.hr)}</div>${r.hr===th?'<div class="wx-tee">Tee off</div>':''}
         <div class="wx-i">${WX_ICON(r.c)}</div>
         <div class="wx-deg" style="margin-top:${Math.round((hi-r.t)/span*14)}px">${r.t}°</div>
         <div class="wx-p ${r.p>=40?'hi':''}">💧${r.p}%</div>
