@@ -310,25 +310,22 @@
   .ld-logo{width:26px;height:26px}
   .ld-title{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.14em;color:var(--ld);line-height:1}
   table.ld{width:100%;table-layout:fixed;border-collapse:collapse;font-family:var(--num)}
-  table.ld .c-pos{width:5%} table.ld .c-name{width:19.5%} table.ld .c-h{width:3.8%} table.ld .c-tp{width:7.1%}
-  table.ld th,table.ld td{border:1px solid #c9d3ea;text-align:center;padding:0;height:24px;color:var(--ld);font-size:10px;font-weight:700}
+  table.ld .c-pos{width:4.2%} table.ld .c-name{width:29.4%} table.ld .c-h{width:3.4%} table.ld .c-tp{width:5.2%}
+  table.ld th,table.ld td{border:1px solid #c9d3ea;text-align:center;padding:0;height:19px;color:var(--ld);font-size:9.5px;font-weight:700}
   table.ld thead tr:first-child th{border-top:2px solid var(--ld)}
   table.ld thead th{background:#eef2fb}
   table.ld .ld-par th{border-bottom:2px solid var(--ld)}
-  table.ld .ld-name{text-align:left;padding:0 3px;border-right:2px solid var(--ld);font-family:var(--display);font-size:8.2px;line-height:1.05;letter-spacing:0;white-space:nowrap}
+  table.ld .ld-name{text-align:left;padding:0 3px;border-right:2px solid var(--ld);font-family:var(--display);font-size:7.6px;line-height:1;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   table.ld .ld-name span{display:block;overflow:hidden;text-overflow:ellipsis}
   table.ld .ld-hd{font-size:10px;letter-spacing:.08em}
   table.ld .ld-pos{font-size:9.5px}
-  table.ld tbody tr{height:26px}
+  table.ld tbody tr{height:19px}
   table.ld tr.lead th,table.ld tr.lead td{background:#fff4d6}
   table.ld .ld-tp{border-left:2px solid var(--ld);font-size:10.5px}
   table.ld .ld-tp.under{color:#c8102e}
-  .ld-s{display:inline-grid;place-items:center;width:12px;height:12px;font-style:normal;font-weight:700;font-size:9px;line-height:1}
-  .ld-s.bd{border:1.2px solid #c8102e;border-radius:50%;color:#c8102e}
-  .ld-s.eg{border:1.2px solid #c8102e;border-radius:50%;color:#c8102e;box-shadow:0 0 0 1px #fff,0 0 0 2px #c8102e}
-  .ld-s.pr{color:var(--ld)}
-  .ld-s.bg{border:1.2px solid var(--ld)}
-  .ld-s.db{border:1.2px solid var(--ld);box-shadow:0 0 0 1px #fff,0 0 0 2px var(--ld)}
+  .ld-s{font-style:normal;font-weight:700;font-size:9.5px;line-height:1}
+  .ld-s.bd,.ld-s.eg{color:#c8102e}
+  .ld-s.pr,.ld-s.bg,.ld-s.db{color:var(--ld)}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -696,7 +693,7 @@
     </div>
     <div class="card">
       <p class="eyebrow" id="fieldEyebrow">The field</p>
-      <h2 class="sec">Pairings</h2>
+      <h2 class="sec">The Field</h2>
       <div id="pairList" style="font-size:14px"></div>
     </div>
   </section>
@@ -1782,7 +1779,7 @@ function renderLeaders(rows){
     const c=r.c||{s:[]};
     return `<tr class="${r.pos===1&&r.thru?'lead':''}">
       <td class="ld-pos">${r.thru?(r.tied?'T':'')+r.pos:''}</td>
-      <th class="ld-name"><span>${esc(last(r.t.a))}</span><span>${esc(last(r.t.b))}</span></th>
+      <th class="ld-name">${esc(last(r.t.a))}/${esc(last(r.t.b))}</th>
       ${H.map((h,i)=>mark(c.s[i],i)).join('')}
       <td class="ld-tp ${r.tp<0?'under':''}">${r.thru?fmtPar(r.tp):''}</td></tr>`;
   }).join('');
@@ -2291,11 +2288,6 @@ function renderWeather(){
         <small>H ${hi}° · L ${lo}°</small>
         <small>Rain chance up to ${maxP}%</small>
       </div>
-    </div>
-    <div class="wx-tee-card">
-      <div class="wx-tee-art">${teeSvg}</div>
-      <div class="wx-tee-txt"><span class="wx-k">First tee time</span><b>${h12(th).replace(' ',':00 ')}</b></div>
-      <div class="wx-tee-wx"><span>${WX_ICON(tee.c)} ${tee.t}°</span><span>💧${tee.p}%</span><span><span class="wx-arrow" style="transform:rotate(${tee.d+180}deg)">↑</span>${tee.w} mph ${WX_DIR(tee.d)}</span></div>
     </div>
     <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===th?'tee':''}">
         <div class="wx-t">${h12(r.hr)}</div>${r.hr===th?'<div class="wx-tee">Tee off</div>':''}
