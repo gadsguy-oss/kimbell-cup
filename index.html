@@ -547,6 +547,14 @@
   .cs-h{border:1.5px solid #d7dcec;background:#fff;border-radius:12px;padding:9px 0 7px;font-weight:800;font-size:17px;color:#0e2a8c;display:flex;flex-direction:column;align-items:center;gap:3px}
   .cs-h small{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#b0351f}
   .cs-h.ok small{color:#1d7a3a}
+  .wb-map{position:relative;height:440px;margin:12px -4px 0;border-radius:16px;overflow:hidden;touch-action:none;background:#2c3d22}
+  .wb-tm{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;pointer-events:none;transition:left .6s,top .6s}
+  .wb-tm .av-pair{background:#fff;border-radius:999px;padding:2px;box-shadow:0 3px 10px rgba(0,0,0,.45);zoom:var(--wbz,.5)}
+  .wb-tm b{margin-top:2px;background:rgba(14,42,140,.92);color:#fff;font-size:calc(15px * var(--wbz,.5));font-weight:800;letter-spacing:.03em;padding:2px 5px;border-radius:7px;white-space:nowrap}
+  .wb-tm.gps b{background:#1d7a3a}
+  .wb-tm::after{content:"";width:2px;height:7px;background:#fff}
+  .wb-note{font-size:12px;margin:10px 0 0}
+  .wb-note i{display:inline-block;width:9px;height:9px;border-radius:3px;margin:0 4px 0 2px;vertical-align:-1px}
   .hv-cred{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.75)}
 </style>
 </head>
@@ -709,6 +717,19 @@
         <button class="btn" id="addChamp">Engrave it</button>
       </div>
       </div>
+    </div>
+
+    <div class="card wb-card">
+      <p class="eyebrow">Live on the course</p>
+      <h2 class="sec">Where they be?</h2>
+      <div class="wb-map" id="wbMap">
+        <div class="hv-tiles" id="wbTiles"></div>
+        <svg class="hv-ov" id="wbOv"></svg>
+        <div id="wbTeams"></div>
+        <div class="hv-zoom"><button type="button" id="wbIn" aria-label="Zoom in">+</button><button type="button" id="wbOut" aria-label="Zoom out">&minus;</button><button type="button" id="wbFit" aria-label="Show whole course">&#8982;</button></div>
+        <div class="hv-cred">Imagery &copy; Esri</div>
+      </div>
+      <p class="muted wb-note" id="wbNote"></p>
     </div>
 
     <div class="card wx-card">
@@ -2362,6 +2383,7 @@ function renderWeather(){
 }
 setInterval(()=>loadWeather(true),60*60e3);
 function renderCup(){
+  setTimeout(renderWhere,0);
   loadWeather(false);
   renderTrophy();
   const list=[...champs].sort((a,b)=>b.year-a.year);
@@ -2560,6 +2582,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>{
     if(tab==='contests') renderContests();
     if(tab==='cup') renderCup();
     if(tab==='setup') renderSetup();
+    if(tab==='cup') wbRefresh();
   };
 });
 
@@ -2955,6 +2978,105 @@ function hvCloseFn(){
   m.addEventListener('pointerup',up); m.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);HV.drag=null;});
   addEventListener('resize',()=>HV.open&&hvDraw());
 })();
+
+
+/* ===== Where they be? — whole-course map with every team ===== */
+const WB={c:null,z:15,imgs:new Map(),locs:{},drag:null,fitDone:false};
+const WB_FRESH=10*60e3;
+function wbPts(){ const m=evt.holeMap||{}; return Object.values(m).flat().filter(p=>Array.isArray(p)&&p.length===2); }
+function wbSize(){ const m=document.getElementById('wbMap'); return [m.clientWidth,m.clientHeight]; }
+function wbScr(ll){ const [W,H]=wbSize(), p=hvPx(ll,WB.z), c=hvPx(WB.c,WB.z); return [W/2+p[0]-c[0], H/2+p[1]-c[1]]; }
+function wbUn(x,y){ const [W,H]=wbSize(), c=hvPx(WB.c,WB.z); return hvLL([c[0]+x-W/2,c[1]+y-H/2],WB.z); }
+function wbFit(){
+  const pts=wbPts(); if(!pts.length){ WB.c=HV_HOME.slice(); WB.z=15; return; }
+  const la=pts.map(p=>p[0]), lo=pts.map(p=>p[1]);
+  WB.c=[(Math.min(...la)+Math.max(...la))/2,(Math.min(...lo)+Math.max(...lo))/2];
+  const [W,H]=wbSize(), a=hvPx([Math.max(...la),Math.min(...lo)],0), b=hvPx([Math.min(...la),Math.max(...lo)],0);
+  WB.fitZ=WB.z=Math.max(13,Math.min(18.5,Math.log2(Math.min((W*0.86)/Math.max(b[0]-a[0],1e-9),(H*0.86)/Math.max(b[1]-a[1],1e-9)))));
+}
+function wbTilesDraw(){
+  const el=document.getElementById('wbTiles'), [W,H]=wbSize();
+  const zi=Math.min(19,Math.max(1,Math.floor(WB.z))), sc=Math.pow(2,WB.z-zi), c=hvPx(WB.c,zi), n=Math.pow(2,zi);
+  const hx=W/2/sc+256, hy=H/2/sc+256;
+  const x0=Math.floor((c[0]-hx)/256), x1=Math.floor((c[0]+hx)/256), y0=Math.floor((c[1]-hy)/256), y1=Math.floor((c[1]+hy)/256);
+  const keep=new Set();
+  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ if(y<0||y>=n) continue; const k=zi+'/'+x+'/'+y; keep.add(k);
+    let im=WB.imgs.get(k); if(!im){ im=new Image(); im.alt=''; im.draggable=false; im.src=hvTile(zi,((x%n)+n)%n,y); WB.imgs.set(k,im); }
+    im.style.left=(x*256-c[0]).toFixed(1)+'px'; im.style.top=(y*256-c[1]).toFixed(1)+'px'; if(im.parentNode!==el) el.appendChild(im); }
+  for(const [k,im] of WB.imgs){ if(!keep.has(k)){ im.remove(); if(WB.imgs.size>400) WB.imgs.delete(k); } }
+  el.style.transform=`translate(${W/2}px,${H/2}px) scale(${sc})`;
+}
+function wbTeamPos(t){
+  const L=WB.locs[t.id]; if(L&&Date.now()-L.t<WB_FRESH) return {ll:[L.la,L.lo],gps:true};
+  const c=field[t.id], s=c?c.s:[]; let i=evt.holes.findIndex((h,k)=>s[k]===null||s[k]===undefined);
+  if(i===-1) return {done:true};
+  const p=(evt.holeMap||{})[evt.holes[i].h]; return p&&p.length? {ll:p[0],gps:false} : null;
+}
+function renderWhere(){
+  const map=document.getElementById('wbMap'); if(!map||!evt||!map.clientWidth) return;
+  if(!WB.c||!WB.fitDone){ wbFit(); WB.fitDone=wbPts().length>0; }
+  wbTilesDraw();
+  const m=evt.holeMap||{}; let g='';
+  evt.holes.forEach(h=>{ const p=m[h.h]; if(!p||p.length<2) return; const s=p.map(wbScr);
+    g+=`<polyline points="${s.map(q=>q.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6" stroke-dasharray="4 4"/>`;
+    const G=s[s.length-1]; g+=`<path d="M${G[0]} ${G[1]}v-12" stroke="#fff" stroke-width="1.6"/><path d="M${G[0]+1} ${G[1]-12}h8l-2 3 2 3h-8z" fill="#c8102e"/>`;
+    const T=s[0]; g+=`<circle cx="${T[0]}" cy="${T[1]}" r="8" fill="#c9a227" stroke="#fff" stroke-width="1.5"/><text x="${T[0]}" y="${T[1]+3.5}" text-anchor="middle" style="font:800 9.5px system-ui,sans-serif;fill:#1a1405">${h.h}</text>`; });
+  document.getElementById('wbOv').innerHTML=g;
+  const last=n=>String(n||'').trim().split(/\s+/).slice(-1)[0].toUpperCase();
+  const zk=Math.max(.5,Math.min(1,.5+(WB.z-(WB.fitZ||WB.z))*.25)); map.style.setProperty('--wbz',zk.toFixed(2)); WB.step=Math.round(62*zk);
+  const placed=[], done=[]; let gps=0;
+  evt.teams.forEach(t=>{ const P=wbTeamPos(t); if(!P) return; if(P.done){ done.push(t); return; }
+    const S=wbScr(P.ll); let n=0; placed.forEach(q=>{ if(Math.hypot(q.x-S[0],q.y-S[1])<26) n++; });
+    if(P.gps) gps++;
+    placed.push({t,x:S[0],y:S[1]-n*WB.step,gps:P.gps}); });
+  document.getElementById('wbTeams').innerHTML=placed.map(q=>`<div class="wb-tm ${q.gps?'gps':''}" style="left:${q.x.toFixed(1)}px;top:${q.y.toFixed(1)}px">${avPair(q.t,'sm')}<b>${esc(last(q.t.a))}/${esc(last(q.t.b))}</b></div>`).join('');
+  const note=document.getElementById('wbNote');
+  note.innerHTML = !wbPts().length ? 'The course map fills in once the holes are set up.' :
+    `<i style="background:#1d7a3a"></i>Live GPS &nbsp; <i style="background:#0e2a8c"></i>On the tee of their next hole${done.length?` &nbsp;·&nbsp; In the clubhouse: ${done.map(t=>esc(last(t.a))+'/'+esc(last(t.b))).join(', ')}`:''}`;
+}
+async function wbRefresh(){
+  if(!evt||!document.getElementById('v-cup').classList.contains('on')) return;
+  if(store.server){ try{ const r=await fetch(API+'?hash='+encodeURIComponent('kc:loc:'+year),{cache:'no-store'}); const j=await r.json();
+      const L={}; Object.entries(j.values||{}).forEach(([k,v])=>{ try{ L[k]=JSON.parse(v); }catch(e){} }); WB.locs=L; }catch(e){} }
+  try{ await loadField(); }catch(e){}
+  renderWhere();
+}
+setInterval(wbRefresh,45e3);
+(function wbWire(){
+  const $=id=>document.getElementById(id), m=$('wbMap'); if(!m) return;
+  $('wbIn').onclick=()=>{WB.z=Math.min(19.5,WB.z+0.6);renderWhere();};
+  $('wbOut').onclick=()=>{WB.z=Math.max(12,WB.z-0.6);renderWhere();};
+  $('wbFit').onclick=()=>{wbFit();renderWhere();};
+  const pts=new Map();
+  m.addEventListener('pointerdown',e=>{ if(e.target.closest('button')) return; m.setPointerCapture(e.pointerId); pts.set(e.pointerId,[e.clientX,e.clientY]);
+    const v=[...pts.values()]; WB.drag={x:e.clientX,y:e.clientY,c:WB.c.slice(),z:WB.z,d:v.length===2?Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]):0}; });
+  m.addEventListener('pointermove',e=>{ if(!WB.drag||!pts.has(e.pointerId)) return; pts.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pts.size===2){ const v=[...pts.values()], d=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]); if(!WB.drag.d) WB.drag.d=d;
+      WB.z=Math.max(12,Math.min(19.5,WB.drag.z+Math.log2(d/WB.drag.d))); renderWhere(); return; }
+    const [W,H]=wbSize(), save=WB.z; WB.c=WB.drag.c; WB.c=wbUn(W/2-(e.clientX-WB.drag.x),H/2-(e.clientY-WB.drag.y)); renderWhere(); });
+  const end=e=>{ pts.delete(e.pointerId); if(!pts.size) WB.drag=null; else { const v=[...pts.values()][0]; WB.drag={x:v[0],y:v[1],c:WB.c.slice(),z:WB.z,d:0}; } };
+  m.addEventListener('pointerup',end); m.addEventListener('pointercancel',end);
+  addEventListener('resize',()=>renderWhere());
+})();
+
+/* Send this phone's spot for its team on tournament day, about once a minute, only near the course. */
+const WBS={watch:null,last:0};
+function wbEventDay(){
+  if(/[?&]preview=map/.test(location.search)) return true;
+  const d=new Date(); if(!evt||d.getFullYear()!==+evt.year) return false;
+  const mon=d.toLocaleString('en-US',{month:'long'});
+  return new RegExp('\\b'+mon+'\\s+'+d.getDate()+'\\b','i').test(evt.date||'');
+}
+function wbSendTick(){
+  if(WBS.watch!=null || !store.server || !myTeam || !wbEventDay() || !navigator.geolocation) return;
+  try{ WBS.watch=navigator.geolocation.watchPosition(p=>{
+    const ll=[p.coords.latitude,p.coords.longitude], pts=wbPts(), ctr=pts.length?pts[0]:HV_HOME;
+    if(hvYds(ll,ctr)>3500 || Date.now()-WBS.last<50e3 || !myTeam) return;
+    WBS.last=Date.now();
+    store.post({action:'loc',year,team:myTeam,code:store.teamCode(year,myTeam)||undefined,admin:store.auth.admin||undefined,la:ll[0],lo:ll[1]}).catch(()=>{});
+  },()=>{},{enableHighAccuracy:true,maximumAge:20000}); }catch(e){}
+}
+setInterval(wbSendTick,60e3); setTimeout(wbSendTick,4000);
 </script>
 </body>
 </html>

@@ -143,6 +143,24 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    /* Live team location for the "Where they be?" map. Team code (or admin) required;
+       one small record per team, overwritten each time. */
+    if (action === 'loc') {
+      const year = String(body.year || '');
+      if (!/^\d{4}$/.test(year)) return res.status(400).json({ error: 'bad year' });
+      let allowed = await isAdmin(body.admin);
+      if (!allowed) allowed = await isTeam(year, body.team, body.code);
+      if (!allowed && !Number(await redis(['HLEN', codesKey(year)]))) allowed = true;
+      if (!allowed) return res.status(401).json({ error: 'code required' });
+      const la = Number(body.la), lo = Number(body.lo);
+      if (!Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180)
+        return res.status(400).json({ error: 'bad position' });
+      const rec = JSON.stringify({ la: +la.toFixed(6), lo: +lo.toFixed(6), t: Date.now() });
+      await redis(['HSET', `kc:loc:${year}`, String(body.team), rec]);
+      await redis(['EXPIRE', `kc:loc:${year}`, String(60 * 60 * 24 * 3)]);
+      return res.status(200).json({ ok: true });
+    }
+
     /* Contest claim (closest-to-the-pin / long drive). Any team in the field can claim
        with its team code; the server appends to the running log only if the new mark
        beats the current one, so two phones claiming at once can't overwrite each other. */
