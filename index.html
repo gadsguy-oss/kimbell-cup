@@ -238,6 +238,22 @@
   .course-card .course-logo{position:absolute;top:14px;right:14px;width:118px;height:auto;pointer-events:none}
   .course-card .eyebrow,.course-card .sec,.course-card #courseSub{padding-right:126px}
   .post-stats{margin-top:20px}
+  .bp{background:var(--navy);border-radius:15px;padding:12px 11px 4px;margin-bottom:12px;color:#fff}
+  .bp-title{font-family:var(--num);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 2px 9px}
+  .bp-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 10px 11px;margin-bottom:8px}
+  .bp-hd{font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .bp-hd small{font-family:var(--num);font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.55);text-transform:none}
+  .bp-row{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;gap:6px;margin-top:6px;text-align:center}
+  .bp-side{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .bp-side b{font-family:var(--display);font-size:22px;line-height:1}
+  .bp-side.lo b{color:#7fe0a0}
+  .bp-side.hi b{color:#ff8f8f}
+  .bp-side small,.bp-mid small{font-family:var(--num);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .bp-k{font-family:var(--num);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
+  .bp-side .av{width:24px;height:24px;border-width:1.5px}
+  .bp-mid{display:flex;flex-direction:column;align-items:center}
+  .bp-mid b{font-family:var(--display);font-size:44px;line-height:1;color:var(--gold)}
+  .bp-vs{font-family:var(--num);font-size:10.5px;color:rgba(255,255,255,.8);margin-top:2px}
   .ps-card{background:var(--white);border:1.5px solid rgba(7,22,71,.06);border-radius:13px;padding:12px 13px;margin-bottom:9px}
   .ps-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
   .ps-hd b{font-family:var(--display);font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy)}
@@ -1651,8 +1667,27 @@ function renderPostStats(){
       ${r.teams.map(x=>`<div class="ps-team">${avPair(x.t,'sm')}<span class="ps-n"><b>${esc(x.t.a)} &amp; ${esc(x.t.b)}</b><small>Team ${x.t.id}</small></span></div>`).join('')}
     </div>`;
   }).join('');
+  /* Scoring by par: field average in the middle, lowest team on the left, highest on the right */
+  const byPar=[3,4,5].map(par=>{
+    const idx=evt.holes.map((h,i)=>h.par===par?i:-1).filter(i=>i>=0);
+    if(!idx.length) return '';
+    const per=teams.map(({t,c})=>({t,avg:idx.reduce((x,i)=>x+(+c.s[i]),0)/idx.length}));
+    const field=per.reduce((x,y)=>x+y.avg,0)/per.length;
+    const lo=Math.min(...per.map(x=>x.avg)), hi=Math.max(...per.map(x=>x.avg));
+    const who=v=>{ const w=per.filter(x=>Math.abs(x.avg-v)<1e-9); return w.length>1?`${w.length} teams`:`Team ${w[0].t.id}`; };
+    const pics=v=>{ const w=per.filter(x=>Math.abs(x.avg-v)<1e-9); return w.length===1?avPair(w[0].t,'sm'):''; };
+    const f2=n=>n.toFixed(2);
+    return `<div class="bp-card">
+      <div class="bp-hd">Par ${par}s <small>${idx.length} hole${idx.length===1?'':'s'} · #${idx.map(i=>evt.holes[i].h).join(', #')}</small></div>
+      <div class="bp-row">
+        <div class="bp-side lo"><span class="bp-k">Low</span><b>${f2(lo)}</b>${pics(lo)}<small>${who(lo)}</small></div>
+        <div class="bp-mid"><b>${f2(field)}</b><small>Field average</small><span class="bp-vs">${field-par>=0?'+':''}${f2(field-par)} vs par</span></div>
+        <div class="bp-side hi"><span class="bp-k">High</span><b>${f2(hi)}</b>${pics(hi)}<small>${who(hi)}</small></div>
+      </div></div>`;
+  }).join('');
   el.innerHTML=`<div class="post-stats"><p class="eyebrow">${year} · Final</p><h2 class="sec">Post Cup Stats</h2>
-    <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>${cards}</div>`;
+    <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>
+    <div class="bp"><div class="bp-title">Scoring by par</div>${byPar}</div>${cards}</div>`;
 }
 function renderBoard(){
   renderPostStats();
