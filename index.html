@@ -310,7 +310,7 @@
   .ld-logo{width:26px;height:26px}
   .ld-title{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.14em;color:var(--ld);line-height:1}
   table.ld{width:100%;table-layout:fixed;border-collapse:collapse;font-family:var(--num)}
-  table.ld .c-pos{width:4.2%} table.ld .c-name{width:29.4%} table.ld .c-h{width:3.4%} table.ld .c-tp{width:5.2%}
+  table.ld .c-pos{width:4.4%} table.ld .c-name{width:34.4%} table.ld .c-h{width:3.4%}
   table.ld th,table.ld td{border:1px solid #c9d3ea;text-align:center;padding:0;height:19px;color:var(--ld);font-size:9.5px;font-weight:700}
   table.ld thead tr:first-child th{border-top:2px solid var(--ld)}
   table.ld thead th{background:#eef2fb}
@@ -513,6 +513,34 @@
   .al-mute{margin-top:8px;background:none;border:none;color:rgba(7,22,71,.45);font-size:12px;text-decoration:underline;cursor:pointer}
   .al-toggle{display:block;margin:-4px auto 10px;background:none;border:none;font-family:var(--num);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);cursor:pointer}
   .draw-row.done select{border-color:var(--gold);background:rgba(201,162,39,.08)}
+
+  .hv-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--navy,#0e2a8c);color:#fff;font:700 13px/1 inherit;padding:8px 13px;letter-spacing:.02em}
+  .hv{position:fixed;inset:0;z-index:90;background:#0b1a3c;display:none;flex-direction:column}
+  .hv.on{display:flex}
+  .hv-top{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;color:#fff;background:#0e2a8c}
+  .hv-top h3{margin:0;font-size:20px;flex:1;letter-spacing:.02em}
+  .hv-top small{display:block;font-size:12px;font-weight:600;opacity:.8;letter-spacing:.04em}
+  .hv-x{border:0;background:rgba(255,255,255,.16);color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px}
+  .hv-nav{border:0;background:rgba(255,255,255,.16);color:#fff;width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1}
+  .hv-nav:disabled{opacity:.3}
+  .hv-map{position:relative;flex:1;overflow:hidden;touch-action:none;background:#2c3d22}
+  .hv-tiles{position:absolute;left:0;top:0;transform-origin:0 0}
+  .hv-tiles img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
+  .hv-ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .hv-lbl{font:800 15px/1 system-ui,sans-serif;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.75);stroke-width:4px}
+  .hv-pill{fill:rgba(255,255,255,.95)}
+  .hv-pt{font:800 14px/1 system-ui,sans-serif;fill:#0e2a8c}
+  .hv-zoom{position:absolute;right:12px;bottom:14px;display:flex;flex-direction:column;gap:8px}
+  .hv-zoom button{width:42px;height:42px;border:0;border-radius:12px;background:rgba(255,255,255,.94);color:#0e2a8c;font:800 22px/1 inherit;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+  .hv-msg{position:absolute;left:12px;right:66px;top:12px;background:rgba(255,255,255,.95);color:#0e2a8c;border-radius:12px;padding:9px 12px;font-size:13px;font-weight:600;line-height:1.35;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  .hv-msg:empty{display:none}
+  .hv-bar{display:flex;align-items:center;gap:10px;padding:10px 14px calc(env(safe-area-inset-bottom) + 12px);background:#fff}
+  .hv-stats{flex:1;display:flex;gap:16px}
+  .hv-stat b{display:block;font-size:22px;color:#0e2a8c;line-height:1.05}
+  .hv-stat span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6b7699}
+  .hv-act{border:0;border-radius:10px;background:#eef1fa;color:#0e2a8c;font:700 13px/1 inherit;padding:10px 12px}
+  .hv-act.pri{background:var(--gold,#c9a227);color:#1a1405}
+  .hv-cred{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.75)}
 </style>
 </head>
 <body>
@@ -551,6 +579,7 @@
           <div>
             <div class="hole-num" id="holeNum">1</div>
             <div class="hole-meta" id="holeMeta"></div>
+            <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>Hole view</button>
           </div>
           <div class="nav-arrows">
             <button class="arrow" id="prevHole" aria-label="Previous hole">‹</button>
@@ -858,6 +887,22 @@
   <p id="lbCap"></p>
 </div>
 
+<div class="hv" id="hv" role="dialog" aria-modal="true" aria-label="Hole view">
+  <div class="hv-top">
+    <button type="button" class="hv-nav" id="hvPrev" aria-label="Previous hole">&lsaquo;</button>
+    <h3 id="hvTitle">Hole 1<small></small></h3>
+    <button type="button" class="hv-nav" id="hvNext" aria-label="Next hole">&rsaquo;</button>
+    <button type="button" class="hv-x" id="hvClose" aria-label="Close">&times;</button>
+  </div>
+  <div class="hv-map" id="hvMap">
+    <div class="hv-tiles" id="hvTiles"></div>
+    <svg class="hv-ov" id="hvOv"></svg>
+    <div class="hv-msg" id="hvMsg"></div>
+    <div class="hv-zoom"><button type="button" id="hvIn" aria-label="Zoom in">+</button><button type="button" id="hvOut" aria-label="Zoom out">&minus;</button></div>
+    <div class="hv-cred">Imagery &copy; Esri</div>
+  </div>
+  <div class="hv-bar" id="hvBar"></div>
+</div>
 <script>
 /* ==========================================================
    KIMBELL CUP INVITATIONAL — annual 2-man scramble
@@ -1780,8 +1825,7 @@ function renderLeaders(rows){
     return `<tr class="${r.pos===1&&r.thru?'lead':''}">
       <td class="ld-pos">${r.thru?(r.tied?'T':'')+r.pos:''}</td>
       <th class="ld-name">${esc(last(r.t.a))}/${esc(last(r.t.b))}</th>
-      ${H.map((h,i)=>mark(c.s[i],i)).join('')}
-      <td class="ld-tp ${r.tp<0?'under':''}">${r.thru?fmtPar(r.tp):''}</td></tr>`;
+      ${H.map((h,i)=>mark(c.s[i],i)).join('')}</tr>`;
   }).join('');
   el.innerHTML=`<div class="leaders">
     <div class="ld-arch">
@@ -1789,9 +1833,9 @@ function renderLeaders(rows){
       <div class="ld-title">LEADERS</div>
     </div>
     <table class="ld">
-      <colgroup><col class="c-pos"><col class="c-name">${H.map(()=>'<col class="c-h">').join('')}<col class="c-tp"></colgroup>
-      <thead><tr><th></th><th class="ld-name ld-hd">HOLE</th>${H.map(h=>`<th>${h.h}</th>`).join('')}<th class="ld-tp">TOT</th></tr>
-      <tr class="ld-par"><th></th><th class="ld-name ld-hd">PAR</th>${H.map(h=>`<th>${h.par}</th>`).join('')}<th class="ld-tp">${H.reduce((x,h)=>x+h.par,0)}</th></tr></thead>
+      <colgroup><col class="c-pos"><col class="c-name">${H.map(()=>'<col class="c-h">').join('')}</colgroup>
+      <thead><tr><th></th><th class="ld-name ld-hd">HOLE</th>${H.map(h=>`<th>${h.h}</th>`).join('')}</tr>
+      <tr class="ld-par"><th></th><th class="ld-name ld-hd">PAR</th>${H.map(h=>`<th>${h.par}</th>`).join('')}</tr></thead>
       <tbody>${body}</tbody></table>
   </div>`;
 }
@@ -2687,6 +2731,151 @@ document.addEventListener('keydown',e=>{
   const saved=(me.teams||{})[year];
   if(saved && teamOf(saved)) await chooseTeam(saved);
   await loadField(); checkAlerts(); startPolling(); renderMuteBtn();
+})();
+
+/* ===== Hole view: satellite overhead of each hole, gold tee at the bottom, green at the top ===== */
+const HV={open:false,h:0,z:17,c:[0,0],rot:0,setup:false,pts:[],tgt:null,me:null,watch:null,drag:null};
+const HV_HOME=[33.034,-83.938];
+const hvTile=(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+function hvPx(ll,z){ const n=256*Math.pow(2,z), s=Math.sin(ll[0]*Math.PI/180);
+  return [(ll[1]+180)/360*n,(0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n]; }
+function hvLL(p,z){ const n=256*Math.pow(2,z), m=Math.PI-2*Math.PI*p[1]/n;
+  return [180/Math.PI*Math.atan(Math.sinh(m)), p[0]/n*360-180]; }
+function hvYds(a,b){ const R=6371000, t=x=>x*Math.PI/180, dl=t(b[0]-a[0]), dn=t(b[1]-a[1]);
+  const q=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(q))*1.09361; }
+function hvBearing(a,b){ const t=x=>x*Math.PI/180, y=Math.sin(t(b[1]-a[1]))*Math.cos(t(b[0])),
+  x=Math.cos(t(a[0]))*Math.sin(t(b[0]))-Math.sin(t(a[0]))*Math.cos(t(b[0]))*Math.cos(t(b[1]-a[1]));
+  return Math.atan2(y,x)*180/Math.PI; }
+const hvPath=()=>(evt.holeMap||{})[evt.holes[HV.h].h];
+function hvSize(){ const m=document.getElementById('hvMap'); return [m.clientWidth,m.clientHeight]; }
+/* world px (at fractional zoom HV.z) -> screen */
+function hvScr(ll){ const [W,H]=hvSize(), p=hvPx(ll,HV.z), c=hvPx(HV.c,HV.z);
+  const dx=p[0]-c[0], dy=p[1]-c[1], r=-HV.rot*Math.PI/180;
+  return [W/2+dx*Math.cos(r)-dy*Math.sin(r), H/2+dx*Math.sin(r)+dy*Math.cos(r)]; }
+function hvUnscr(x,y){ const [W,H]=hvSize(), r=HV.rot*Math.PI/180, dx=x-W/2, dy=y-H/2, c=hvPx(HV.c,HV.z);
+  return hvLL([c[0]+dx*Math.cos(r)-dy*Math.sin(r), c[1]+dx*Math.sin(r)+dy*Math.cos(r)],HV.z); }
+function hvFit(pts){
+  const [W,H]=hvSize();
+  HV.rot = pts.length>1 ? hvBearing(pts[0],pts[pts.length-1]) : 0;
+  HV.c=[(pts[0][0]+pts[pts.length-1][0])/2,(pts[0][1]+pts[pts.length-1][1])/2];
+  /* fit at z=0 in rotated space, then scale up */
+  HV.z=0; let w=0,h=0; const ss=pts.map(hvScr), xs=ss.map(p=>p[0]), ys=ss.map(p=>p[1]);
+  w=Math.max(...xs)-Math.min(...xs); h=Math.max(...ys)-Math.min(...ys);
+  const k=Math.min((W*0.7)/Math.max(w,1e-9),(H*0.7)/Math.max(h,1e-9));
+  HV.z=Math.max(15,Math.min(19.5,Math.log2(k)));
+  /* nudge so the tee sits a bit low and the green a bit high */
+}
+function hvTiles(){
+  const el=document.getElementById('hvTiles'), [W,H]=hvSize();
+  const zi=Math.min(19,Math.max(1,Math.floor(HV.z))), sc=Math.pow(2,HV.z-zi), c=hvPx(HV.c,zi);
+  const R=Math.hypot(W,H)/2/sc+256, n=Math.pow(2,zi);
+  const x0=Math.floor((c[0]-R)/256), x1=Math.floor((c[0]+R)/256), y0=Math.floor((c[1]-R)/256), y1=Math.floor((c[1]+R)/256);
+  let html='';
+  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ if(y<0||y>=n) continue; const xx=((x%n)+n)%n;
+    html+=`<img alt="" draggable="false" src="${hvTile(zi,xx,y)}" style="left:${(x*256-c[0]).toFixed(1)}px;top:${(y*256-c[1]).toFixed(1)}px">`; }
+  el.innerHTML=html;
+  el.style.transform=`translate(${W/2}px,${H/2}px) rotate(${-HV.rot}deg) scale(${sc})`;
+}
+function hvMark(ll,kind,label){
+  const [x,y]=hvScr(ll);
+  if(kind==='tee') return `<g transform="translate(${x},${y})"><circle r="11" fill="#c9a227" stroke="#fff" stroke-width="3"/><text y="5" text-anchor="middle" class="hv-pt" style="font-size:12px;fill:#1a1405">T</text></g>`;
+  if(kind==='green') return `<g transform="translate(${x},${y})"><circle r="7" fill="#fff" stroke="#0e2a8c" stroke-width="2"/><path d="M0 0V-30" stroke="#fff" stroke-width="2.5"/><path d="M1 -30h15l-4 5 4 5H1z" fill="#c8102e"/></g>`;
+  if(kind==='mid') return `<circle cx="${x}" cy="${y}" r="6" fill="#fff" stroke="#0e2a8c" stroke-width="2"/>`;
+  if(kind==='tgt') return `<g transform="translate(${x},${y})"><circle r="13" fill="none" stroke="#fff" stroke-width="2.5"/><circle r="3" fill="#fff"/></g>`;
+  if(kind==='me') return `<g transform="translate(${x},${y})"><circle r="12" fill="rgba(66,133,244,.3)"/><circle r="6.5" fill="#4285f4" stroke="#fff" stroke-width="2.5"/></g>`;
+  return '';
+}
+function hvLabel(a,b,txt){ const p=hvScr(a), q=hvScr(b), x=(p[0]+q[0])/2+16, y=(p[1]+q[1])/2;
+  const w=txt.length*9+14;
+  return `<g transform="translate(${x},${y})"><rect x="0" y="-13" rx="9" width="${w}" height="26" class="hv-pill"/><text x="${w/2}" y="5" text-anchor="middle" class="hv-pt">${txt}</text></g>`; }
+const hvLen=pts=>pts.slice(1).reduce((t,p,i)=>t+hvYds(pts[i],p),0);
+function hvDraw(){
+  if(!HV.open) return;
+  hvTiles();
+  const ov=document.getElementById('hvOv'), H=evt.holes[HV.h], path=HV.setup?HV.pts:(hvPath()||[]);
+  let g='';
+  if(path.length>1) g+=`<polyline points="${path.map(p=>hvScr(p).join(',')).join(' ')}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="${HV.setup?'0':'7 6'}" opacity=".9"/>`;
+  if(!HV.setup && HV.tgt && path.length>1){
+    const t=HV.tgt, g0=path[path.length-1], s0=HV.me&&hvYds(HV.me,g0)<1500?HV.me:path[0];
+    g+=`<polyline points="${[s0,t,g0].map(p=>hvScr(p).join(',')).join(' ')}" fill="none" stroke="#ffd34d" stroke-width="3"/>`;
+    g+=hvLabel(s0,t,Math.round(hvYds(s0,t))+'')+hvLabel(t,g0,Math.round(hvYds(t,g0))+'');
+  }
+  path.forEach((p,i)=>{ g+=hvMark(p, i===0?'tee':i===path.length-1&&path.length>1?'green':'mid'); });
+  if(!HV.setup && HV.tgt) g+=hvMark(HV.tgt,'tgt');
+  if(HV.me) g+=hvMark(HV.me,'me');
+  ov.innerHTML=g;
+  /* header + bottom bar */
+  document.getElementById('hvTitle').innerHTML=`Hole ${H.h}<small>PAR ${H.par} · ${H.yds} YDS · GOLD TEES</small>`;
+  document.getElementById('hvPrev').disabled=HV.h===0; document.getElementById('hvNext').disabled=HV.h===17;
+  const bar=document.getElementById('hvBar'), msg=document.getElementById('hvMsg');
+  if(HV.setup){
+    msg.textContent = HV.pts.length===0 ? 'Setup: tap the gold tee box.' :
+      HV.pts.length===1 ? 'Now tap the middle of the green. On a dogleg, tap the corner of the fairway first.' :
+      (HV.pts.length===2?'Save, or if that was a dogleg corner, tap the green next. ':'Tap again to move the green, or Save. ')+`${Math.round(hvLen(HV.pts))} yds as drawn.`;
+    bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${HV.pts.length}</b><span>Points</span></div></div>
+      <button type="button" class="hv-act" id="hvUndo">Undo</button><button type="button" class="hv-act" id="hvCancel">Cancel</button><button type="button" class="hv-act pri" id="hvSave"${HV.pts.length<2?' disabled':''}>Save</button>`;
+    document.getElementById('hvUndo').onclick=()=>{HV.pts.pop();hvDraw();};
+    document.getElementById('hvCancel').onclick=()=>{HV.setup=false;hvShow();};
+    document.getElementById('hvSave').onclick=hvSave;
+    return;
+  }
+  if(path.length<2){
+    msg.textContent='This hole’s map isn’t set up yet.';
+    bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Yards</span></div><div class="hv-stat"><b>${H.par}</b><span>Par</span></div></div><button type="button" class="hv-act pri" id="hvSet">Set up hole</button>`;
+  }else{
+    const gr=path[path.length-1], near=HV.me&&hvYds(HV.me,gr)<1500;
+    msg.textContent = HV.tgt ? '' : (near?'Tap anywhere to see yardage from you.':'Tap anywhere to check a yardage from the gold tee.');
+    bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Gold tees</span></div>${near?`<div class="hv-stat"><b>${Math.round(hvYds(HV.me,gr))}</b><span>You to pin</span></div>`:''}</div>
+      ${HV.tgt?'<button type="button" class="hv-act" id="hvClr">Clear</button>':''}<button type="button" class="hv-act" id="hvSet">Edit</button>`;
+    if(HV.tgt) document.getElementById('hvClr').onclick=()=>{HV.tgt=null;hvDraw();};
+  }
+  document.getElementById('hvSet').onclick=async()=>{ if(!(await requireAdmin())) return; HV.setup=true; HV.pts=[]; HV.tgt=null; HV.rot=0; hvDraw(); };
+}
+function hvShow(){
+  const path=hvPath(); HV.tgt=null;
+  if(path&&path.length>1) hvFit(path); else { HV.rot=0; HV.c=HV_HOME.slice(); HV.z=16; }
+  hvDraw();
+}
+async function hvSave(){
+  if(HV.pts.length<2) return;
+  evt.holeMap=Object.assign({},evt.holeMap||{}); evt.holeMap[evt.holes[HV.h].h]=HV.pts.map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)]);
+  try{ await saveEvent(); toast(`Hole ${evt.holes[HV.h].h} map saved`); }catch(e){ toast('Could not save'); return; }
+  HV.setup=false; hvShow();
+}
+function hvOpen(){
+  HV.h=hole; HV.open=true; HV.setup=false;
+  document.getElementById('hv').classList.add('on'); document.body.style.overflow='hidden';
+  hvShow();
+  if(navigator.geolocation&&!HV.watch) try{ HV.watch=navigator.geolocation.watchPosition(p=>{HV.me=[p.coords.latitude,p.coords.longitude];hvDraw();},()=>{},{enableHighAccuracy:true,maximumAge:5000}); }catch(e){}
+}
+function hvCloseFn(){
+  HV.open=false; document.getElementById('hv').classList.remove('on'); document.body.style.overflow='';
+  if(HV.watch!=null){ try{navigator.geolocation.clearWatch(HV.watch);}catch(e){} HV.watch=null; HV.me=null; }
+}
+(function hvWire(){
+  const $=id=>document.getElementById(id);
+  $('hvBtn').onclick=hvOpen; $('hvClose').onclick=hvCloseFn;
+  $('hvPrev').onclick=()=>{ if(HV.h>0){HV.h--;HV.setup=false;hvShow();} };
+  $('hvNext').onclick=()=>{ if(HV.h<17){HV.h++;HV.setup=false;hvShow();} };
+  $('hvIn').onclick=()=>{HV.z=Math.min(20,HV.z+0.5);hvDraw();};
+  $('hvOut').onclick=()=>{HV.z=Math.max(13,HV.z-0.5);hvDraw();};
+  const m=$('hvMap'); const pts=new Map();
+  m.addEventListener('pointerdown',e=>{ if(e.target.closest('button')) return; m.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId,[e.clientX,e.clientY]);
+    HV.drag={x:e.clientX,y:e.clientY,moved:false,c:HV.c.slice(),z:HV.z,d:pts.size===2?Math.hypot(...[...pts.values()].reduce((a,p)=>[a[0]-p[0],a[1]-p[1]])):0}; });
+  m.addEventListener('pointermove',e=>{ if(!HV.drag||!pts.has(e.pointerId)) return; pts.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pts.size===2){ const v=[...pts.values()], d=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);
+      if(!HV.drag.d) HV.drag.d=d; HV.z=Math.max(13,Math.min(20,HV.drag.z+Math.log2(d/HV.drag.d))); HV.drag.moved=true; hvDraw(); return; }
+    const dx=e.clientX-HV.drag.x, dy=e.clientY-HV.drag.y; if(Math.hypot(dx,dy)<6&&!HV.drag.moved) return;
+    HV.drag.moved=true; const [W,H]=hvSize(); const save=HV.c; HV.c=HV.drag.c; const ll=hvUnscr(W/2-dx,H/2-dy); HV.c=ll; hvDraw(); });
+  const up=e=>{ const d=HV.drag; pts.delete(e.pointerId); if(!d||pts.size) return; HV.drag=null; if(d.moved) return;
+    const r=m.getBoundingClientRect(), ll=hvUnscr(e.clientX-r.left,e.clientY-r.top);
+    if(HV.setup){ if(HV.pts.length>=2 && HV.pts.length>=3) HV.pts[HV.pts.length-1]=ll; else HV.pts.push(ll); }
+    else if((hvPath()||[]).length>1) HV.tgt=ll;
+    hvDraw(); };
+  m.addEventListener('pointerup',up); m.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);HV.drag=null;});
+  addEventListener('resize',()=>HV.open&&hvDraw());
 })();
 </script>
 </body>
