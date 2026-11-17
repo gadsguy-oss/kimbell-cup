@@ -2293,7 +2293,7 @@ function renderTrophy(){
 }
 /* ---- Forecast (Nov 16): hourly 8am–6pm for tournament day at River Forest, Forsyth GA.
    Open-Meteo, no key. Refreshes every hour while the app is open. ---- */
-const WX={lat:33.034,lon:-83.938,from:8,to:18};
+const WX={lat:33.124,lon:-83.991,from:8,to:18};
 let wxData=null, wxAt=0, wxBusy=false, wxNow=null;
 function eventDateISO(){
   const m=String(evt.date||'').match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})/i);
@@ -2777,7 +2777,7 @@ document.addEventListener('keydown',e=>{
 
 /* ===== Hole view: satellite overhead of each hole, gold tee at the bottom, green at the top ===== */
 const HV={open:false,h:0,z:17,c:[0,0],rot:0,setup:false,pts:[],tgt:null,me:null,watch:null,drag:null};
-const HV_HOME=[33.034,-83.938];
+const HV_HOME=[33.124,-83.991];
 const hvTile=(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
 function hvPx(ll,z){ const n=256*Math.pow(2,z), s=Math.sin(ll[0]*Math.PI/180);
   return [(ll[1]+180)/360*n,(0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n]; }
