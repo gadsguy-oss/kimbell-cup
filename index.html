@@ -553,6 +553,9 @@
   .wb-tm b{margin-top:2px;background:rgba(14,42,140,.92);color:#fff;font-size:calc(15px * var(--wbz,.5));font-weight:800;letter-spacing:.03em;padding:2px 5px;border-radius:7px;white-space:nowrap}
   .wb-tm.gps b{background:#1d7a3a}
   .wb-tm::after{content:"";width:2px;height:7px;background:#fff}
+  .wb-tm.side{transform:translate(0,-50%);flex-direction:row;gap:3px}
+  .wb-tm.side::after{display:none}
+  .wb-tm.side b{margin-top:0}
   .wb-note{font-size:12px;margin:10px 0 0}
   .wb-note i{display:inline-block;width:9px;height:9px;border-radius:3px;margin:0 4px 0 2px;vertical-align:-1px}
   .hv-cred{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.75)}
@@ -721,7 +724,7 @@
 
     <div class="card wb-card">
       <p class="eyebrow">Live on the course</p>
-      <h2 class="sec">Where they be?</h2>
+      <h2 class="sec">Where They At?</h2>
       <div class="wb-map" id="wbMap">
         <div class="hv-tiles" id="wbTiles"></div>
         <svg class="hv-ov" id="wbOv"></svg>
@@ -2980,7 +2983,7 @@ function hvCloseFn(){
 })();
 
 
-/* ===== Where they be? — whole-course map with every team ===== */
+/* ===== Where They At? — whole-course map with every team ===== */
 const WB={c:null,z:15,imgs:new Map(),locs:{},drag:null,fitDone:false};
 const WB_FRESH=10*60e3;
 function wbPts(){ const m=evt.holeMap||{}; return Object.values(m).flat().filter(p=>Array.isArray(p)&&p.length===2); }
@@ -3026,10 +3029,11 @@ function renderWhere(){
   const zk=Math.max(.5,Math.min(1,.5+(WB.z-(WB.fitZ||WB.z))*.25)); map.style.setProperty('--wbz',zk.toFixed(2)); WB.step=Math.round(62*zk);
   const placed=[], done=[]; let gps=0;
   evt.teams.forEach(t=>{ const P=wbTeamPos(t); if(!P) return; if(P.done){ done.push(t); return; }
-    const S=wbScr(P.ll); let n=0; placed.forEach(q=>{ if(Math.hypot(q.x-S[0],q.y-S[1])<26) n++; });
+    const S=wbScr(P.ll), ax=P.gps?S[0]:S[0]+12, ay=S[1];
+    const n=placed.filter(q=>q.gps===P.gps&&Math.hypot(q.ax-ax,q.ay-ay)<26).length;
     if(P.gps) gps++;
-    placed.push({t,x:S[0],y:S[1]-n*WB.step,gps:P.gps}); });
-  document.getElementById('wbTeams').innerHTML=placed.map(q=>`<div class="wb-tm ${q.gps?'gps':''}" style="left:${q.x.toFixed(1)}px;top:${q.y.toFixed(1)}px">${avPair(q.t,'sm')}<b>${esc(last(q.t.a))}/${esc(last(q.t.b))}</b></div>`).join('');
+    placed.push({t,ax,ay,x:ax,y:P.gps?ay-n*WB.step:ay+n*Math.round(WB.step*.62),gps:P.gps}); });
+  document.getElementById('wbTeams').innerHTML=placed.map(q=>`<div class="wb-tm ${q.gps?'gps':'side'}" style="left:${q.x.toFixed(1)}px;top:${q.y.toFixed(1)}px">${avPair(q.t,'sm')}<b>${esc(last(q.t.a))}/${esc(last(q.t.b))}</b></div>`).join('');
   const note=document.getElementById('wbNote');
   note.innerHTML = !wbPts().length ? 'The course map fills in once the holes are set up.' :
     `<i style="background:#1d7a3a"></i>Live GPS &nbsp; <i style="background:#0e2a8c"></i>On the tee of their next hole${done.length?` &nbsp;·&nbsp; In the clubhouse: ${done.map(t=>esc(last(t.a))+'/'+esc(last(t.b))).join(', ')}`:''}`;
