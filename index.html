@@ -238,6 +238,7 @@
   .course-card .course-logo{position:absolute;top:14px;right:14px;width:118px;height:auto;pointer-events:none}
   .course-card .eyebrow,.course-card .sec,.course-card #courseSub{padding-right:126px}
   .post-stats{margin-top:20px}
+  .ps-preview{margin-top:18px;background:#fff4d6;border:1.5px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink);line-height:1.4}
   .bp{background:var(--navy);border-radius:15px;padding:12px 11px 4px;margin-bottom:12px;color:#fff}
   .bp-title{font-family:var(--num);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:0 2px 9px}
   .bp-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 10px 11px;margin-bottom:8px}
@@ -1627,10 +1628,23 @@ function teamCardHTML(r){
   </div>`;
 }
 /* ---- Post Cup Stats (Nov 16): shows once the champion is crowned ---- */
+/* Preview: open the app with ?preview=stats to see Post Cup Stats filled with made-up scores.
+   Display only — nothing is saved, and the real board, cards and champion are untouched. */
+const STATS_PREVIEW = /[?&]preview=stats\b/.test(location.search);
+let demoField=null;
+function makeDemoField(){
+  let seed=20261202; const r=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+  const f={};
+  evt.teams.forEach(t=>{ const c=blankCard(t.id); const skill=r()*0.25;
+    for(let i=0;i<18;i++){ const x=r()+skill; c.s[i]=evt.holes[i].par+(x<.04?-2:x<.36?-1:x<.82?0:x<.97?1:2); c.ts[i]=1; }
+    c.sg=1; f[t.id]=c; });
+  return f;
+}
 function renderPostStats(){
   const el=document.getElementById('postStats'); if(!el) return;
-  if(!isFinal()){ el.innerHTML=''; return; }
-  const teams=evt.teams.map(t=>{ const c=(field||{})[t.id]; return c&&played(c)===18?{t,c}:null; }).filter(Boolean);
+  if(!isFinal() && !STATS_PREVIEW){ el.innerHTML=''; return; }
+  const src = STATS_PREVIEW ? (demoField=demoField||makeDemoField()) : field;
+  const teams=evt.teams.map(t=>{ const c=(src||{})[t.id]; return c&&played(c)===18?{t,c}:null; }).filter(Boolean);
   if(!teams.length){ el.innerHTML=''; return; }
   const sum=(c,a,b)=>c.s.slice(a,b).reduce((x,v)=>x+(+v||0),0);
   const parSum=(a,b)=>evt.holes.slice(a,b).reduce((x,h)=>x+h.par,0);
@@ -1685,7 +1699,7 @@ function renderPostStats(){
         <div class="bp-side hi"><span class="bp-k">High</span><b>${f2(hi)}</b>${pics(hi)}<small>${who(hi)}</small></div>
       </div></div>`;
   }).join('');
-  el.innerHTML=`<div class="post-stats"><p class="eyebrow">${year} · Final</p><h2 class="sec">Post Cup Stats</h2>
+  el.innerHTML=`${STATS_PREVIEW?`<div class="ps-preview">Preview with made-up scores. Nothing is saved, and the real board is untouched. The real stats appear once the champion is crowned.</div>`:''}<div class="post-stats"><p class="eyebrow">${year} · ${STATS_PREVIEW?'Preview':'Final'}</p><h2 class="sec">Post Cup Stats</h2>
     <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>
     <div class="bp"><div class="bp-title">Scoring by par</div>${byPar}</div>${cards}</div>`;
 }
