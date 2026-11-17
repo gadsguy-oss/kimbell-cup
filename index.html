@@ -541,8 +541,12 @@
   .hv-stats{flex:1;display:flex;gap:16px}
   .hv-stat b{display:block;font-size:22px;color:#0e2a8c;line-height:1.05}
   .hv-stat span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6b7699}
-  .hv-act{border:0;border-radius:10px;background:#eef1fa;color:#0e2a8c;font-weight:700;font-size:13px;line-height:1;font-family:inherit;padding:10px 12px}
+  .hv-act{border:0;border-radius:10px;background:#eef1fa;color:#0e2a8c;font-weight:700;font-size:13px;line-height:1;font-family:inherit;padding:10px 11px}
   .hv-act.pri{background:var(--gold,#c9a227);color:#1a1405}
+  .cs-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .cs-h{border:1.5px solid #d7dcec;background:#fff;border-radius:12px;padding:9px 0 7px;font-weight:800;font-size:17px;color:#0e2a8c;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .cs-h small{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#b0351f}
+  .cs-h.ok small{color:#1d7a3a}
   .hv-cred{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.75)}
 </style>
 </head>
@@ -752,6 +756,12 @@
       <button class="btn wide" id="saveEvent">Save event details</button>
     </div>
 
+    <div class="card">
+      <p class="eyebrow">Admin only</p>
+      <h2 class="sec">Course setup</h2>
+      <p class="muted" style="margin:0 0 12px">Set or edit the gold tee and green for each hole's Hole view map. Tap a hole to open it.</p>
+      <div class="cs-grid" id="courseSetup"></div>
+    </div>
     <div class="card">
       <p class="eyebrow">Scorecard</p>
       <h2 class="sec">Par, yards, handicap</h2>
@@ -2409,6 +2419,7 @@ function renderCup(){
    SETUP
    ========================================================== */
 function renderSetup(){
+  renderCourseSetup();
   document.getElementById('setupYear').textContent=`${year} Cup`;
   const v=(id,val)=>document.getElementById(id).value=val??'';
   v('sDate',evt.date); v('sTime',evt.time); v('sCourse',evt.course); v('sCity',evt.city);
@@ -2828,23 +2839,30 @@ function hvDraw(){
       HV.pts.length===1 ? 'Now tap the middle of the green. On a dogleg, tap the corner of the fairway first.' :
       (HV.pts.length===2?'Save, or if that was a dogleg corner, tap the green next. ':'Tap again to move the green, or Save. ')+`${Math.round(hvLen(HV.pts))} yds as drawn.`;
     bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${HV.pts.length}</b><span>Points</span></div></div>
-      <button type="button" class="hv-act" id="hvUndo">Undo</button><button type="button" class="hv-act" id="hvCancel">Cancel</button><button type="button" class="hv-act pri" id="hvSave"${HV.pts.length<2?' disabled':''}>Save</button>`;
+      <button type="button" class="hv-act" id="hvUndo">Undo</button><button type="button" class="hv-act" id="hvWipe">Clear</button><button type="button" class="hv-act" id="hvCancel">Cancel</button><button type="button" class="hv-act pri" id="hvSave"${HV.pts.length<2?' disabled':''}>Save</button>`;
     document.getElementById('hvUndo').onclick=()=>{HV.pts.pop();hvDraw();};
+    document.getElementById('hvWipe').onclick=()=>{HV.pts=[];hvDraw();};
     document.getElementById('hvCancel').onclick=()=>{HV.setup=false;hvShow();};
     document.getElementById('hvSave').onclick=hvSave;
     return;
   }
   if(path.length<2){
     msg.textContent='This hole’s map isn’t set up yet.';
-    bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Yards</span></div><div class="hv-stat"><b>${H.par}</b><span>Par</span></div></div><button type="button" class="hv-act pri" id="hvSet">Set up hole</button>`;
+    bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Yards</span></div><div class="hv-stat"><b>${H.par}</b><span>Par</span></div></div>`;
   }else{
     const gr=path[path.length-1], near=HV.me&&hvYds(HV.me,gr)<1500;
     msg.textContent = HV.moved ? '' : (near?'Drag the crosshair to see yardage from you.':'Drag the crosshair to check yardages from the gold tee.');
     bar.innerHTML=`<div class="hv-stats"><div class="hv-stat"><b>${H.yds}</b><span>Gold tees</span></div>${near?`<div class="hv-stat"><b>${Math.round(hvYds(HV.me,gr))}</b><span>You to pin</span></div>`:''}</div>
-      <button type="button" class="hv-act" id="hvClr">Reset</button><button type="button" class="hv-act" id="hvSet">Edit</button>`;
+      <button type="button" class="hv-act" id="hvClr">Reset</button>`;
     document.getElementById('hvClr').onclick=()=>{HV.tgt=null;hvDraw();};
   }
-  document.getElementById('hvSet').onclick=async()=>{ if(!(await requireAdmin())) return; HV.setup=true; HV.pts=[]; HV.tgt=null; HV.rot=0; hvDraw(); };
+}
+function renderCourseSetup(){
+  const el=document.getElementById('courseSetup'); if(!el||!evt) return;
+  const map=evt.holeMap||{};
+  el.innerHTML=evt.holes.map((h,i)=>{ const ok=(map[h.h]||[]).length>1;
+    return `<button type="button" class="cs-h ${ok?'ok':''}" data-cs="${i}">${h.h}<small>${ok?'Set':'Not set'}</small></button>`; }).join('');
+  el.querySelectorAll('[data-cs]').forEach(b=>b.onclick=async()=>{ if(!(await requireAdmin())) return; hvOpen(+b.dataset.cs,true); });
 }
 function hvShow(){
   const path=hvPath(); HV.tgt=null; HV.moved=false;
@@ -2855,12 +2873,13 @@ async function hvSave(){
   if(HV.pts.length<2) return;
   evt.holeMap=Object.assign({},evt.holeMap||{}); evt.holeMap[evt.holes[HV.h].h]=HV.pts.map(p=>[+p[0].toFixed(6),+p[1].toFixed(6)]);
   try{ await saveEvent(); toast(`Hole ${evt.holes[HV.h].h} map saved`); }catch(e){ toast('Could not save'); return; }
-  HV.setup=false; hvShow();
+  HV.setup=false; hvShow(); renderCourseSetup();
 }
-function hvOpen(){
-  HV.h=hole; HV.open=true; HV.setup=false;
+function hvOpen(h,setup){
+  HV.h=typeof h==='number'?h:hole; HV.open=true; HV.setup=false;
   document.getElementById('hv').classList.add('on'); document.body.style.overflow='hidden';
   hvShow();
+  if(setup){ HV.setup=true; HV.pts=(hvPath()||[]).map(p=>p.slice()); HV.tgt=null; HV.rot=0; hvDraw(); }
   if(navigator.geolocation&&!HV.watch) try{ HV.watch=navigator.geolocation.watchPosition(p=>{HV.me=[p.coords.latitude,p.coords.longitude];hvDraw();},()=>{},{enableHighAccuracy:true,maximumAge:5000}); }catch(e){}
 }
 function hvCloseFn(){
@@ -2869,9 +2888,10 @@ function hvCloseFn(){
 }
 (function hvWire(){
   const $=id=>document.getElementById(id);
-  $('hvBtn').onclick=hvOpen; $('hvClose').onclick=hvCloseFn;
-  $('hvPrev').onclick=()=>{ if(HV.h>0){HV.h--;HV.setup=false;hvShow();} };
-  $('hvNext').onclick=()=>{ if(HV.h<17){HV.h++;HV.setup=false;hvShow();} };
+  $('hvBtn').onclick=()=>hvOpen(); $('hvClose').onclick=hvCloseFn;
+  const hvGo=d=>{ const n=HV.h+d; if(n<0||n>17) return; const st=HV.setup; HV.h=n; HV.setup=false; hvShow();
+    if(st){ HV.setup=true; HV.pts=(hvPath()||[]).map(p=>p.slice()); HV.rot=0; hvDraw(); } };
+  $('hvPrev').onclick=()=>hvGo(-1); $('hvNext').onclick=()=>hvGo(1);
   $('hvIn').onclick=()=>{HV.z=Math.min(20,HV.z+0.5);hvDraw();};
   $('hvOut').onclick=()=>{HV.z=Math.max(13,HV.z-0.5);hvDraw();};
   const m=$('hvMap'); const pts=new Map();
