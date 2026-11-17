@@ -305,33 +305,30 @@
   .ace-win small{font-size:12px;color:rgba(7,22,71,.65)}
   .ace-win .ace-flag{margin-left:auto;font-size:22px}
   .claim-log.beaten .cl-row.lead{background:var(--paper);color:rgba(7,22,71,.6);font-weight:500;text-decoration:line-through}
-  .leaders{background:#fff;border:3px solid #0b5d36;border-radius:16px 16px 10px 10px;margin-bottom:14px;box-shadow:0 8px 20px -14px rgba(7,22,71,.5);overflow:hidden}
-  .ld-top{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 10px 6px;border-bottom:2px solid #0b5d36;background:linear-gradient(#fff,#f3f6f1)}
-  .ld-top svg{width:34px;height:34px}
-  .ld-cup{font-family:var(--num);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#0b5d36;font-weight:700;text-align:center}
-  .ld-title{font-family:var(--display);font-size:26px;letter-spacing:.12em;color:#0b2e1c;line-height:1;font-weight:700}
-  .ld-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table.ld{border-collapse:collapse;font-family:var(--num);font-size:13px;min-width:100%}
-  table.ld th,table.ld td{border:1px solid #d6dfd8;text-align:center;padding:0;height:30px;min-width:26px;color:#0b2e1c}
-  table.ld thead th{font-weight:800;background:#f3f6f1;font-size:12px}
-  table.ld .ld-par th{font-weight:700;color:#0b5d36}
-  table.ld .ld-name{position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:0 7px;min-width:0;white-space:nowrap;font-family:var(--display);font-size:12px;letter-spacing:.02em;font-weight:700;border-right:2px solid #0b5d36}
-  table.ld .ld-name span{color:#9aa7a0;margin:0 2px;font-weight:400}
-  table.ld thead .ld-name{background:#f3f6f1}
-  table.ld .ld-pos{min-width:30px;font-weight:800;color:#0b5d36}
-  table.ld tr.lead .ld-name,table.ld tr.lead td.ld-pos{background:#fff4d6}
-  table.ld .ld-tp{min-width:38px;font-weight:800;border-left:2px solid #0b5d36}
+  .leaders{--ld:#0e2a8c;background:#fff;border:3px solid var(--ld);border-top:none;border-radius:0 0 8px 8px;margin:44px 0 14px;position:relative;box-shadow:0 10px 22px -16px rgba(7,22,71,.55)}
+  .ld-arch{position:absolute;left:-3px;right:-3px;top:-46px;height:48px;border:3px solid var(--ld);border-bottom:none;border-radius:50% 50% 0 0 / 100% 100% 0 0;background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;padding-top:6px}
+  .ld-logo{width:26px;height:26px}
+  .ld-title{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.14em;color:var(--ld);line-height:1}
+  table.ld{width:100%;table-layout:fixed;border-collapse:collapse;font-family:var(--num)}
+  table.ld .c-pos{width:5%} table.ld .c-name{width:19.5%} table.ld .c-h{width:3.8%} table.ld .c-tp{width:7.1%}
+  table.ld th,table.ld td{border:1px solid #c9d3ea;text-align:center;padding:0;height:24px;color:var(--ld);font-size:10px;font-weight:700}
+  table.ld thead tr:first-child th{border-top:2px solid var(--ld)}
+  table.ld thead th{background:#eef2fb}
+  table.ld .ld-par th{border-bottom:2px solid var(--ld)}
+  table.ld .ld-name{text-align:left;padding:0 3px;border-right:2px solid var(--ld);font-family:var(--display);font-size:8.2px;line-height:1.05;letter-spacing:0;white-space:nowrap}
+  table.ld .ld-name span{display:block;overflow:hidden;text-overflow:ellipsis}
+  table.ld .ld-hd{font-size:10px;letter-spacing:.08em}
+  table.ld .ld-pos{font-size:9.5px}
+  table.ld tbody tr{height:26px}
+  table.ld tr.lead th,table.ld tr.lead td{background:#fff4d6}
+  table.ld .ld-tp{border-left:2px solid var(--ld);font-size:10.5px}
   table.ld .ld-tp.under{color:#c8102e}
-  table.ld .ld-thru{min-width:34px;font-size:11.5px;color:#556}
-  .ld-s{display:inline-grid;place-items:center;width:21px;height:21px;font-weight:700;font-style:normal;line-height:1}
-  .ld-s.bd{border:1.6px solid #c8102e;border-radius:50%;color:#c8102e}
-  .ld-s.eg{border:1.6px solid #c8102e;border-radius:50%;color:#c8102e;box-shadow:0 0 0 2px #fff,0 0 0 3.6px #c8102e}
-  .ld-s.pr{color:#0b2e1c}
-  .ld-s.bg{border:1.6px solid #0e2a8c;color:#0e2a8c}
-  .ld-s.db{border:1.6px solid #0e2a8c;color:#0e2a8c;box-shadow:0 0 0 2px #fff,0 0 0 3.6px #0e2a8c}
-  .ld-key{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;padding:8px 8px 10px;font-size:11px;color:#556;border-top:1px solid #d6dfd8}
-  .ld-key span{display:flex;align-items:center;gap:5px}
-  .ld-key .ld-s{width:18px;height:18px;font-size:10.5px}
+  .ld-s{display:inline-grid;place-items:center;width:12px;height:12px;font-style:normal;font-weight:700;font-size:9px;line-height:1}
+  .ld-s.bd{border:1.2px solid #c8102e;border-radius:50%;color:#c8102e}
+  .ld-s.eg{border:1.2px solid #c8102e;border-radius:50%;color:#c8102e;box-shadow:0 0 0 1px #fff,0 0 0 2px #c8102e}
+  .ld-s.pr{color:var(--ld)}
+  .ld-s.bg{border:1.2px solid var(--ld)}
+  .ld-s.db{border:1.2px solid var(--ld);box-shadow:0 0 0 1px #fff,0 0 0 2px var(--ld)}
   .ftin{display:flex;gap:5px;flex:0 0 auto}
   .ftin select{border:1.5px solid var(--line);border-radius:10px;padding:9px 6px;background:var(--white);font-family:var(--num);font-weight:600;font-size:15px;color:var(--ink);min-width:58px}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,140,.12)}
@@ -1780,24 +1777,25 @@ function renderLeaders(rows){
   const H=evt.holes;
   const mark=(v,i)=>{ if(v===null||v===undefined) return '<td></td>';
     const d=v-parAt(i), cls=d<=-2?'eg':d===-1?'bd':d===0?'pr':d===1?'bg':'db';
-    return `<td><span class="ld-s ${cls}">${v}</span></td>`; };
+    return `<td><i class="ld-s ${cls}">${v}</i></td>`; };
   const body=rows.map(r=>{
-    const c=r.c||{s:[]}, tp=r.thru?fmtPar(r.tp):'–';
-    return `<tr class="${r.pos===1?'lead':''}">
+    const c=r.c||{s:[]};
+    return `<tr class="${r.pos===1&&r.thru?'lead':''}">
       <td class="ld-pos">${r.thru?(r.tied?'T':'')+r.pos:''}</td>
-      <th class="ld-name">${esc(last(r.t.a))}<span>/</span>${esc(last(r.t.b))}</th>
+      <th class="ld-name"><span>${esc(last(r.t.a))}</span><span>${esc(last(r.t.b))}</span></th>
       ${H.map((h,i)=>mark(c.s[i],i)).join('')}
-      <td class="ld-tp ${r.tp<0?'under':r.tp>0?'over':''}">${tp}</td>
-      <td class="ld-thru">${r.signed?'F':r.thru||''}</td></tr>`;
+      <td class="ld-tp ${r.tp<0?'under':''}">${r.thru?fmtPar(r.tp):''}</td></tr>`;
   }).join('');
   el.innerHTML=`<div class="leaders">
-    <div class="ld-top"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="#0e2a8c" stroke-width="6"/><line x1="50" y1="30" x2="50" y2="62" stroke="#0e2a8c" stroke-width="4" stroke-linecap="round"/><path d="M50 31 C58 33 62 38 70 35 C64 41 63 44 50 44 Z" fill="#D5202F"/><ellipse cx="50" cy="64" rx="7" ry="2.6" fill="none" stroke="#0e2a8c" stroke-width="3"/></svg>
-      <div><div class="ld-cup">Kimbell Cup</div><div class="ld-title">Leaders</div></div></div>
-    <div class="ld-wrap"><table class="ld">
-      <thead><tr><th class="ld-pos">Pos</th><th class="ld-name">Hole</th>${H.map(h=>`<th>${h.h}</th>`).join('')}<th class="ld-tp">Tot</th><th class="ld-thru">Thru</th></tr>
-      <tr class="ld-par"><th></th><th class="ld-name">Par</th>${H.map(h=>`<th>${h.par}</th>`).join('')}<th class="ld-tp">${H.reduce((x,h)=>x+h.par,0)}</th><th></th></tr></thead>
-      <tbody>${body}</tbody></table></div>
-    <div class="ld-key"><span><i class="ld-s eg">3</i>Eagle</span><span><i class="ld-s bd">3</i>Birdie</span><span><i class="ld-s pr">4</i>Par</span><span><i class="ld-s bg">5</i>Bogey</span><span><i class="ld-s db">6</i>Double+</span></div>
+    <div class="ld-arch">
+      <svg class="ld-logo" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="22" width="56" height="56" rx="9" transform="rotate(45 50 50)" fill="none" stroke="#0e2a8c" stroke-width="6"/><line x1="50" y1="30" x2="50" y2="62" stroke="#0e2a8c" stroke-width="4" stroke-linecap="round"/><path d="M50 31 C58 33 62 38 70 35 C64 41 63 44 50 44 Z" fill="#D5202F"/><ellipse cx="50" cy="64" rx="7" ry="2.6" fill="none" stroke="#0e2a8c" stroke-width="3"/></svg>
+      <div class="ld-title">LEADERS</div>
+    </div>
+    <table class="ld">
+      <colgroup><col class="c-pos"><col class="c-name">${H.map(()=>'<col class="c-h">').join('')}<col class="c-tp"></colgroup>
+      <thead><tr><th></th><th class="ld-name ld-hd">HOLE</th>${H.map(h=>`<th>${h.h}</th>`).join('')}<th class="ld-tp">TOT</th></tr>
+      <tr class="ld-par"><th></th><th class="ld-name ld-hd">PAR</th>${H.map(h=>`<th>${h.par}</th>`).join('')}<th class="ld-tp">${H.reduce((x,h)=>x+h.par,0)}</th></tr></thead>
+      <tbody>${body}</tbody></table>
   </div>`;
 }
 function renderBoard(){
