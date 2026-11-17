@@ -6,7 +6,7 @@ A single static HTML file. No build step, no dependencies, no framework. Open `i
 
 ## What it does
 
-- **Card** — hole-by-hole scramble scoring, one gross score per hole, with drive-used and mulligan tracking per player
+- **Card** — hole-by-hole scramble scoring, one gross score per hole, with mulligan tracking per player
 - **Board** — live leaderboard across the field, ties broken by regression on hole handicap
 - **Prizes** — four closest-to-the-pin holes, long drive, putting contest
 - **Cup** — champions by year, record book, format, course card, pairings

@@ -480,12 +480,6 @@
         <div class="quick" id="quick"></div>
         <div class="sub">
           <div class="sub-row">
-            <span class="sub-lbl">Drive used</span>
-            <button class="toggle" data-drive="0" id="drv0"></button>
-            <button class="toggle" data-drive="1" id="drv1"></button>
-            <span class="muted" id="drvCount" style="margin-left:auto"></span>
-          </div>
-          <div class="sub-row">
             <span class="sub-lbl">Mulligan</span>
             <button class="toggle" data-mull="0" id="mul0"></button>
             <button class="toggle" data-mull="1" id="mul1"></button>
@@ -1145,13 +1139,6 @@ function renderHole(){
   });
 
   const t=teamOf(myTeam)||{a:'P1',b:'P2'};
-  [0,1].forEach(i=>{
-    const el=document.getElementById('drv'+i);
-    el.textContent=first(i===0?t.a:t.b);
-    el.classList.toggle('on',card.d[hole]===i);
-  });
-  document.getElementById('drvCount').textContent =
-    `${first(t.a)} ${card.d.filter(x=>x===0).length} · ${first(t.b)} ${card.d.filter(x=>x===1).length}`;
   [0,1].forEach(i=>{
     const el=document.getElementById('mul'+i), nm=first(i===0?t.a:t.b);
     el.textContent = card.m[i] ? `${nm} used` : `${nm} available`;
@@ -2248,10 +2235,6 @@ function openLightbox(src,cap){
   document.getElementById('lbCap').textContent=cap||'';
   document.getElementById('lightbox').classList.add('on');
 }
-document.querySelectorAll('[data-drive]').forEach(b=>b.onclick=()=>{
-  if(isFinal()) return toast('Year is locked');
-  const i=+b.dataset.drive; card.d[hole]=card.d[hole]===i?null:i; queueSave(); renderHole();
-});
 document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
   if(isFinal()) return toast('Year is locked');
   const i=+b.dataset.mull; card.m[i]=!card.m[i]; queueSave(); renderHole();
