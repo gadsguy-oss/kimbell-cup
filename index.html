@@ -549,7 +549,8 @@
   .cs-h.ok small{color:#1d7a3a}
   .cs-club{grid-column:1/-1;font-size:15px}
   .wb-map{position:relative;height:440px;margin:12px -4px 0;border-radius:16px;overflow:hidden;touch-action:none;background:#2c3d22}
-  .wb-tm{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;pointer-events:none;transition:left .6s,top .6s}
+  .wb-tm{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;pointer-events:none;transition:left 2.5s linear,top 2.5s linear}
+  .wb-tm.nomove{transition:none}
   .wb-tm .av-pair{background:#fff;border-radius:999px;padding:2px;box-shadow:0 3px 10px rgba(0,0,0,.45);zoom:var(--wbz,.5)}
   .wb-tm b{margin-top:2px;background:rgba(14,42,140,.92);color:#fff;font-size:calc(15px * var(--wbz,.5));font-weight:800;letter-spacing:.03em;padding:2px 5px;border-radius:7px;white-space:nowrap}
   .wb-tm.gps b{background:#1d7a3a}
@@ -2601,7 +2602,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>{
     if(tab==='contests') renderContests();
     if(tab==='cup') renderCup();
     if(tab==='setup') renderSetup();
-    if(tab==='board') wbRefresh();
+    if(tab==='board'){ wbFieldAt=0; wbRefresh(); }
   };
 });
 
@@ -3076,19 +3077,28 @@ function renderWhere(){
     const n=placed.filter(q=>q.gps===P.gps&&Math.hypot(q.ax-ax,q.ay-ay)<26).length;
     if(P.gps) gps++;
     placed.push({t,ax,ay,x:ax,y:P.gps?ay-n*WB.step:ay+n*Math.round(WB.step*.62),gps:P.gps,done:!!P.done}); });
-  document.getElementById('wbTeams').innerHTML=placed.map(q=>`<div class="wb-tm ${q.gps?'gps':'side'}${q.done?' done':''}" style="left:${q.x.toFixed(1)}px;top:${q.y.toFixed(1)}px">${avPair(q.t,'sm')}<b>${esc(last(q.t.a))}/${esc(last(q.t.b))}</b></div>`).join('');
+  /* keep one element per team so moves glide instead of jumping */
+  const box=document.getElementById('wbTeams'), seen=new Set();
+  placed.forEach(q=>{ const id=String(q.t.id); seen.add(id);
+    let el=box.querySelector(`[data-tm="${id}"]`);
+    if(!el){ el=document.createElement('div'); el.dataset.tm=id; el.innerHTML=`${avPair(q.t,'sm')}<b>${esc(last(q.t.a))}/${esc(last(q.t.b))}</b>`;
+      el.style.left=q.x.toFixed(1)+'px'; el.style.top=q.y.toFixed(1)+'px'; box.appendChild(el); }
+    el.className=`wb-tm ${q.gps?'gps':'side'}${q.done?' done':''}${WB.drag?' nomove':''}`;
+    el.style.left=q.x.toFixed(1)+'px'; el.style.top=q.y.toFixed(1)+'px'; });
+  box.querySelectorAll('[data-tm]').forEach(el=>{ if(!seen.has(el.dataset.tm)) el.remove(); });
   const note=document.getElementById('wbNote');
   note.innerHTML = !wbPts().length ? 'The course map fills in once the holes are set up.' :
     `<i style="background:#1d7a3a"></i>Live GPS &nbsp; <i style="background:#0e2a8c"></i>On the tee of their next hole &nbsp; <i style="background:#c9a227"></i>Finished${done.length?` &nbsp;·&nbsp; In the clubhouse: ${done.map(t=>esc(last(t.a))+'/'+esc(last(t.b))).join(', ')}`:''}`;
 }
+let wbFieldAt=0;
 async function wbRefresh(){
-  if(!evt||!document.getElementById('v-board').classList.contains('on')) return;
+  if(!evt||document.hidden||!document.getElementById('v-board').classList.contains('on')) return;
   if(store.server){ try{ const r=await fetch(API+'?hash='+encodeURIComponent('kc:loc:'+year),{cache:'no-store'}); const j=await r.json();
       const L={}; Object.entries(j.values||{}).forEach(([k,v])=>{ try{ L[k]=JSON.parse(v); }catch(e){} }); WB.locs=L; }catch(e){} }
-  try{ await loadField(); }catch(e){}
+  if(Date.now()-wbFieldAt>30e3){ wbFieldAt=Date.now(); try{ await loadField(); }catch(e){} }
   renderWhere();
 }
-setInterval(wbRefresh,45e3);
+setInterval(wbRefresh,8e3);
 (function wbWire(){
   const $=id=>document.getElementById(id), m=$('wbMap'); if(!m) return;
   $('wbIn').onclick=()=>{WB.z=Math.min(19.5,WB.z+0.6);renderWhere();};
@@ -3118,10 +3128,12 @@ function wbSendTick(){
   if(WBS.watch!=null || !store.server || !myTeam || !wbEventDay() || !navigator.geolocation) return;
   try{ WBS.watch=navigator.geolocation.watchPosition(p=>{
     const ll=[p.coords.latitude,p.coords.longitude], pts=wbPts(), ctr=pts.length?pts[0]:HV_HOME;
-    if(hvYds(ll,ctr)>3500 || Date.now()-WBS.last<50e3 || !myTeam) return;
-    WBS.last=Date.now();
+    if(hvYds(ll,ctr)>3500 || !myTeam) return;
+    const since=Date.now()-WBS.last, moved=WBS.ll?hvYds(ll,WBS.ll):1e9;
+    if(since<6e3 || (moved<6 && since<45e3)) return;   // ~every 6s while moving, every 45s when parked
+    WBS.last=Date.now(); WBS.ll=ll;
     store.post({action:'loc',year,team:myTeam,code:store.teamCode(year,myTeam)||undefined,admin:store.auth.admin||undefined,la:ll[0],lo:ll[1]}).catch(()=>{});
-  },()=>{},{enableHighAccuracy:true,maximumAge:20000}); }catch(e){}
+  },()=>{},{enableHighAccuracy:true,maximumAge:3000}); }catch(e){}
 }
 setInterval(wbSendTick,60e3); setTimeout(wbSendTick,4000);
 </script>
