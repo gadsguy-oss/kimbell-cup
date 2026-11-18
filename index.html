@@ -560,10 +560,9 @@
   .wb-note i{display:inline-block;width:9px;height:9px;border-radius:3px;margin:0 4px 0 2px;vertical-align:-1px}
   .hv-cred{position:absolute;left:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.75)}
   .sp-title{font-family:'Pacifico',cursive;font-size:30px;line-height:1.2;color:#0e2a8c;text-align:center;margin:2px 0 16px}
-  .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .sp-tile{background:#fff;border:1px solid #e3e7f3;border-radius:14px;height:108px;display:flex;align-items:center;justify-content:center;padding:10px}
-  .sp-tile:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 5px)}
-  .sp-tile img{display:block;object-fit:contain;max-width:100%;max-height:100%}
+  .sp-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:22px 26px;padding:4px 0 8px}
+  .sp-logo{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .sp-logo img{display:block;object-fit:contain;max-width:100%}
 </style>
 </head>
 <body>
@@ -766,13 +765,13 @@
       <div style="overflow-x:auto"><table class="sc" id="scorecard"></table></div>
     </div>
     <div class="card sp-card">
-      <p class="sp-title">A special thanks to:</p>
+      <p class="sp-title">A Special Thanks to:</p>
       <div class="sp-grid">
-        <div class="sp-tile"><img src="/img/sponsors/marketing-school.png" alt="The Marketing School" style="width:150px;height:31px" loading="lazy"></div>
-        <div class="sp-tile"><img src="/img/sponsors/harbin.png" alt="Harbin Insurance · Investments · Innovation" style="width:88px;height:61px" loading="lazy"></div>
-        <div class="sp-tile"><img src="/img/sponsors/arcus-cpa.png" alt="Arcus CPA" style="width:115px;height:47px" loading="lazy"></div>
-        <div class="sp-tile"><img src="/img/sponsors/busbin-tree-farm.jpg" alt="Busbin Family Tree Farm" style="width:73px;height:73px" loading="lazy"></div>
-        <div class="sp-tile"><img src="/img/sponsors/thread-craft.png" alt="Thread Craft" style="width:97px;height:56px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/marketing-school.png" alt="The Marketing School" style="width:168px;height:34px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/harbin.png" alt="Harbin Insurance · Investments · Innovation" style="width:123px;height:85px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/arcus-cpa.png" alt="Arcus CPA" style="width:161px;height:65px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/busbin-tree-farm.jpg" alt="Busbin Family Tree Farm" style="width:102px;height:102px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/thread-craft.png" alt="Thread Craft" style="width:136px;height:77px" loading="lazy"></div>
       </div>
     </div>
   </section>
