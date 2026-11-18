@@ -1297,7 +1297,12 @@ async function unlockTeam(id){
   if(!r.ok){ toast('That code is not right'); return false; }
   store.setTeamCode(year,id,entered.trim().toUpperCase());
   toast('Card unlocked');
+  askLocation();                                 // phone's "Allow location?" prompt right after the code
   return true;
+}
+function askLocation(){
+  if(!navigator.geolocation) return;
+  try{ navigator.geolocation.getCurrentPosition(()=>{ try{wbSendTick();}catch(e){} },()=>{},{enableHighAccuracy:true,timeout:15000,maximumAge:60000}); }catch(e){}
 }
 async function chooseTeam(id){
   if(!(await unlockTeam(id))) return;
