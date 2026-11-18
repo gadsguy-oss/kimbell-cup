@@ -235,6 +235,7 @@
   .np-row .np-n{flex:1}
   .np-row.on .np-n::after{content:" ✓";color:var(--navy)}
   .course-card{position:relative}
+  .card-course-logo{display:block;width:150px;height:auto;margin:22px auto 4px}
   .course-card .course-logo{position:absolute;top:14px;right:14px;width:118px;height:auto;pointer-events:none}
   .course-card .eyebrow,.course-card .sec,.course-card #courseSub{padding-right:126px}
   .post-stats{margin-top:20px}
@@ -609,7 +610,7 @@
           <div>
             <div class="hole-num" id="holeNum">1</div>
             <div class="hole-meta" id="holeMeta"></div>
-            <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>Hole view</button>
+            <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>GPS Hole View</button>
           </div>
           <div class="nav-arrows">
             <button class="arrow" id="prevHole" aria-label="Previous hole">‹</button>
@@ -645,6 +646,7 @@
         <div class="grid18" id="front"></div>
         <div class="nine-lbl"><span>Back nine</span><b id="inTot">–</b></div>
         <div class="grid18" id="back"></div>
+        <img class="card-course-logo" src="/img/river-forest.png" alt="River Forest">
         <div class="btn-row">
           <button class="btn ghost wide" id="switchTeam">Change team</button>
         </div>
@@ -685,10 +687,6 @@
       <h2 class="sec">Contest holes</h2>
       <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin. No mulligans on the tee shot of a contest hole.</p>
       <div id="contestList"></div>
-      <div id="ctpAdmin">
-        <p class="muted" style="font-size:12px;margin:12px 0 0">Admin: tap a par 3 to change which holes carry closest-to-the-pin.</p>
-        <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"></div>
-      </div>
     </div>
 
     <div class="card">
@@ -814,6 +812,12 @@
       <h2 class="sec">Course setup</h2>
       <p class="muted" style="margin:0 0 12px">Set or edit the gold tee and green for each hole's Hole view map. Tap a hole to open it.</p>
       <div class="cs-grid" id="courseSetup"></div>
+    </div>
+    <div class="card" id="ctpAdmin">
+      <p class="eyebrow">Admin only</p>
+      <h2 class="sec">Closest-to-the-pin holes</h2>
+      <p class="muted" style="margin:0 0 12px">Tap a par 3 to turn its closest-to-the-pin contest and prizes on or off.</p>
+      <div id="ctpPicker" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     </div>
     <div class="card">
       <p class="eyebrow">Scorecard</p>
@@ -2084,7 +2088,6 @@ function renderContests(){
   wrap.querySelectorAll('.cl-x').forEach(b=>{ b.onclick=()=>removeClaim(b.dataset.slot,+b.dataset.at); });
 
   /* --- admin: which par 3s carry CTP --- */
-  document.getElementById('ctpAdmin').style.display = isAdminHere() ? '' : 'none';
   const pick=document.getElementById('ctpPicker');
   pick.innerHTML=par3s().map(h=>`<button class="toggle ${evt.ctpHoles.includes(h)?'on':''}" data-par3="${h}">Hole ${h}</button>`).join('')
     || '<span class="muted">No par 3s on this scorecard yet.</span>';
