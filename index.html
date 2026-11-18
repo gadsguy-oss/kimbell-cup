@@ -683,7 +683,7 @@
     <div class="card">
       <p class="eyebrow">Win a prize ball</p>
       <h2 class="sec">Contest holes</h2>
-      <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin. No mulligans on contest holes.</p>
+      <p class="muted" style="margin:0 0 14px">Put your name up when you beat the mark. Shortest distance holds the pin. No mulligans on the tee shot of a contest hole.</p>
       <div id="contestList"></div>
       <div id="ctpAdmin">
         <p class="muted" style="font-size:12px;margin:12px 0 0">Admin: tap a par 3 to change which holes carry closest-to-the-pin.</p>
@@ -1357,9 +1357,9 @@ function renderHole(){
   const t=teamOf(myTeam)||{a:'P1',b:'P2'};
   [0,1].forEach(i=>{
     const el=document.getElementById('mul'+i), nm=first(i===0?t.a:t.b);
-    const mh=(card.mh||[])[i], noMul=!card.m[i]&&isContestHole(H.h);
-    el.textContent = card.m[i] ? `${nm} used${Number.isInteger(mh)?' · #'+evt.holes[mh].h:''}` : noMul ? `${nm} · not on this hole` : `${nm} available`;
-    el.classList.toggle('spent',card.m[i]); el.classList.toggle('nomul',noMul);
+    const mh=(card.mh||[])[i], teeOnly=!card.m[i]&&isContestHole(H.h);
+    el.textContent = card.m[i] ? `${nm} used${Number.isInteger(mh)?' · #'+evt.holes[mh].h:''}` : teeOnly ? `${nm} available · not off the tee` : `${nm} available`;
+    el.classList.toggle('spent',card.m[i]); el.classList.remove('nomul');
   });
 }
 /* Strip on the hole card itself when you're standing on a contest hole */
@@ -1372,7 +1372,7 @@ function renderContestStrip(H){
     ${hio&&hio.img?`<img src="${esc(hio.img)}" alt="">`:`<span class="cstrip-ic">${ld?'🏌️':'⛳'}</span>`}
     <span><b>Contest hole · ${esc(what)}</b>
     ${hio?`Ace wins: ${esc(hio.prize)}`:(ld?'Longest drive in the fairway takes it':'Closest ball to the pin takes it')}
-    <small>No mulligans on contest holes · tap for details</small></span></button>`;
+    <small>No mulligan on the tee shot · tap for details</small></span></button>`;
   el.querySelector('[data-pop]').onclick=()=>openContestPop(H.h,false);
 }
 
@@ -1400,7 +1400,7 @@ function openContestPop(h,upNext){
     }
     if(ctp) html+=`<p class="pop-text">Closest to the pin wins a prize ball. Mark your distance on the Prizes tab.</p>`;
   }
-  html+=`<p class="pop-rule">Mulligans can't be used on contest holes.</p>`;
+  html+=`<p class="pop-rule">Mulligans can't be used on the tee shot of a contest hole.</p>`;
   box.innerHTML=html;
   document.getElementById('pop').classList.add('on');
   document.getElementById('popGo').focus();
@@ -2457,7 +2457,7 @@ function renderCup(){
     <li><strong>2-man scramble, 18 holes.</strong> Both players hit, take the best ball, both play from there. One gross score per hole.</li>
     <li><strong>${esc(evt.tee||'')} tees</strong> — par ${coursePar()}, ${(+evt.yards||0).toLocaleString()} yards, slope ${esc(evt.slope||'—')}.</li>
     <li><strong>Breakfast ball</strong> off the 1st if you want it.</li>
-    <li><strong>One mulligan per player</strong> — not on the green, not on a contest hole.</li>
+    <li><strong>One mulligan per player</strong> — not on the green, not on the tee shot of a contest hole.</li>
     <li><strong>Contests:</strong> closest to the pin + hole-in-one on every par 3 (${evt.ctpHoles.slice().sort((a,b)=>a-b).join(', ')}), long drive on ${evt.ldHole}. Winners draw a prize ball.</li>
     <li><strong>One club length</strong> of movement, no closer to the hole and no change in lie conditions.</li>
     <li><strong>Winter rules.</strong> Leaf rule applies if everyone agrees on the exact spot.</li>
@@ -2664,9 +2664,8 @@ function openLightbox(src,cap){
 document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
   if(isFinal()) return toast('Year is locked');
   const i=+b.dataset.mull; card.mh=card.mh||[null,null];
-  if(!card.m[i] && isContestHole(evt.holes[hole].h)) return toast('No mulligans on contest holes (par 3s and #'+(+evt.ldHole||10)+')');
   card.m[i]=!card.m[i]; card.mh[i]=card.m[i]?hole:null; queueSave(); renderHole(); renderGrid();
-  toast(card.m[i]?`Mulligan spent on #${evt.holes[hole].h}`:'Mulligan back in the bag');
+  toast(card.m[i]?`Mulligan spent on #${evt.holes[hole].h}`+(isContestHole(evt.holes[hole].h)?' (not the tee shot)':''):'Mulligan back in the bag');
 });
 document.getElementById('npCancel').onclick=closeNamePick;
 document.getElementById('clName').onclick=e=>openNamePick(e.currentTarget);
