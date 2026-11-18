@@ -122,7 +122,7 @@
   .under{color:var(--red)} .over{color:var(--ink)} .even{color:var(--navy)}
 
   .grid18{display:grid;grid-template-columns:repeat(9,1fr);gap:4px}
-  .cell{border:1.5px solid var(--line);background:var(--white);border-radius:8px;padding:5px 0 4px;text-align:center;font-family:var(--num)}
+  .cell{position:relative;border:1.5px solid var(--line);background:var(--white);border-radius:8px;padding:5px 0 4px;text-align:center;font-family:var(--num)}
   .cell .h{font-size:9.5px;color:rgba(7,22,71,.45);font-weight:600;line-height:1}
   .cell .s{font-size:19px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
   .cell .s.blank{color:rgba(7,22,71,.18)}
@@ -160,7 +160,7 @@
   .tc-hd b{margin-left:auto;font-family:var(--display);font-size:17px;color:var(--ink);letter-spacing:0}
   .tc-hd small{font-size:10px}
   .tc-row{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}
-  .tc-h{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--tint);border-radius:8px;padding:4px 0 5px}
+  .tc-h{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--tint);border-radius:8px;padding:4px 0 5px}
   .tc-num{font-family:var(--num);font-size:10.5px;font-weight:700;color:var(--navy)}
   .tc-par{font-family:var(--num);font-size:9.5px;color:rgba(7,22,71,.45)}
   .tc-sc{display:inline-grid;place-items:center;min-width:22px;height:22px;font-family:var(--display);font-weight:700;font-size:14px;line-height:1;color:var(--ink);border:1.5px solid transparent;font-variant-numeric:tabular-nums}
@@ -566,6 +566,11 @@
   .sp-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:22px 26px;padding:4px 0 8px}
   .sp-logo{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
   .sp-logo img{display:block;object-fit:contain;max-width:100%}
+  .mul-m{position:absolute;top:2px;right:3px;font-style:normal;font-weight:800;font-size:10px;line-height:1;color:#c8102e;font-family:var(--num)}
+  .toggle.nomul{opacity:.45}
+  .ld-tip .pop-card{border-top-color:#c8102e}
+  .ld-tip p{margin:8px 0 16px;font-size:16px;line-height:1.45;color:var(--navy,#0e2a8c)}
+  .sp-grid{display:grid !important;grid-template-columns:1fr 1fr;justify-items:center;align-items:center;gap:26px 10px}
 </style>
 </head>
 <body>
@@ -915,6 +920,14 @@
   </div>
 </div>
 
+<div class="pop ld-tip" id="ldTip" role="dialog" aria-modal="true" aria-label="How to measure your drive" style="z-index:95">
+  <div class="pop-card">
+    <p class="pop-eyebrow">Long drive · Hole #<span id="ldTipHole">10</span></p>
+    <h3 class="pop-title">How to measure</h3>
+    <p id="ldTipText"></p>
+    <button type="button" class="btn wide" id="ldTipOk">Got it</button>
+  </div>
+</div>
 <div class="pop" id="claimSheet" role="dialog" aria-modal="true" aria-label="Claim a contest">
   <div class="pop-card cl-card">
     <div class="cl-stage" id="clStage"><span id="clArt"></span></div>
@@ -1138,7 +1151,7 @@ function relLabel(v,par){
   if(d<=-3) return 'Albatross'; if(d===-2) return 'Eagle'; if(d===-1) return 'Birdie';
   if(d===0) return 'Par'; if(d===1) return 'Bogey'; if(d===2) return 'Double'; return '+'+d;
 }
-function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],ts:Array(18).fill(0),sg:0,u:0}; }
+function blankCard(id){ return {t:id,s:Array(18).fill(null),d:Array(18).fill(null),m:[false,false],mh:[null,null],ts:Array(18).fill(0),sg:0,u:0}; }
 function blankContest(){ return {ctp:{},hio:{},ld:{name:'',yds:''},putt:{name:'',loser:''},claims:{},draw:{picks:[]},u:0}; }
 function normContest(o){
   const c=Object.assign(blankContest(),o||{});
@@ -1240,6 +1253,7 @@ function safeCard(o,id){
   if(Array.isArray(o.s)) o.s.forEach((v,i)=>{ if(i<18) c.s[i]= typeof v==='number'?v:null; });
   if(Array.isArray(o.d)) o.d.forEach((v,i)=>{ if(i<18) c.d[i]=v; });
   if(Array.isArray(o.m)) c.m=[!!o.m[0],!!o.m[1]];
+  if(Array.isArray(o.mh)) c.mh=[0,1].map(k=>Number.isInteger(o.mh[k])&&o.mh[k]>=0&&o.mh[k]<18&&c.m[k]?o.mh[k]:null);
   if(Array.isArray(o.ts)) o.ts.forEach((v,i)=>{ if(i<18) c.ts[i]=+v||0; });
   c.sg=+o.sg||0; c.u=o.u||0; return c;
 }
@@ -1343,8 +1357,9 @@ function renderHole(){
   const t=teamOf(myTeam)||{a:'P1',b:'P2'};
   [0,1].forEach(i=>{
     const el=document.getElementById('mul'+i), nm=first(i===0?t.a:t.b);
-    el.textContent = card.m[i] ? `${nm} used` : `${nm} available`;
-    el.classList.toggle('spent',card.m[i]);
+    const mh=(card.mh||[])[i], noMul=!card.m[i]&&isContestHole(H.h);
+    el.textContent = card.m[i] ? `${nm} used${Number.isInteger(mh)?' · #'+evt.holes[mh].h:''}` : noMul ? `${nm} · not on this hole` : `${nm} available`;
+    el.classList.toggle('spent',card.m[i]); el.classList.toggle('nomul',noMul);
   });
 }
 /* Strip on the hole card itself when you're standing on a contest hole */
@@ -1430,7 +1445,7 @@ function renderGrid(){
       const H=evt.holes[i], v=card.s[i], d=v===null?null:v-H.par;
       const b=document.createElement('button');
       b.className='cell'+(i===hole?' cur':'')+(d===-1?' bird':'')+(d!==null&&d<=-2?' eag':'');
-      b.innerHTML=`<div class="h">${H.h}</div><div class="s ${v===null?'blank':''}">${v===null?'·':v}</div>`;
+      b.innerHTML=`<div class="h">${H.h}</div><div class="s ${v===null?'blank':''}">${v===null?'·':v}</div>${(card.mh||[]).includes(i)?'<i class="mul-m">M</i>':''}`;
       b.onclick=()=>{ hole=i; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); };
       g.appendChild(b);
     }
@@ -1777,7 +1792,8 @@ function teamCardHTML(r){
     const cells=hs.map((H,i)=>{
       const v=s[from+i], res=resultOf(v,H.par); par+=H.par;
       if(v!==null&&v!==undefined){ tot+=v; n++; tally[res.cls]=(tally[res.cls]||0)+1; }
-      return `<div class="tc-h">
+      const mm=(r.c.mh||[]).includes(from+i);
+      return `<div class="tc-h">${mm?'<i class="mul-m">M</i>':''}
         <span class="tc-num">${H.h}</span>
         <span class="tc-par">${H.par}</span>
         <span class="tc-sc ${res?res.cls:'none'}" title="${res?res.name:'Not played'}">${v??'·'}</span>
@@ -2235,7 +2251,12 @@ function openClaim(slot,h){
       <select id="clIn" aria-label="Inches">${Array.from({length:12},(_,i)=>`<option value="${i}">${i} in</option>`).join('')}</select></span>`;
   }
   document.getElementById('claimSheet').classList.add('on');
+  if(isLd){ const H=evt.holes.find(x=>+x.h===(+evt.ldHole||10))||{h:10,yds:596};
+    document.getElementById('ldTipHole').textContent=H.h;
+    document.getElementById('ldTipText').textContent=`To calculate your drive, measure the distance to the pin without slope and subtract it from ${H.yds}. Record the difference.`;
+    document.getElementById('ldTip').classList.add('on'); }
 }
+document.getElementById('ldTipOk').onclick=()=>document.getElementById('ldTip').classList.remove('on');
 function closeClaim(){ document.getElementById('claimSheet').classList.remove('on'); claimCtx=null; }
 function teamOfName(n){ const p=fieldPlayers().find(x=>x.n===n); return p?p.t:null; }
 async function submitClaim(){
@@ -2642,8 +2663,10 @@ function openLightbox(src,cap){
 }
 document.querySelectorAll('[data-mull]').forEach(b=>b.onclick=()=>{
   if(isFinal()) return toast('Year is locked');
-  const i=+b.dataset.mull; card.m[i]=!card.m[i]; queueSave(); renderHole();
-  toast(card.m[i]?'Mulligan spent':'Mulligan back in the bag');
+  const i=+b.dataset.mull; card.mh=card.mh||[null,null];
+  if(!card.m[i] && isContestHole(evt.holes[hole].h)) return toast('No mulligans on contest holes (par 3s and #'+(+evt.ldHole||10)+')');
+  card.m[i]=!card.m[i]; card.mh[i]=card.m[i]?hole:null; queueSave(); renderHole(); renderGrid();
+  toast(card.m[i]?`Mulligan spent on #${evt.holes[hole].h}`:'Mulligan back in the bag');
 });
 document.getElementById('npCancel').onclick=closeNamePick;
 document.getElementById('clName').onclick=e=>openNamePick(e.currentTarget);
