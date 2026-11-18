@@ -1926,6 +1926,7 @@ function renderBoard(){
     return;
   }
   renderLeaders(rows);
+  const allIn = rows.length>=evt.teams.length && rows.every(x=>x.signed);   // playoff note only once every card is signed
   lb.innerHTML=rows.map((r,i)=>{
     const lead=r.pos===1, mine=r.t.id===myTeam, posTxt=(r.tied?'T':'')+r.pos;
     const open=openCards.has(r.t.id);
@@ -1936,7 +1937,7 @@ function renderBoard(){
         <div class="lb-name">
           <div class="p">${esc(r.t.a)} &amp; ${esc(r.t.b)}</div>
           <div class="u">${r.signed?'Final · signed':(r.thru===18?'Thru 18 · not signed':'In play')} · Gross ${r.g}${r.tied?' · Tied '+ordinal(r.pos):''}</div>
-          ${r.tied&&r.pos===1?'<div class="cardoff">Tied for 1st · 18th hole closest-to playoff</div>':''}
+          ${allIn&&r.tied&&r.pos===1?'<div class="cardoff">Tied for 1st · 18th hole closest-to playoff</div>':''}
         </div>
         <div class="lb-fig">
           <div class="tp ${parClass(r.tp)}">${fmtPar(r.tp)}</div>
