@@ -654,6 +654,18 @@
       <button class="btn gold" id="crown">Crown the champion</button>
     </div>
     <div id="postStats"></div>
+    <div class="card wb-card">
+      <p class="eyebrow">Live on the course</p>
+      <h2 class="sec">Where They At?</h2>
+      <div class="wb-map" id="wbMap">
+        <div class="hv-tiles" id="wbTiles"></div>
+        <svg class="hv-ov" id="wbOv"></svg>
+        <div id="wbTeams"></div>
+        <div class="hv-zoom"><button type="button" id="wbIn" aria-label="Zoom in">+</button><button type="button" id="wbOut" aria-label="Zoom out">&minus;</button><button type="button" id="wbFit" aria-label="Show whole course">&#8982;</button></div>
+        <div class="hv-cred">Imagery &copy; Esri</div>
+      </div>
+      <p class="muted wb-note" id="wbNote"></p>
+    </div>
     <p class="muted" style="text-align:center;margin-top:12px;font-size:12px">
       Every posted card is visible to the whole field. Teams level on score share the position (T2, T3…). Only a tie for 1st goes to the 18th Hole Closest-To Shootout.
     </p>
@@ -726,18 +738,6 @@
       </div>
     </div>
 
-    <div class="card wb-card">
-      <p class="eyebrow">Live on the course</p>
-      <h2 class="sec">Where They At?</h2>
-      <div class="wb-map" id="wbMap">
-        <div class="hv-tiles" id="wbTiles"></div>
-        <svg class="hv-ov" id="wbOv"></svg>
-        <div id="wbTeams"></div>
-        <div class="hv-zoom"><button type="button" id="wbIn" aria-label="Zoom in">+</button><button type="button" id="wbOut" aria-label="Zoom out">&minus;</button><button type="button" id="wbFit" aria-label="Show whole course">&#8982;</button></div>
-        <div class="hv-cred">Imagery &copy; Esri</div>
-      </div>
-      <p class="muted wb-note" id="wbNote"></p>
-    </div>
 
     <div class="card wx-card">
       <p class="eyebrow" id="wxEyebrow">Forsyth, GA</p>
@@ -772,6 +772,7 @@
         <div class="sp-logo"><img src="/img/sponsors/arcus-cpa.png" alt="Arcus CPA" style="width:161px;height:65px" loading="lazy"></div>
         <div class="sp-logo"><img src="/img/sponsors/busbin-tree-farm.jpg" alt="Busbin Family Tree Farm" style="width:102px;height:102px" loading="lazy"></div>
         <div class="sp-logo"><img src="/img/sponsors/thread-craft.png" alt="Thread Craft" style="width:136px;height:77px" loading="lazy"></div>
+        <div class="sp-logo"><img src="/img/sponsors/jk-built.png" alt="JK Built" style="width:112px;height:94px" loading="lazy"></div>
       </div>
     </div>
   </section>
@@ -2400,7 +2401,6 @@ function renderWeather(){
 }
 setInterval(()=>loadWeather(true),60*60e3);
 function renderCup(){
-  setTimeout(renderWhere,0);
   loadWeather(false);
   renderTrophy();
   const list=[...champs].sort((a,b)=>b.year-a.year);
@@ -2599,7 +2599,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>{
     if(tab==='contests') renderContests();
     if(tab==='cup') renderCup();
     if(tab==='setup') renderSetup();
-    if(tab==='cup') wbRefresh();
+    if(tab==='board') wbRefresh();
   };
 });
 
@@ -3053,7 +3053,7 @@ function renderWhere(){
     `<i style="background:#1d7a3a"></i>Live GPS &nbsp; <i style="background:#0e2a8c"></i>On the tee of their next hole${done.length?` &nbsp;·&nbsp; In the clubhouse: ${done.map(t=>esc(last(t.a))+'/'+esc(last(t.b))).join(', ')}`:''}`;
 }
 async function wbRefresh(){
-  if(!evt||!document.getElementById('v-cup').classList.contains('on')) return;
+  if(!evt||!document.getElementById('v-board').classList.contains('on')) return;
   if(store.server){ try{ const r=await fetch(API+'?hash='+encodeURIComponent('kc:loc:'+year),{cache:'no-store'}); const j=await r.json();
       const L={}; Object.entries(j.values||{}).forEach(([k,v])=>{ try{ L[k]=JSON.parse(v); }catch(e){} }); WB.locs=L; }catch(e){} }
   try{ await loadField(); }catch(e){}
