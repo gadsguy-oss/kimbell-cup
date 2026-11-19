@@ -88,6 +88,11 @@
   .chip{font-family:var(--num);font-weight:600;font-size:12px;letter-spacing:.07em;text-transform:uppercase;background:var(--tint);color:var(--navy);padding:4px 9px;border-radius:999px}
   .chip.red{background:rgba(213,32,47,.1);color:var(--red)}
   .nav-arrows{margin-left:auto;display:flex;gap:8px}
+  .hole-side{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .card-cup-logo{width:92px;height:92px;display:block;pointer-events:none}
+  .hole-top>div:first-child{flex:1;min-width:0}
+  .hv-btn{white-space:nowrap}
+  @media (max-width:370px){.card-cup-logo{width:74px;height:74px}.hole-side{gap:8px}.hole-top .hv-btn{font-size:15px;gap:7px;padding:14px 12px;letter-spacing:.02em}}
   .arrow{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--white);display:grid;place-items:center;font-size:20px;color:var(--navy);font-family:var(--display)}
   .arrow:disabled{opacity:.3}
   .arrow:hover:not(:disabled){background:var(--tint);border-color:var(--navy)}
@@ -623,9 +628,12 @@
             <div class="hole-meta" id="holeMeta"></div>
             <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>GPS Hole View</button>
           </div>
-          <div class="nav-arrows">
-            <button class="arrow" id="prevHole" aria-label="Previous hole">‹</button>
-            <button class="arrow" id="nextHole" aria-label="Next hole">›</button>
+          <div class="hole-side">
+            <div class="nav-arrows">
+              <button class="arrow" id="prevHole" aria-label="Previous hole">‹</button>
+              <button class="arrow" id="nextHole" aria-label="Next hole">›</button>
+            </div>
+            <img class="card-cup-logo" src="/img/kimbell-cup-logo.png" alt="Kimbell Cup Invitational">
           </div>
         </div>
         <div id="contestStrip"></div>
