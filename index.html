@@ -584,6 +584,7 @@
   .sp-logo{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
   .sp-logo img{display:block;object-fit:contain;max-width:100%}
   .mul-m{position:absolute;top:2px;right:3px;font-style:normal;font-weight:800;font-size:10px;line-height:1;color:#c8102e;font-family:var(--num)}
+  .mul-m.mm{font-size:9px;line-height:.95;top:2px;right:2px;text-align:center}
   .toggle.nomul{opacity:.45}
   .ld-tip .pop-card{border-top-color:#c8102e}
   .ld-tip p{margin:8px 0 16px;font-size:16px;line-height:1.45;color:var(--navy,#0e2a8c)}
@@ -1481,7 +1482,7 @@ function renderGrid(){
       const H=evt.holes[i], v=card.s[i], d=v===null?null:v-H.par;
       const b=document.createElement('button');
       b.className='cell'+(i===hole?' cur':'')+(d===-1?' bird':'')+(d!==null&&d<=-2?' eag':'');
-      b.innerHTML=`<div class="h">${H.h}</div><div class="s ${v===null?'blank':''}">${v===null?'·':v}</div>${(card.mh||[]).includes(i)?'<i class="mul-m">M</i>':''}`;
+      b.innerHTML=`<div class="h">${H.h}</div><div class="s ${v===null?'blank':''}">${v===null?'·':v}</div>${mulMarks(card,i)}`;
       b.onclick=()=>{ hole=i; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); };
       g.appendChild(b);
     }
@@ -1550,6 +1551,8 @@ function cardAhead(mine,srv){
   return !!mine.sg && !srv.sg;
 }
 window.addEventListener('online',()=>{ if(card) queueSave(); });
+/* One red M per mulligan used on that hole (both players on the same hole = MM) */
+function mulMarks(c,i){ const n=((c&&c.mh)||[]).filter(x=>x===i).length; return n?`<i class="mul-m${n>1?' mm':''}">${Array(n).fill('M').join('<br>')}</i>`:''; }
 function queueSave(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(saveNow,700);
@@ -1858,8 +1861,7 @@ function teamCardHTML(r){
     const cells=hs.map((H,i)=>{
       const v=s[from+i], res=resultOf(v,H.par); par+=H.par;
       if(v!==null&&v!==undefined){ tot+=v; n++; tally[res.cls]=(tally[res.cls]||0)+1; }
-      const mm=(r.c.mh||[]).includes(from+i);
-      return `<div class="tc-h">${mm?'<i class="mul-m">M</i>':''}
+      return `<div class="tc-h">${mulMarks(r.c,from+i)}
         <span class="tc-num">${H.h}</span>
         <span class="tc-par">${H.par}</span>
         <span class="tc-sc ${res?res.cls:'none'}" title="${res?res.name:'Not played'}">${v??'·'}</span>
