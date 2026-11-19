@@ -206,6 +206,7 @@
   .curl-n{font-weight:800;font-size:13px;color:#0b1a4a;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42%}
   .curl-n.none{color:#a8afc2;font-weight:600}
   .curl-d{font-family:var(--num);font-weight:800;font-size:14px;color:var(--red,#c8102e);min-width:54px;text-align:right;white-space:nowrap}
+  .ps-hole{font-size:13px;color:#4a5578;line-height:1.45;margin-top:2px}
   .putt-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}
   .putt-grid label{font-family:var(--num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--navy)}
   .putt-grid label.loser{color:var(--red)}
@@ -1880,6 +1881,7 @@ function makeDemoField(){
   const f={};
   evt.teams.forEach(t=>{ const c=blankCard(t.id); const skill=r()*0.25;
     for(let i=0;i<18;i++){ const x=r()+skill; c.s[i]=evt.holes[i].par+(x<.04?-2:x<.36?-1:x<.82?0:x<.97?1:2); c.ts[i]=1; }
+    const m1=Math.floor(r()*18), m2=Math.floor(r()*18); c.m=[true,r()<.7]; c.mh=[m1,c.m[1]?m2:null];
     c.sg=1; f[t.id]=c; });
   return f;
 }
@@ -1924,6 +1926,23 @@ function renderPostStats(){
       ${r.teams.map(x=>`<div class="ps-team">${avPair(x.t,'sm')}<span class="ps-n"><b>${esc(x.t.a)} &amp; ${esc(x.t.b)}</b><small>Team ${x.t.id}</small></span></div>`).join('')}
     </div>`;
   }).join('');
+  /* Hole stats (Jonathan, Nov 19): easiest / hardest hole vs par, and "I'll take another" — the hole with the most mulligans */
+  const hAvg=evt.holes.map((h,i)=>{ const v=teams.map(({c})=>+c.s[i]).filter(n=>n>0); const a=v.reduce((x,y)=>x+y,0)/(v.length||1); return {h:h.h,par:h.par,avg:a,rel:a-h.par}; });
+  const hCard=(title,sub,list,val)=>`<div class="ps-card"><div class="ps-hd"><b>${title}</b><small>${sub}</small></div>
+      <div class="ps-val">${list.map(x=>`Hole #${x.h}`).join(' · ')}${list.length>1?` · <em>${list.length}-way tie</em>`:''}</div>
+      <div class="ps-hole">${val}</div></div>`;
+  const relF=n=>Math.abs(n)<0.005?'E':(n>0?'+':'−')+Math.abs(n).toFixed(2);
+  const minR=Math.min(...hAvg.map(x=>x.rel)), maxR=Math.max(...hAvg.map(x=>x.rel));
+  const easy=hAvg.filter(x=>Math.abs(x.rel-minR)<1e-9), hard=hAvg.filter(x=>Math.abs(x.rel-maxR)<1e-9);
+  const avgTxt=l=>l.map(x=>`Par ${x.par} · played ${x.avg.toFixed(2)} (${relF(x.rel)})`).join('<br>');
+  const mulN={}; teams.forEach(({c})=>(c.mh||[]).forEach(i=>{ if(Number.isInteger(i)&&evt.holes[i]) mulN[i]=(mulN[i]||0)+1; }));
+  const mMax=Math.max(0,...Object.values(mulN)), mHoles=Object.keys(mulN).filter(i=>mulN[i]===mMax).map(i=>evt.holes[+i].h).sort((a,b)=>a-b);
+  const holeCards = hCard('Easiest Hole','Best scoring vs par',easy,avgTxt(easy))
+    + hCard('Hardest Hole','Worst scoring vs par',hard,avgTxt(hard))
+    + (mMax ? `<div class="ps-card"><div class="ps-hd"><b>I'll Take Another</b><small>Most mulligans used</small></div>
+        <div class="ps-val">${mHoles.map(h=>`Hole #${h}`).join(' · ')}${mHoles.length>1?` · <em>${mHoles.length}-way tie</em>`:''}</div>
+        <div class="ps-hole">${mMax} mulligan${mMax===1?'':'s'} used${mHoles.length>1?' on each':''}</div></div>`
+      : `<div class="ps-card none"><div class="ps-hd"><b>I'll Take Another</b><small>Most mulligans used</small></div><div class="ps-none">No mulligans used</div></div>`);
   /* Scoring by par: field average in the middle, lowest team on the left, highest on the right */
   const byPar=[3,4,5].map(par=>{
     const idx=evt.holes.map((h,i)=>h.par===par?i:-1).filter(i=>i>=0);
@@ -1944,7 +1963,7 @@ function renderPostStats(){
   }).join('');
   el.innerHTML=`${STATS_PREVIEW?`<div class="ps-preview">Preview with made-up scores. Nothing is saved, and the real board is untouched. The real stats appear once the champion is crowned.</div>`:''}<div class="post-stats"><p class="eyebrow">${year} · ${STATS_PREVIEW?'Preview':'Final'}</p><h2 class="sec">Post Cup Stats</h2>
     <p class="muted" style="margin:-4px 0 12px;font-size:12.5px">Posted automatically from every finished card (${teams.length} team${teams.length===1?'':'s'}).</p>
-    <div class="bp"><div class="bp-title">Scoring by par</div>${byPar}</div>${cards}</div>`;
+    <div class="bp"><div class="bp-title">Scoring by par</div>${byPar}</div>${cards}${holeCards}</div>`;
 }
 function renderLeaders(rows){
   const el=document.getElementById('leaders'); if(!el) return;
