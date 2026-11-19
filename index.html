@@ -92,7 +92,7 @@
   .card-cup-logo{width:92px;height:92px;display:block;pointer-events:none}
   .hole-top>div:first-child{flex:1;min-width:0}
   .hv-btn{white-space:nowrap}
-  @media (max-width:370px){.card-cup-logo{width:74px;height:74px}.hole-side{gap:8px}.hole-top .hv-btn{font-size:15px;gap:7px;padding:14px 12px;letter-spacing:.02em}}
+  @media (max-width:370px){.card-cup-logo{width:74px;height:74px}.hole-side{gap:8px}.hole-top .hv-btn{font-size:14px;gap:7px;padding:12.5px 11px;letter-spacing:.02em}}
   .arrow{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--white);display:grid;place-items:center;font-size:20px;color:var(--navy);font-family:var(--display)}
   .arrow:disabled{opacity:.3}
   .arrow:hover:not(:disabled){background:var(--tint);border-color:var(--navy)}
@@ -531,7 +531,7 @@
   .al-toggle{display:block;margin:-4px auto 10px;background:none;border:none;font-family:var(--num);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(7,22,71,.5);cursor:pointer}
   .draw-row.done select{border-color:var(--gold);background:rgba(201,162,39,.08)}
 
-  .hv-btn{margin-top:12px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:0;border-radius:14px;background:var(--gold,#c9a227);color:#1a1405;font-weight:800;font-size:17px;line-height:1;font-family:inherit;padding:15px 18px;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 8px 18px -8px rgba(201,162,39,.8)}
+  .hv-btn{margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:13px;background:var(--gold,#c9a227);color:#1a1405;font-weight:800;font-size:15.3px;line-height:1;font-family:inherit;padding:13.5px 16px;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 8px 18px -8px rgba(201,162,39,.8)}
   .hv-btn svg{width:20px;height:20px}
   .hv{position:fixed;inset:0;z-index:90;background:#0b1a3c;display:none;flex-direction:column}
   .hv.on{display:flex}
@@ -627,7 +627,7 @@
           <div>
             <div class="hole-num" id="holeNum">1</div>
             <div class="hole-meta" id="holeMeta"></div>
-            <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>GPS Hole View</button>
+            <button type="button" class="hv-btn" id="hvBtn"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 21V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 4h11l-3 4 3 4H6z" fill="currentColor"/></svg>GPS Hole View</button>
           </div>
           <div class="hole-side">
             <div class="nav-arrows">
@@ -1380,10 +1380,10 @@ function renderHole(){
   else { n.textContent=v; n.classList.remove('empty'); rel.textContent=relLabel(v,H.par); rel.className='rel '+parClass(v-H.par); }
 
   const q=document.getElementById('quick'); q.innerHTML='';
-  (H.par===3?[-1,0,1,2,3]:[-2,-1,0,1,2]).forEach(d=>{
+  [-2,-1,0,1,2].forEach(d=>{                       // par always the middle button (Jonathan, Nov 19)
     const val=H.par+d, b=document.createElement('button');
     b.className='q'+(v===val?' on':'')+(d===-2?' eagle':'');
-    b.innerHTML=`<b>${val}</b>${relLabel(val,H.par)}`;
+    b.innerHTML=`<b>${val}</b>${val===1?'Ace':relLabel(val,H.par)}`;
     b.disabled=isFinal();
     b.onclick=()=>setScore(val);
     q.appendChild(b);
