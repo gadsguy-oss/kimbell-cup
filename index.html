@@ -1100,7 +1100,7 @@ const store={
         const r=await fetch(u,{cache:'no-store'});
         const j=await r.json();
         return j.value??null;
-      }catch(e){ return null; }
+      }catch(e){ if(!(typeof wbEventDay==='function'&&wbEventDay())) return null; try{ return localStorage.getItem(k); }catch(e2){ return mem[k]??null; } }   // no signal on event day: use this phone's copy
     }
     try{ return localStorage.getItem(k); }catch(e){ return mem[k]??null; }
   },
@@ -1325,6 +1325,8 @@ async function chooseTeam(id){
   await store.set(K.me,JSON.stringify(me),false);
   const raw=await store.get(K.card(year,id),true);
   card = raw ? safeCard(JSON.parse(raw),id) : blankCard(id);
+  let loc=null; try{ const l=localStorage.getItem(K.card(year,id)); if(l) loc=safeCard(JSON.parse(l),id); }catch(e){}
+  if(loc && wbEventDay() && mergeCardInto(card,loc)) queueSave();   // event day only, so a cleared test card never comes back   // this phone had scores the server never got
   const f=card.s.findIndex(v=>v===null);
   hole = f===-1 ? 17 : f;
   showCard(); renderAll();
@@ -1435,6 +1437,8 @@ function setScore(v){
   if(isFinal()) return toast('Year is locked');
   if(signedLock()) return;
   card.s[hole]=Math.max(1,Math.min(15,v));
+  if(!Array.isArray(card.ts)) card.ts=Array(18).fill(0);
+  card.ts[hole]=Date.now();                      // newest entry wins if two phones disagree
   queueSave(); renderAll();
   const nextH = hole<17 ? evt.holes[hole+1].h : null;
   const warn = nextH && isContestHole(nextH) && !popSeen(nextH);
@@ -1514,6 +1518,29 @@ function renderFinish(){
 }
 function renderAll(){ if(!card) return; renderBanner(); renderHole(); renderTotals(); renderGrid(); renderFinish(); }
 
+/* Two phones on one team (or a dropped signal): merge hole by hole, newest entry wins. */
+function mergeCardInto(dst,src){
+  if(!dst||!src||!Array.isArray(src.s)) return false;
+  dst.ts=Array.isArray(dst.ts)?dst.ts:Array(18).fill(0);
+  const sts=src.ts||[]; let ch=false;
+  for(let i=0;i<18;i++){
+    if(src.s[i]!==null && (+sts[i]||0)>(+dst.ts[i]||0) && src.s[i]!==dst.s[i]){ dst.s[i]=src.s[i]; dst.ts[i]=+sts[i]; ch=true; }
+    else if(src.s[i]!==null && dst.s[i]===null){ dst.s[i]=src.s[i]; dst.ts[i]=+sts[i]||1; ch=true; }
+  }
+  if((src.u||0)>(dst.u||0)){
+    ['m','mh'].forEach(k=>{ if(src[k] && JSON.stringify(src[k])!==JSON.stringify(dst[k])){ dst[k]=JSON.parse(JSON.stringify(src[k])); ch=true; } });
+    if(src.sg && !dst.sg){ dst.sg=src.sg; ch=true; }
+    dst.u=src.u;
+  }
+  if(src.sg && !dst.sg && dst.s.every((v,i)=>v===src.s[i])){ dst.sg=src.sg; ch=true; }
+  return ch;
+}
+function cardAhead(mine,srv){
+  const st=srv.ts||[];
+  for(let i=0;i<18;i++){ if(mine.s[i]!==null && ((+mine.ts[i]||0)>(+st[i]||0) || srv.s[i]===null)) return true; }
+  return !!mine.sg && !srv.sg;
+}
+window.addEventListener('online',()=>{ if(card) queueSave(); });
 function queueSave(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(saveNow,700);
@@ -1758,7 +1785,14 @@ async function loadField(){
         const raw=all[String(t.id)];
         if(raw){ try{ field[t.id]=safeCard(JSON.parse(raw),t.id); }catch(e){} }
       });
-      if(myTeam&&card) field[myTeam]=card;
+      if(myTeam&&card){
+        const srv=field[myTeam];
+        if(srv){
+          if(mergeCardInto(card,srv)) renderAll();
+          if(cardAhead(card,srv)) queueSave();          // retry anything the server is missing
+        } else if(wbEventDay() && card.s.some(v=>v!==null)) queueSave();
+        field[myTeam]=card;
+      }
       return;
     }
   }
