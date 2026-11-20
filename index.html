@@ -285,6 +285,20 @@
   .ps-team .ps-n small{font-family:var(--num);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(7,22,71,.45)}
   .ps-card.none{opacity:.7}
   .ps-none{font-size:13px;color:rgba(7,22,71,.55);margin-top:4px}
+  .wx-now-card{background:linear-gradient(150deg,#0e2a8c,#3a64c9);color:#fff;border-radius:14px;padding:12px 16px 14px;margin-bottom:14px}
+  .wx-sec-hd{display:flex;align-items:center;gap:7px;font-family:var(--num);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.9)}
+  .wx-sec-hd small{margin-left:auto;letter-spacing:.04em;text-transform:none;font-weight:600;color:rgba(255,255,255,.7);font-size:11px}
+  .wx-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
+  .wx-now-row{display:flex;align-items:center;gap:16px;margin-top:6px}
+  .wx-now-det{display:flex;flex-direction:column;gap:2px;font-size:13px;color:rgba(255,255,255,.88)}
+  .wx-now-det b{font-size:16px;color:#fff}
+  .wx-gd{border:1.5px solid var(--line,#e2e6f0);border-radius:14px;padding:12px 10px 8px}
+  .wx-gd-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:0 4px 6px}
+  .wx-gd-tag{font-family:var(--num);font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--gold,#c9a227);color:#1a1405;border-radius:6px;padding:3px 7px}
+  .wx-gd-hd b{font-family:var(--display);font-size:18px;color:var(--ink)}
+  .wx-gd-hd small{flex-basis:100%;font-size:12px;color:rgba(7,22,71,.6);font-weight:600}
+  .wx-gd-sum{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 10px}
+  .wx-gd-sum span{font-family:var(--num);font-size:12px;font-weight:700;color:var(--ink);background:var(--paper);border-radius:8px;padding:5px 8px}
   .wx-msg{font-size:13.5px;color:rgba(7,22,71,.7);line-height:1.45;background:var(--paper);border-radius:10px;padding:11px 12px}
   .wx-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(150deg,#0e2a8c,#3a64c9);color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px}
   .wx-big{font-family:var(--display);font-size:52px;margin:2px 0;line-height:.9;font-weight:700}
@@ -2510,19 +2524,19 @@ function renderWeather(){
   const span=Math.max(1,hi-lo);
   const now=wxNow;
   const teeSvg=`<svg viewBox="0 0 48 64" aria-hidden="true"><path d="M24 64 L24 38" stroke="#c9a227" stroke-width="5" stroke-linecap="round"/><path d="M14 36 h20 l-6 5 h-8z" fill="#c9a227"/><circle cx="24" cy="24" r="12" fill="#fff" stroke="#071647" stroke-width="2"/><g fill="#c7d3ea"><circle cx="20" cy="20" r="1.5"/><circle cx="26" cy="19" r="1.5"/><circle cx="29" cy="25" r="1.5"/><circle cx="19" cy="27" r="1.5"/><circle cx="24" cy="29" r="1.5"/></g></svg>`;
-  el.innerHTML=`<div class="wx-hero">
-      <div class="wx-now">
-        <span class="wx-k">Now at River Forest</span>
+  const asOf=new Date(wxAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  el.innerHTML=`<div class="wx-now-card">
+      <div class="wx-sec-hd"><span class="wx-dot"></span>Right now<small>River Forest · as of ${asOf}</small></div>
+      <div class="wx-now-row">
         <div class="wx-big">${now?Math.round(now.temperature_2m)+'°':'--'}</div>
-        <span class="wx-nowtxt">${now?`${WX_ICON(now.weather_code)} ${WX_TEXT(now.weather_code)} · feels ${Math.round(now.apparent_temperature)}°`:'Current conditions loading…'}</span>
-      </div>
-      <div class="wx-sum">
-        <span class="wx-k">${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · tournament day</span>
-        <b>${WX_TEXT(main)}</b>
-        <small>H ${hi}° · L ${lo}°</small>
-        <small>Rain chance up to ${maxP}%</small>
+        <div class="wx-now-det">${now?`<b>${WX_ICON(now.weather_code)} ${WX_TEXT(now.weather_code)}</b>
+          <span>Feels like ${Math.round(now.apparent_temperature)}°</span>
+          <span>Wind ${Math.round(now.wind_speed_10m)} mph ${WX_DIR(now.wind_direction_10m)}${now.precipitation_probability!=null?` · Rain ${now.precipitation_probability}%`:''}</span>`:'<span>Current conditions loading…</span>'}</div>
       </div>
     </div>
+    <div class="wx-gd">
+      <div class="wx-gd-hd"><span class="wx-gd-tag">Game Day</span><b>${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</b><small>Hour by hour · 8 AM – 6 PM</small></div>
+      <div class="wx-gd-sum"><span>${WX_ICON(main)} ${WX_TEXT(main)}</span><span>High ${hi}° · Low ${lo}°</span><span>Rain up to ${maxP}%</span></div>
     <div class="wx-strip">${rows.map(r=>`<div class="wx-h ${r.hr===th?'tee':''}">
         <div class="wx-t">${h12(r.hr)}</div>${r.hr===th?'<div class="wx-tee">Tee off</div>':''}
         <div class="wx-i">${WX_ICON(r.c)}</div>
@@ -2531,7 +2545,8 @@ function renderWeather(){
         <div class="wx-w"><span class="wx-arrow" style="transform:rotate(${r.d+180}deg)">↑</span>${r.w}<small> mph</small></div>
         <div class="wx-d">${WX_DIR(r.d)}${r.g>r.w+5?` · G${r.g}`:''}</div>
       </div>`).join('')}</div>
-    <div class="wx-foot">Hourly for ${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} · updated ${new Date(wxAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · refreshes every hour</div>`;
+    </div>
+    <div class="wx-foot">Game day forecast for ${new Date(eventDateISO()+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})} · updated ${new Date(wxAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})} · refreshes every hour</div>`;
 }
 setInterval(()=>loadWeather(true),60*60e3);
 function renderCup(){
