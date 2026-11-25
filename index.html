@@ -748,6 +748,11 @@
       <div class="hio-grid" id="hioGrid"></div>
     </div>
 
+    <div class="card" id="teeGifts" style="display:none;margin-top:16px">
+      <h2 class="sec">Tee Gifts</h2>
+      <button class="prize-art" id="teeGiftsArt" type="button" aria-label="View tee gifts" style="margin-bottom:0"></button>
+    </div>
+
   </section>
 
   <section class="view" id="v-cup">
@@ -1209,7 +1214,20 @@ function normContest(o){
   if(!c.draw) c.draw={picks:[]};
   if(!Array.isArray(c.draw.picks)) c.draw.picks=[];
   c.draw.picks=c.draw.picks.filter(p=>p&&p.key);   // old name-only draws don't map to a contest
+  // The real draw happens on event day. A draw saved before that day was a practice run
+  // (Nov 25: Jonathan's test draw kept showing after he cleared the test winners) — drop it.
+  const start=drawCutoff();
+  if(start && c.draw.picks.length && +c.draw.at>0 && +c.draw.at<start){ c.draw={picks:[]}; staleDrawDropped=true; }
   return c;
+}
+var staleDrawDropped=false;
+function drawCutoff(){                              // local midnight at the start of event day
+  try{ if(typeof evt==='undefined'||!evt) return 0; const d=eventDateISO(); return d?new Date(d+'T00:00:00').getTime():0; }catch(e){ return 0; }
+}
+/* only picks that still belong to a current contest winner count; name follows the current winner */
+function livePicks(){
+  const wins=contestWins();
+  return (contest.draw.picks||[]).map(p=>{ const w=wins.find(x=>x.key===p.key); return w&&p.prize?Object.assign({},p,{name:w.name,label:w.label}):null; }).filter(Boolean);
 }
 const claimsOf = slot => ((contest&&contest.claims)||{})[slot]||[];
 const holderOf = slot => { const l=claimsOf(slot); return l.length?l[l.length-1]:null; };
@@ -1225,6 +1243,7 @@ function syncHolders(c){
   });
   return c;
 }
+const TEE_GIFTS_2026='img/tee-gifts.jpg';
 const hioOf = h => (evt.hio||{})[h] || null;
 const isContestHole = h => evt.ctpHoles.includes(+h) || +evt.ldHole===+h;
 function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -1279,6 +1298,8 @@ async function loadEvent(y){
 
   const craw=await store.get(K.contest(y),true);
   contest = normContest(craw?JSON.parse(craw):null);
+  // a practice draw was found and dropped above — the admin's phone writes the cleaned record back once
+  if(staleDrawDropped && store.server && store.auth.admin){ staleDrawDropped=false; saveContest().catch(()=>{}); }
 
   // Only the admin (or a device-only copy) can write the event back to the shared board.
   if(upgraded && (!store.server || store.auth.admin)) await saveEvent();
@@ -2282,6 +2303,14 @@ function renderContests(){
     art.onclick=()=>openLightbox(evt.prizeArt,'Contest prizes');
   } else art.style.display='none';
 
+  // Tee gifts photo at the bottom of the Prizes tab (Jonathan, Nov 25) — 2026 only
+  const tg=document.getElementById('teeGifts'), tgArt=document.getElementById('teeGiftsArt');
+  if(+year===2026){
+    tg.style.display='';
+    if(!tgArt.firstChild) tgArt.innerHTML=`<img src="${TEE_GIFTS_2026}" alt="Tee gifts" loading="lazy"><span>Tap to enlarge</span>`;
+    tgArt.onclick=()=>openLightbox(TEE_GIFTS_2026,'Tee gifts');
+  } else tg.style.display='none';
+
   renderDraw();
 }
 
@@ -2317,7 +2346,7 @@ function shuffle(a){
   return x;
 }
 function renderDraw(){
-  const picks=contest.draw.picks||[], prizes=evt.prizes||[];
+  const picks=livePicks(), prizes=evt.prizes||[];
   const taken={}; picks.forEach(p=>{ if(p.prize) taken[p.prize]=p; });
   const wins=contestWins();
 
@@ -2353,14 +2382,14 @@ function renderDraw(){
 }
 async function setPick(key,prize){
   const w=contestWins().find(x=>x.key===key); if(!w) return;
-  let picks=(contest.draw.picks||[]).filter(p=>p.key!==key);
+  let picks=livePicks().filter(p=>p.key!==key);
   if(prize) picks.push({key,name:w.name,label:w.label,prize});
   contest.draw=Object.assign({},contest.draw,{picks,at:Date.now()});
   await saveContest(); renderDraw();
   toast(prize?`${first(w.name)} drew ${prize}`:'Pick cleared');
 }
 async function runDraw(){
-  const picks=contest.draw.picks||[];
+  const picks=livePicks();
   const taken=new Set(picks.map(p=>p.prize));
   const open=contestWins().filter(w=>!picks.find(p=>p.key===w.key&&p.prize));
   const left=shuffle((evt.prizes||[]).filter(p=>!taken.has(p)));
