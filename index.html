@@ -1464,6 +1464,7 @@ function setScore(v){
   if(!Array.isArray(card.ts)) card.ts=Array(18).fill(0);
   card.ts[hole]=Date.now();                      // newest entry wins if two phones disagree
   queueSave(); renderAll();
+  if(+evt.holes[hole].h===REC_HOLE-1) setTimeout(recReminder,400);   // queues behind the hole-13 contest pop
   const nextH = hole<17 ? evt.holes[hole+1].h : null;
   const warn = nextH && isContestHole(nextH) && !popSeen(nextH);
   if(hole<17) setTimeout(()=>{
@@ -1649,6 +1650,20 @@ const ART = {
     <g fill="#9db8e0"><circle cx="80" cy="55" r="2"/><circle cx="88" cy="53" r="2"/><circle cx="95" cy="59" r="2"/>
       <circle cx="78" cy="64" r="2"/><circle cx="86" cy="62" r="2"/><circle cx="94" cy="68" r="2"/><circle cx="84" cy="71" r="2"/></g>
     <path d="M104 44 l8 -6 M108 56 l10 -2 M104 76 l8 5" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/></g>`,
+  /* phone camera recording — for the hole-in-one tee-shot reminder */
+  rec:()=>`<g>
+    <rect x="30" y="8" width="60" height="104" rx="12" fill="#071647"/>
+    <rect x="35" y="16" width="50" height="76" rx="5" fill="#8fc6ff"/>
+    <rect x="35" y="64" width="50" height="28" fill="#4f9d4f"/>
+    <ellipse cx="60" cy="70" rx="14" ry="4" fill="#7cc58a"/>
+    <path d="M60 70 V44" stroke="#fff" stroke-width="2"/><path d="M60 44 L72 48 L60 52Z" fill="#d5202f"/>
+    <rect x="38" y="19" width="22" height="9" rx="2" fill="rgba(7,22,71,.55)"/>
+    <circle cx="42.5" cy="23.5" r="2.4" fill="#ff3b30"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></circle>
+    <text x="46" y="26.3" font-size="6.5" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">REC</text>
+    <rect x="68" y="19" width="14" height="9" rx="2" fill="#ff3b30"/>
+    <text x="75" y="26" font-size="5.5" font-weight="700" fill="#fff" text-anchor="middle" font-family="system-ui,sans-serif">0:03</text>
+    <circle cx="60" cy="102" r="7" fill="#fff"/><circle cx="60" cy="102" r="4.5" fill="#ff3b30"/>
+    <rect x="52" y="10" width="16" height="3" rx="1.5" fill="#1d2b5c"/></g>`,
   ace:()=>`<g>
     <ellipse cx="60" cy="100" rx="34" ry="8" fill="#071647" opacity=".85"/>
     <path d="M60 100 V18" stroke="#071647" stroke-width="4" stroke-linecap="round"/>
@@ -1677,6 +1692,7 @@ function detectEvents(){
         if(!fb||at<fb.at) fb={...base,kind:'fb'};
         if(d<=-2 && (!fe||at<fe.at)) fe={...base,kind:'fe'};
         if(d<=-2 && v!==1) ev.push({...base,kind:'eg',id:`eg:${t.id}:${i}:${at}`});   // every eagle (Nov 13 request)
+        if(d===-1) ev.push({...base,kind:'bd',id:`bd:${t.id}:${i}:${at}`});              // every birdie (Nov 25 request)
         // consecutive = next hole in play order, holes adjacent on the course (18 wraps to 1)
         const adj = prev!==null && (i===prev+1 || (prev===17&&i===0));
         streak = (streak>0 && adj) ? streak+1 : 1;
@@ -1714,7 +1730,8 @@ function checkAlerts(){
   // a turkey replaces the back-to-back alert from the same run
   const show=fresh.filter(e=>!(e.kind==='b2' && fresh.some(o=>o.kind==='b3'&&o.team.id===e.team.id))
     && !(e.kind==='fe' && fresh.some(o=>o.kind==='ace'&&o.team.id===e.team.id&&o.i===e.i))
-    && !(e.kind==='eg' && fresh.some(o=>o.kind==='fe'&&o.team.id===e.team.id&&o.i===e.i)));   // first eagle gets its own alert
+    && !(e.kind==='eg' && fresh.some(o=>o.kind==='fe'&&o.team.id===e.team.id&&o.i===e.i))   // first eagle gets its own alert
+    && !(e.kind==='bd' && fresh.some(o=>['fb','b2','b3'].includes(o.kind)&&o.team.id===e.team.id&&o.i===e.i)));   // first blood / streak alert covers that birdie
   if(alertsMuted()) return;
   alertQueue.push(...show);
   showNextAlert();
@@ -1729,6 +1746,11 @@ function showNextAlert(){
   let theme='', art='', kicker='', title='', line='', btn='Nice!';
   if(e.kind==='fb'){ theme='al-red'; art=ART.bird(); kicker='First blood'; title='First birdie of the day';
     line=`${NAMES[e.score-e.par]||'Birdie'} on ${hole}`; }
+  else if(e.kind==='bd'){ theme='al-red'; art=ART.bird(); kicker='Birdie'; title='Another birdie!';
+    line=`${e.score} on ${hole}`; }
+  else if(e.kind==='rec'){ theme='al-gold'; art=ART.rec(); const p=hioOf(e.hole);
+    kicker=`Hole-in-one challenge · Hole #${e.hole}`; title='Roll the camera';
+    line=`Record both tee shots on #${e.hole}${p?` — an ace wins ${esc(p.prize)}`:''}`; btn='Camera ready'; }
   else if(e.kind==='fe'){ theme='al-gold'; art=ART.eagle(); kicker='First eagle'; title='Eagle has landed';
     line=`${e.score} on ${hole}`; btn='Big time'; }
   else if(e.kind==='eg'){ theme='al-gold'; art=ART.eagle(); kicker=NAMES[e.score-e.par]||'Eagle'; title='Another eagle!';
@@ -1772,6 +1794,23 @@ function closeAlert(){
   document.getElementById('alert').classList.remove('on');
   alertOpen=false;
   setTimeout(showNextAlert,450);
+}
+/* Hole-in-one camera reminder (Nov 25 request): pops once per team after hole 12 is
+   scored, or when this phone gets within 100 ft of the hole-13 tee box. Team-only, not muted. */
+const REC_HOLE=13, REC_FT=100;
+const recKey=()=>`kc:rec${REC_HOLE}:${year}:${myTeam}`;
+function recReminder(){
+  if(!evt||!myTeam||!card||isFinal()||!hioOf(REC_HOLE)) return;
+  const i=evt.holes.findIndex(H=>+H.h===REC_HOLE); if(i<0||card.s[i]!==null) return;
+  try{ if(localStorage.getItem(recKey())) return; localStorage.setItem(recKey(),'1'); }catch(e){}
+  const H=evt.holes[i];
+  alertQueue.push({kind:'rec',team:teamOf(myTeam)||{id:myTeam,a:'',b:''},hole:H.h,par:H.par,i,at:Date.now(),id:'rec'});
+  showNextAlert();
+}
+function recCheckPos(ll){
+  const tee=((evt&&evt.holeMap)||{})[REC_HOLE];
+  if(!tee||!tee[0]||!myTeam) return;
+  if(hvYds(ll,tee[0])*3<=REC_FT) recReminder();
 }
 function renderMuteBtn(){
   const b=document.getElementById('muteAlerts'); if(!b) return;
@@ -3129,7 +3168,7 @@ function hvOpen(h,setup){
   document.getElementById('hv').classList.add('on'); document.body.style.overflow='hidden';
   hvShow();
   if(setup){ HV.setup=true; HV.pts=(hvPath()||[]).map(p=>p.slice()); HV.tgt=null; HV.rot=0; hvDraw(); }
-  if(navigator.geolocation&&!HV.watch) try{ HV.watch=navigator.geolocation.watchPosition(p=>{HV.me=[p.coords.latitude,p.coords.longitude];hvDraw();},()=>{},{enableHighAccuracy:true,maximumAge:5000}); }catch(e){}
+  if(navigator.geolocation&&!HV.watch) try{ HV.watch=navigator.geolocation.watchPosition(p=>{HV.me=[p.coords.latitude,p.coords.longitude];hvDraw();try{recCheckPos(HV.me);}catch(e){}},()=>{},{enableHighAccuracy:true,maximumAge:5000}); }catch(e){}
 }
 function hvOpenClub(){
   HV.h=17; HV.open=true; HV.setup=false; HV.club=true; HV.pts=[]; HV.tgt=null;
@@ -3276,6 +3315,7 @@ function wbSendTick(){
   try{ WBS.watch=navigator.geolocation.watchPosition(p=>{
     const ll=[p.coords.latitude,p.coords.longitude], pts=wbPts(), ctr=pts.length?pts[0]:HV_HOME;
     if(hvYds(ll,ctr)>3500 || !myTeam) return;
+    try{ recCheckPos(ll); }catch(e){}
     const since=Date.now()-WBS.last, moved=WBS.ll?hvYds(ll,WBS.ll):1e9;
     if(since<6e3 || (moved<6 && since<45e3)) return;   // ~every 6s while moving, every 45s when parked
     WBS.last=Date.now(); WBS.ll=ll;
